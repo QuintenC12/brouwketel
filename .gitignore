@@ -1,0 +1,6 @@
+.pio/
+.vscode/*
+!.vscode/extensions.json
+*.eez-project-ui-state
+.DS_Store
+Thumbs.db
