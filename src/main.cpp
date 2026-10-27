@@ -33,6 +33,7 @@ void setup() {
 void loop() {
   lv_timer_handler();   // LVGL tekenen en touch verwerken
   ui_tick();  //doet in dit project niks, maar EEZ verwacht dit
+  hw_tick();  //I2C: Niels ESP zijn opdrachten geven en temperatuur/status ophalen
 #ifdef DEMO
   sim_netwerk();        // nep-server: verbinden + demorecept sturen
 #endif
