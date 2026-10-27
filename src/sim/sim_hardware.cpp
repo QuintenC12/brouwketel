@@ -32,6 +32,7 @@ int hw_regel_verwarming(float temp, float doel) {
 }
 
 void hw_init()                 { printf("[sim] gestart\n"); }
+void hw_tick()                 { }
 void hw_pomp(bool aan)         { printf("[hw] pomp %s\n", aan ? "AAN" : "UIT"); }
 void hw_verwarming_uit()       { }
 void hw_zoemer(bool aan)       { printf("[hw] zoemer %s\n", aan ? "AAN" : "UIT"); }
