@@ -1,7 +1,7 @@
 /*
  * niels_uart.h - afspraken voor de kabel tussen het scherm en Niels ESP
  *
- * Dit bestand is voor BEIDE kanten: het staat ook in niels_esp/include/.
+ * Dit bestand is voor BEIDE kanten: het staat ook in niels_esp/main/.
  * Het volledige regelboekje (met voorbeelden) staat in het project.
  *
  * Kabel: TX van de ene kant naar RX van de andere, en GND naar GND.

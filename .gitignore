@@ -5,5 +5,9 @@
 .DS_Store
 Thumbs.db
 
-# wifi-wachtwoord van Niels ESP
-niels_esp/include/geheim.h
+# Niels ESP: build-map en sdkconfig (daar staat het wifi-wachtwoord in)
+niels_esp/build/
+niels_esp/managed_components/
+niels_esp/sdkconfig
+niels_esp/sdkconfig.old
+niels_esp/dependencies.lock

@@ -1,0 +1,4 @@
+## Extra componenten (worden bij de eerste build automatisch gedownload)
+dependencies:
+  idf: ">=5.1"
+  espressif/ds18b20: "^0.4.0"

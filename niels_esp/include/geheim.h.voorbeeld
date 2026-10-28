@@ -1,5 +1,0 @@
-// Kopieer dit bestand naar geheim.h en vul je eigen wifi in.
-// geheim.h staat in .gitignore en gaat dus niet mee naar GitHub.
-#pragma once
-#define WIFI_NAAM       "mijn-wifi"
-#define WIFI_WACHTWOORD "mijn-wachtwoord"

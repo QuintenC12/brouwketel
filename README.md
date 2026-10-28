@@ -6,8 +6,8 @@ Brouwcontroller voor de Elecrow CrowPanel 7.0" (ESP32-S3), gemaakt met EEZ Studi
 - `Brouwketel.eez-project`: het schermontwerp. Open dit in EEZ Studio. Met **Build** schrijft EEZ de code naar `src/ui`.
 - `src/`: de firmware (PlatformIO, Arduino).
 - `platformio.ini`: de build-omgevingen.
-- `niels_esp/`: firmware voor Niels ESP (ESP32-S3 met sensor, SSR, pomp, zoemer en MQTT). Apart PlatformIO-project: open die map apart in VS Code.
-- `include/niels_uart.h`: de afspraken voor de kabel tussen het scherm en Niels ESP (staat ook in `niels_esp/include/`).
+- `niels_esp/`: firmware voor Niels ESP (ESP32-S3 met sensor, SSR, pomp, zoemer en MQTT). Apart ESP-IDF-project: `idf.py set-target esp32s3`, `idf.py menuconfig` (wifi en pinnen onder "Niels ESP"), `idf.py build flash monitor`.
+- `include/niels_uart.h`: de afspraken voor de kabel tussen het scherm en Niels ESP (staat ook in `niels_esp/main/`).
 
 ## Bouwen (Windows en Mac)
 Open deze map in VS Code met de PlatformIO-extensie en kies een omgeving:
