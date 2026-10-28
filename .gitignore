@@ -4,3 +4,6 @@
 *.eez-project-ui-state
 .DS_Store
 Thumbs.db
+
+# wifi-wachtwoord van Niels ESP
+niels_esp/include/geheim.h

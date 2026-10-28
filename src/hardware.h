@@ -7,7 +7,7 @@
 #pragma once
 
 void  hw_init();
-void  hw_tick();                                 // elke loop: I2C met Niels ESP (stuurt zelf om de 200 ms)
+void  hw_tick();                                 // elke loop: berichten met Niels ESP (UART) lezen en sturen
 
 float hw_lees_temperatuur();                     // in °C; <= -100 betekent sensorfout
 int   hw_regel_verwarming(float temp, float doel); // stuurt de verwarming, geeft vermogen in %
