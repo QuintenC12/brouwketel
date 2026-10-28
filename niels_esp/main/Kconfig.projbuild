@@ -1,0 +1,35 @@
+menu "Niels ESP"
+
+    config NIELS_WIFI_NAAM
+        string "Wifi-naam (SSID)"
+        default "mijn-wifi"
+
+    config NIELS_WIFI_WACHTWOORD
+        string "Wifi-wachtwoord"
+        default "mijn-wachtwoord"
+
+    config NIELS_PIN_SCHERM_TX
+        int "Kabel naar het scherm: TX (naar RX van het scherm)"
+        default 17
+
+    config NIELS_PIN_SCHERM_RX
+        int "Kabel naar het scherm: RX (naar TX van het scherm)"
+        default 18
+
+    config NIELS_PIN_SENSOR
+        int "DS18B20 data (met 4,7 kOhm naar 3,3 V)"
+        default 4
+
+    config NIELS_PIN_SSR
+        int "SSR (verwarming)"
+        default 5
+
+    config NIELS_PIN_POMP
+        int "Pomp"
+        default 6
+
+    config NIELS_PIN_ZOEMER
+        int "Zoemer"
+        default 7
+
+endmenu
