@@ -21,6 +21,10 @@
 #define KLEUR_TXT_DONKER  0x15181c
 #define KLEUR_TXT_GRIJS   0x7d868f
 #define KLEUR_BALK_BG     0x2c333b
+#define KLEUR_ONLINE      0x3fb950   // bolletjes: verbonden / klaar
+#define KLEUR_OFFLINE     0xf85149   // bolletjes: niet verbonden / mislukt
+#define KLEUR_FOUT_BG     0xc0392b   // kruisje op het verbindingsscherm
+#define KLEUR_RAND        0x3a434d   // rand van een leeg bolletje
 
 static void toon(lv_obj_t *obj, bool zichtbaar) {
     if (!obj) return;
@@ -100,7 +104,7 @@ void ui_toon_meting(float temp, float doel, int vermogen) {
 }
 
 void ui_toon_verbinding(bool online) {
-    lv_color_t kleur = lv_color_hex(online ? 0x3fb950 : 0xf85149);
+    lv_color_t kleur = lv_color_hex(online ? KLEUR_ONLINE : KLEUR_OFFLINE);
     for (int i = 0; i < AANTAL_ZIJBALKEN; i++) {
         Zijbalk z = zijbalk(i);
         lv_label_set_text(z.conn, online ? "Online" : "Offline");
@@ -141,9 +145,7 @@ static Rij maisch_rij(int i) {
     case 0:  return { objects.mash_row_1, objects.mash_row_1_name, objects.mash_row_1_temp, objects.mash_row_1_time, NULL, NULL, objects.mash_row_1_sg };
     case 1:  return { objects.mash_row_2, objects.mash_row_2_name, objects.mash_row_2_temp, objects.mash_row_2_time, NULL, NULL, objects.mash_row_2_sg };
     case 2:  return { objects.mash_row_3, objects.mash_row_3_name, objects.mash_row_3_temp, objects.mash_row_3_time, NULL, NULL, objects.mash_row_3_sg };
-    case 3:  return { objects.mash_row_4, objects.mash_row_4_name, objects.mash_row_4_temp, objects.mash_row_4_time, NULL, NULL, objects.mash_row_4_sg };
-    case 4:  return { objects.mash_row_5, objects.mash_row_5_name, objects.mash_row_5_temp, objects.mash_row_5_time, NULL, NULL, objects.mash_row_5_sg };
-    default: return { objects.mash_row_6, objects.mash_row_6_name, objects.mash_row_6_temp, objects.mash_row_6_time, NULL, NULL, objects.mash_row_6_sg };
+    default: return { objects.mash_row_4, objects.mash_row_4_name, objects.mash_row_4_temp, objects.mash_row_4_time, NULL, NULL, objects.mash_row_4_sg };
     }
 }
 
@@ -168,7 +170,7 @@ static void vul_rij(Rij r, int i) {
 /* Geselecteerde rij: oranje rand + lichtere kleur (EEZ-stijl "checked"),
  * "Aanpassen"-knop in plaats van het potloodje */
 static void selecteer(Rij (*rij)(int), int keuze) {
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < MAX_STAPPEN; i++) {
         Rij r = rij(i);
         bool gekozen = (i == keuze);
         if (gekozen) lv_obj_add_state(r.rij, LV_STATE_CHECKED);
@@ -206,12 +208,12 @@ void ui_toon_schema() {
     toon(objects.schema_add, semi && brouw.aantal_stappen < MAX_STAPPEN);
     toon(objects.schema_remove, semi && brouw.aantal_stappen > 1);
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < MAX_STAPPEN; i++) {
         vul_rij(schema_rij(i), i);
         vul_rij(pauze_rij(i), i);
         vul_rij(spoel_rij(i), i);
+        vul_rij(maisch_rij(i), i);
     }
-    for (int i = 0; i < MAX_STAPPEN; i++) vul_rij(maisch_rij(i), i);
     lv_label_set_text_fmt(objects.schema_after, "Daarna: spoelen, koken %d min, %d hopgiften",
                           brouw.kooktijd_min, brouw.aantal_hops);
     ui_toon_maischen();
@@ -436,11 +438,11 @@ void ui_verbind_stap(int stap, VerbindToestand t) {
     uint32_t kleur = KLEUR_RIJ_BG, rand = 2;        // leeg bolletje
     const char *teken = "";
     if (t == VS_KLAAR) { kleur = KLEUR_GROEN; rand = 0; teken = LV_SYMBOL_OK; }
-    if (t == VS_FOUT)  { kleur = 0xc0392b;    rand = 0; teken = LV_SYMBOL_CLOSE; }
+    if (t == VS_FOUT)  { kleur = KLEUR_FOUT_BG; rand = 0; teken = LV_SYMBOL_CLOSE; }
     bg(s.bol, kleur);
     lv_obj_set_style_bg_opa(s.bol, LV_OPA_COVER, 0);
     lv_obj_set_style_border_width(s.bol, rand, 0);
-    lv_obj_set_style_border_color(s.bol, lv_color_hex(0x3a434d), 0);
+    lv_obj_set_style_border_color(s.bol, lv_color_hex(KLEUR_RAND), 0);
     lv_label_set_text(s.teken, teken);
 
     lv_label_set_text(s.tekst, t == VS_KLAAR ? VSTAP_KLAAR[stap - 1] : VSTAP_BEZIG[stap - 1]);
@@ -448,8 +450,8 @@ void ui_verbind_stap(int stap, VerbindToestand t) {
 
     const char *status = "Bezig...";
     uint32_t stip = KLEUR_ORANJE;
-    if (t == VS_FOUT)                    { status = "Mislukt"; stip = 0xf85149; }
-    else if (stap == 3 && t == VS_KLAAR) { status = "Klaar";   stip = 0x3fb950; }
+    if (t == VS_FOUT)                    { status = "Mislukt"; stip = KLEUR_OFFLINE; }
+    else if (stap == 3 && t == VS_KLAAR) { status = "Klaar";   stip = KLEUR_ONLINE; }
     lv_label_set_text(objects.conn_status, status);
     bg(objects.conn_status_dot, stip);
 }

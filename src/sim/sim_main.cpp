@@ -2,7 +2,7 @@
  * sim_main.cpp - draait je EEZ-UI in een venster op de Mac (omgeving "simulator")
  *
  * Wordt NIET mee gecompileerd voor de ESP32 (zie build_src_filter in platformio.ini).
- * Alle code is dezelfde als op de ESP32; alleen hardware.cpp is vervangen
+ * Alle code is dezelfde als op de ESP32; alleen uart.cpp en instellingen.cpp zijn vervangen
  * door sim_hardware.cpp, en de tijd loopt SNELHEID keer sneller.
  */
 #include <unistd.h>

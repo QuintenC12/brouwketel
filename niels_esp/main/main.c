@@ -6,6 +6,8 @@
  *   - de MQTT-server via wifi, zodat de webapp alles kan zien
  *
  * Aan de ketel: DS18B20 (temperatuur), SSR (verwarming), pomp, zoemer.
+ * Het scherm stuurt de doeltemperatuur; de PID-regelaar (pid.c) rekent
+ * hier elke seconde uit hoeveel procent de verwarming aan moet.
  * Het regelboekje in het project beschrijft alle berichten.
  *
  * Taken:
@@ -38,6 +40,7 @@
 #include "onewire_bus.h"
 #include "ds18b20.h"
 #include "niels_uart.h"
+#include "pid.h"
 
 static const char *TAG = "niels";
 
@@ -46,6 +49,11 @@ static const char *TAG = "niels";
 #define TEMP_MS          1000
 #define NET_STATUS_MS    5000
 #define VERBIND_MAX_MS   20000  // zo lang mag wifi + MQTT verbinden duren
+#define MELDING_PIEP_MS    150  // melding: 3 korte piepjes, dan stil, opnieuw na 3 s
+#define MELDING_PIEPJES_MS 900
+#define MELDING_PERIODE_MS 3000
+#define ALARM_PIEP_MS      200  // alarm: 200 ms aan, 200 ms uit, aanhoudend
+#define ALARM_PERIODE_MS   400
 
 // Aanname: de server stuurt het recept op brouwketel/recept zodra
 // Niels ESP iets publiceert op brouwketel/recept/vraag.
@@ -62,8 +70,13 @@ static SemaphoreHandle_t slot;
 #define ONTGRENDEL()   xSemaphoreGive(slot)
 
 // Wat het scherm wil (alleen de hoofdlus)
-static int      vermogen = 0;
-static bool     pomp = false, zoemer = false;
+static float    doel = 0;                        // doeltemperatuur in °C (0 = verwarming uit)
+static float    kp = 20, ki = 0.05f, kd = 10;    // tot het scherm de echte waarden stuurt
+static int      vermogen = 0;                    // uitkomst van de PID, in %
+typedef enum { ZOEMER_UIT, ZOEMER_MELDING, ZOEMER_ALARM } zoemer_t;
+static bool     pomp = false;
+static zoemer_t zoemer = ZOEMER_UIT;
+static uint32_t zoemer_sinds = 0;                // begin van het piepritme
 static uint32_t laatste_stuur = 0;
 static bool     ooit_stuur = false;
 
@@ -108,12 +121,6 @@ static void naar_scherm(const char *onderwerp, cJSON *obj) {
 static void stuur_ack_nr(int nr) {
     cJSON *o = cJSON_CreateObject();
     cJSON_AddNumberToObject(o, "nr", nr);
-    naar_scherm(OND_ACK, o);
-}
-
-static void stuur_ack_voor(const char *voor) {
-    cJSON *o = cJSON_CreateObject();
-    cJSON_AddStringToObject(o, "voor", voor);
     naar_scherm(OND_ACK, o);
 }
 
@@ -315,6 +322,11 @@ static int getal(const cJSON *o, const char *naam, int standaard) {
     return cJSON_IsNumber(v) ? v->valueint : standaard;
 }
 
+static float kommagetal(const cJSON *o, const char *naam, float standaard) {
+    const cJSON *v = cJSON_GetObjectItem(o, naam);
+    return cJSON_IsNumber(v) ? (float)v->valuedouble : standaard;
+}
+
 static void regel_verwerken(char *regel) {
     char *spatie = strchr(regel, ' ');
     const char *json = "{}";
@@ -325,14 +337,21 @@ static void regel_verwerken(char *regel) {
     if (!doc) return;                             // geen geldige JSON: negeren
 
     if (strcmp(onderwerp, OND_STUUR) == 0) {
-        vermogen = getal(doc, "vermogen", 0);
-        if (vermogen < 0) vermogen = 0;
-        if (vermogen > 100) vermogen = 100;
+        doel = kommagetal(doc, "doel", 0);
+        kp = kommagetal(doc, "kp", kp);          // ontbreekt een waarde: de vorige houden
+        ki = kommagetal(doc, "ki", ki);
+        kd = kommagetal(doc, "kd", kd);
         pomp = cJSON_IsTrue(cJSON_GetObjectItem(doc, "pomp"));
-        zoemer = cJSON_IsTrue(cJSON_GetObjectItem(doc, "zoemer"));
+        const char *z = cJSON_GetStringValue(cJSON_GetObjectItem(doc, "zoemer"));
+        zoemer_t nieuw = !z                        ? ZOEMER_UIT
+                       : strcmp(z, "melding") == 0 ? ZOEMER_MELDING
+                       : strcmp(z, "alarm") == 0   ? ZOEMER_ALARM
+                       :                             ZOEMER_UIT;
+        if (nieuw != zoemer) zoemer_sinds = nu_ms();   // ritme begint met een piep
+        zoemer = nieuw;
         laatste_stuur = nu_ms();
         ooit_stuur = true;
-    } else if (strcmp(onderwerp, OND_STATUS) == 0 || strcmp(onderwerp, OND_RECEPT_ANTWOORD) == 0) {
+    } else if (strcmp(onderwerp, OND_STATUS) == 0) {
         publiceer(onderwerp, json);
     } else if (strcmp(onderwerp, OND_MELD) == 0) {
         int nr = getal(doc, "nr", 0);
@@ -340,10 +359,8 @@ static void regel_verwerken(char *regel) {
         stuur_ack_nr(nr);                         // ook bij een herhaling: het scherm wacht erop
     } else if (strcmp(onderwerp, OND_NET_START) == 0) {
         const cJSON *server = cJSON_GetObjectItem(doc, "server");
-        stuur_ack_voor(OND_NET_START);
         if (cJSON_IsString(server)) net_starten(server->valuestring, getal(doc, "poort", 1883));
     } else if (strcmp(onderwerp, OND_NET_STOP) == 0) {
-        stuur_ack_voor(OND_NET_STOP);
         net_stoppen();
     }
     // onbekend onderwerp: negeren
@@ -374,17 +391,35 @@ static void lees_kabel(void) {
 
 /* ---------------- ketel ---------------- */
 
+/* Piepritme: zo hoor je het verschil tussen een melding en een alarm.
+ *   melding: om de 3 s drie korte piepjes   (bijv. hop toevoegen, koken klaar)
+ *   alarm:   snel aan-uit                    (bijv. sensorfout)
+ * Beide blijven gaan tot het scherm "uit" stuurt. */
+static bool zoemer_piept(void) {
+    uint32_t t = nu_ms() - zoemer_sinds;
+    switch (zoemer) {
+    case ZOEMER_MELDING:
+        t %= MELDING_PERIODE_MS;
+        return t < MELDING_PIEPJES_MS && t % (2 * MELDING_PIEP_MS) < MELDING_PIEP_MS;
+    case ZOEMER_ALARM:
+        return t % ALARM_PERIODE_MS < ALARM_PIEP_MS;
+    default:
+        return false;
+    }
+}
+
 static void uitgangen_bijwerken(void) {
     // Veiligheid: geen hartslag van het scherm = alles uit
     if (!ooit_stuur || nu_ms() - laatste_stuur > NIELS_STIL_MAX_MS) {
+        doel = 0;
         vermogen = 0;
         pomp = false;
-        zoemer = false;
+        zoemer = ZOEMER_UIT;
     }
     bool ssr_aan = (nu_ms() % SSR_VENSTER_MS) < (uint32_t)vermogen * SSR_VENSTER_MS / 100;
     gpio_set_level(CONFIG_NIELS_PIN_SSR, ssr_aan);
     gpio_set_level(CONFIG_NIELS_PIN_POMP, pomp);
-    gpio_set_level(CONFIG_NIELS_PIN_ZOEMER, zoemer);
+    gpio_set_level(CONFIG_NIELS_PIN_ZOEMER, zoemer_piept());
 }
 
 static void sensor_taak(void *arg) {
@@ -408,11 +443,24 @@ static void sensor_taak(void *arg) {
             temp = t;
             temp_ok = true;
         } else {
+            // ds18b20_new_device_from_bus() kijkt niet of er echt een sensor hangt,
+            // dus zonder sensor komen we hier: niet elke 100 ms opnieuw proberen
             temp_ok = false;
             ds18b20_del_device(ds);
             ds = NULL;
+            vTaskDelay(pdMS_TO_TICKS(1000));
         }
         vTaskDelay(pdMS_TO_TICKS(100));
+    }
+}
+
+/* Elke TEMP_MS: zonder geldige meting of zonder doel staat de verwarming uit */
+static void verwarming_regelen(void) {
+    if (temp_ok && doel > 0) {
+        vermogen = pid_bereken(temp, doel, TEMP_MS / 1000.0f, kp, ki, kd);
+    } else {
+        pid_reset();
+        vermogen = 0;
     }
 }
 
@@ -426,6 +474,7 @@ static void temperatuur_sturen(void) {
         cJSON_AddNullToObject(o, "temp");
     }
     cJSON_AddBoolToObject(o, "ok", temp_ok);
+    cJSON_AddNumberToObject(o, "vermogen", vermogen);
 
     char *json = cJSON_PrintUnformatted(o);
     if (json) {
@@ -481,6 +530,7 @@ void app_main(void) {
 
         if (nu_ms() - vorige_temp >= TEMP_MS) {
             vorige_temp = nu_ms();
+            verwarming_regelen();
             temperatuur_sturen();
         }
         if (nu_ms() - vorige_net >= NET_STATUS_MS) {

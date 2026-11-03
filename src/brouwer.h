@@ -6,9 +6,9 @@
  *   ui_update.cpp    het scherm bijwerken (teksten, kleuren, balken)
  *   brouwproces.cpp  het brouwproces: timers, stappen, hopgiften, alarmen
  *   numpad.cpp       numpad-scherm om waarden in te typen
- *   pid.cpp          PID-regelaar voor de verwarming
- *   hardware.cpp     sensor, verwarming, pomp, zoemer, netwerk (ESP32)
- *   sim/             vervangt hardware.cpp in de simulator
+ *   uart.cpp         koppeling met Niels ESP (sensor, verwarming, pomp, zoemer, netwerk)
+ *   instellingen.cpp IP, poort en PID-waarden in flash
+ *   sim/             vervangt uart.cpp en instellingen.cpp in de simulator
  */
 #pragma once
 #include <stdint.h>
@@ -16,6 +16,10 @@
 
 #define MAX_STAPPEN 4
 #define MAX_HOPS    5
+
+#define TEMP_MIN    10     // grenzen voor de temperatuur van een maischstap (°C)
+#define TEMP_MAX    100
+#define MAN_KOOKTIJD_MIN 60   // kooktijd als er geen recept is
 
 struct MaischStap {
     int temp;      // doeltemperatuur in °C
@@ -28,10 +32,20 @@ struct HopGift {
     int minuten;   // toevoegen wanneer er nog zoveel minuten kooktijd over zijn
 };
 
+/* Een recept zoals het binnenkomt, nog niet gecontroleerd */
+struct Recept {
+    char naam[48];
+    MaischStap stappen[MAX_STAPPEN];
+    int aantal_stappen;
+    HopGift hops[MAX_HOPS];
+    int aantal_hops;
+    int kooktijd_min;
+};
+
 enum Fase { FASE_GEEN, FASE_MAISCHEN, FASE_SPOELEN, FASE_KOKEN };
 
 struct BrouwStatus {
-    // Recept (komt van de server, of zelf ingesteld in manuele modus)
+    // Recept
     char recept[48];                    // "Demo Tripel - 20 L"
     MaischStap stappen[MAX_STAPPEN];    // tot 4 maischstappen
     int aantal_stappen;
@@ -55,10 +69,10 @@ struct BrouwStatus {
     // Instellingen
     char server_ip[16];
     uint16_t server_poort;
-    float pid_kp, pid_ki, pid_kd;   // PID-regelaar van de verwarming
+    float pid_kp, pid_ki, pid_kd;   // PID-regelaar van de verwarming (draait op Niels ESP)
 };
 
-extern BrouwStatus brouw;
+extern BrouwStatus brouw; //iedereen kan het aanpassen
 
 /* ---- Opstarten: na ui_init() aanroepen ---- */
 void brouwer_init();
@@ -70,6 +84,7 @@ void brouwer_init();
 void  brouwer_seconde(float temp, int vermogen_pct);
 float brouwer_doel_temp();          // doeltemperatuur voor de verwarmingsregeling (0 = uit)
 void  brouwer_start_fase(Fase f);   // door de acties gebruikt, nieuwe fase beginnen
+const char *brouwer_recept_overnemen(const Recept &r);  // nullptr = ok, anders de reden; brouw verandert alleen als alles klopt
 
 /* ---- Navigatie ---- */
 void ui_ga_naar(enum ScreensEnum scherm);

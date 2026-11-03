@@ -170,16 +170,6 @@ typedef struct _objects_t {
     lv_obj_t *mash_row_4_temp;
     lv_obj_t *mash_row_4_time;
     lv_obj_t *mash_row_4_sg;
-    lv_obj_t *mash_row_5;
-    lv_obj_t *mash_row_5_name;
-    lv_obj_t *mash_row_5_temp;
-    lv_obj_t *mash_row_5_time;
-    lv_obj_t *mash_row_5_sg;
-    lv_obj_t *mash_row_6;
-    lv_obj_t *mash_row_6_name;
-    lv_obj_t *mash_row_6_temp;
-    lv_obj_t *mash_row_6_time;
-    lv_obj_t *mash_row_6_sg;
     lv_obj_t *mash_sg_btn;
     lv_obj_t *mash_sg_label;
     lv_obj_t *obj32;

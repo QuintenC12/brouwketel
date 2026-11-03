@@ -1,5 +1,5 @@
 /*
- * hardware.cpp - koppeling met Niels ESP via een seriële kabel (UART)
+ * uart.cpp - koppeling met Niels ESP via een seriële kabel (UART)
  *
  * Sensor, SSR, pomp, zoemer en de verbinding met de MQTT-server hangen
  * allemaal aan Niels ESP. Beide kanten sturen elkaar tekstregels:
@@ -10,40 +10,41 @@
  * brouw/stuur en elke seconde brouw/status, en stuurt meldingen opnieuw
  * als er geen ack komt. De andere functies geven de laatst ontvangen
  * waarden terug, of sturen meteen een bericht.
+ *
+ * Hier staat alleen de kabel en het protocol. Of een recept klopt, beslist
+ * brouwproces.cpp; de instellingen in flash staan in instellingen.cpp.
  */
 #include <Arduino.h>
-#include <Preferences.h>
 #include <ArduinoJson.h>
 #include <string.h>
 #include "ui/screens.h"
 #include "hardware.h"
 #include "brouwer.h"
-#include "pid.h"
 #include "niels_uart.h"
 
-// TODO: vul de twee vrije pinnen van het CrowPanel in.
-//       TX van het scherm gaat naar RX van Niels ESP, RX naar TX. Zolang
-//       hier -1 staat, praat het scherm niet met Niels ESP.
-#define PIN_NIELS_TX  -1
-#define PIN_NIELS_RX  -1
+// Niels ESP hangt aan de UART0-aansluiting van het CrowPanel: IO43 (TX) en IO44 (RX).
+// Dat is dezelfde UART als Serial en de USB-kabel. De debugberichten gaan dus
+// ook naar Niels ESP, maar die negeert regels die hij niet kent. In de seriële
+// monitor zie je alleen wat het scherm stuurt, niet wat Niels ESP terugstuurt.
+// Hang Niels ESP los tijdens het uploaden: hij stoort op dezelfde lijn.
 
-#define STUUR_MS         200    // zo vaak brouw/stuur (ook de hartslag)
+#define STUUR_MS        200    // zo vaak brouw/stuur (ook de hartslag)
 #define STATUS_MS        1000   // zo vaak brouw/status voor de webapp
 #define MELD_HERHAAL_MS  500    // zo lang wachten op een ack
 #define MELD_POGINGEN    3
 #define VERBIND_MAX_MS   30000  // zo lang mag verbinden + recept ophalen duren
 
-static Preferences prefs;
-static HardwareSerial niels(1);
-static bool kabel_ok = false;     // pinnen ingevuld en poort gestart
+static HardwareSerial &niels = Serial;
+static bool kabel_ok = false;     // poort gestart
 
-// Wat het scherm wil (gaat mee in elke brouw/stuur)
-static uint8_t gewenst_vermogen = 0;
+// Wat het scherm wil (gaat mee in elke brouw/stuur, samen met Kp/Ki/Kd uit brouw)
+static float   gewenst_doel = 0;    // doeltemperatuur, 0 = verwarming uit
 static bool    gewenst_pomp = false;
-static bool    gewenst_zoemer = false;
+static Zoemer  gewenst_zoemer = ZOEMER_UIT;
 
 // Wat Niels ESP het laatst meldde
 static float    temp = -127;
+static int      vermogen = 0;       // uitkomst van de PID op Niels ESP, in %
 static bool     sensor_ok = false;
 static bool     ooit_temp = false;
 static uint32_t laatste_temp = 0;
@@ -78,9 +79,12 @@ static void stuur(const char *onderwerp, JsonDocument &doc) {
 
 static void stuur_stuur() {
     JsonDocument doc;
-    doc["vermogen"] = gewenst_vermogen;
+    doc["doel"] = gewenst_doel;
+    doc["kp"] = brouw.pid_kp;
+    doc["ki"] = brouw.pid_ki;
+    doc["kd"] = brouw.pid_kd;
     doc["pomp"] = gewenst_pomp;
-    doc["zoemer"] = gewenst_zoemer;
+    doc["zoemer"] = gewenst_zoemer == ZOEMER_ALARM ? "alarm" : gewenst_zoemer == ZOEMER_MELDING ? "melding" : "uit";
     stuur(OND_STUUR, doc);
 }
 
@@ -158,40 +162,27 @@ static void verbinden_mislukt(int stap) {
     verbind_fase = 0;
 }
 
-/* Recept uit de JSON halen en controleren. Geeft de reden terug als het
- * niet klopt, anders nullptr. brouw wordt pas aangepast als alles klopt. */
+/* Recept uit de JSON halen. Of het klopt, controleert brouwer_recept_overnemen().
+ * Geeft de reden terug als het niet klopt, anders nullptr. */
 static const char *recept_overnemen(JsonDocument &doc) {
     JsonArrayConst stappen = doc["stappen"];
     JsonArrayConst hops = doc["hops"];
-    int kooktijd = doc["kooktijd"] | 0;
-    if (stappen.size() < 1 || stappen.size() > MAX_STAPPEN) return "aantal stappen";
+    if (stappen.size() > MAX_STAPPEN) return "aantal stappen";   // past niet in Recept
     if (hops.size() > MAX_HOPS) return "te veel hopgiften";
-    if (kooktijd <= 0) return "kooktijd";
 
-    MaischStap st[MAX_STAPPEN];
-    int i = 0;
-    for (JsonObjectConst s : stappen) {
-        st[i] = { s["temp"] | 0, s["min"] | 0, 0 };
-        if (st[i].temp < 20 || st[i].temp > 100) return "temperatuur van een stap";
-        if (st[i].minuten <= 0) return "minuten van een stap";
-        i++;
-    }
-    HopGift hp[MAX_HOPS];
-    i = 0;
+    Recept r;
+    strlcpy(r.naam, doc["naam"] | "Recept", sizeof r.naam);
+    r.kooktijd_min = doc["kooktijd"] | 0;
+    r.aantal_stappen = 0;
+    for (JsonObjectConst s : stappen)
+        r.stappen[r.aantal_stappen++] = { s["temp"] | 0, s["min"] | 0, 0 };
+    r.aantal_hops = 0;
     for (JsonObjectConst h : hops) {
-        strlcpy(hp[i].naam, h["naam"] | "", sizeof hp[i].naam);
-        hp[i].minuten = h["min"] | -1;
-        if (hp[i].minuten < 0 || hp[i].minuten > kooktijd) return "tijd van een hopgift";
-        i++;
+        HopGift &hop = r.hops[r.aantal_hops++];
+        strlcpy(hop.naam, h["naam"] | "", sizeof hop.naam);
+        hop.minuten = h["min"] | -1;
     }
-
-    strlcpy(brouw.recept, doc["naam"] | "Recept", sizeof brouw.recept);
-    brouw.aantal_stappen = stappen.size();
-    memcpy(brouw.stappen, st, sizeof(MaischStap) * brouw.aantal_stappen);
-    brouw.aantal_hops = hops.size();
-    memcpy(brouw.hops, hp, sizeof(HopGift) * brouw.aantal_hops);
-    brouw.kooktijd_min = kooktijd;
-    return nullptr;
+    return brouwer_recept_overnemen(r);
 }
 
 static void recept_ontvangen(JsonDocument &doc) {
@@ -201,10 +192,11 @@ static void recept_ontvangen(JsonDocument &doc) {
     ui_verbind_stap(3, VS_BEZIG);
 
     const char *reden = recept_overnemen(doc);
-    JsonDocument antwoord;
-    antwoord["ok"] = reden == nullptr;
+    JsonDocument antwoord;                         // de server laten weten of het recept klopt
+    antwoord["nr"] = ++volgnummer;
+    antwoord["naam"] = reden ? "recept_fout" : "recept_ok";
     if (reden) antwoord["reden"] = reden;
-    stuur(OND_RECEPT_ANTWOORD, antwoord);
+    stuur_melding(antwoord);
 
     if (reden) {
         Serial.printf("[net] recept geweigerd: %s\n", reden);
@@ -260,8 +252,10 @@ static void regel_verwerken(char *regel) {
     if (deserializeJson(doc, json)) return;    // geen geldige JSON: negeren
 
     if (strcmp(onderwerp, OND_TEMP) == 0) {
+        if (!contact()) Serial.println("[uart] contact met Niels ESP");
         sensor_ok = doc["ok"] | false;
         temp = doc["temp"] | -127.0f;
+        vermogen = doc["vermogen"] | 0;
         laatste_temp = millis();
         ooit_temp = true;
     } else if (strcmp(onderwerp, OND_NET_STATUS) == 0) {
@@ -297,12 +291,9 @@ static void lees_kabel() {
 /* ---------------- hw_* ---------------- */
 
 void hw_init() {
-    if (PIN_NIELS_TX < 0 || PIN_NIELS_RX < 0) {
-        Serial.println("[uart] PIN_NIELS_TX/RX niet ingevuld in hardware.cpp - geen verbinding met Niels ESP");
-        return;
-    }
-    niels.setRxBufferSize(1024);
-    niels.begin(NIELS_BAUD, SERIAL_8N1, PIN_NIELS_RX, PIN_NIELS_TX);
+    niels.end();                   // main.cpp heeft Serial al gestart
+    niels.setRxBufferSize(1024);   // het recept is één lange regel
+    niels.begin(NIELS_BAUD);       // standaardpinnen van UART0: IO44 (RX), IO43 (TX)
     kabel_ok = true;
 }
 
@@ -328,11 +319,11 @@ float hw_lees_temperatuur() {
 }
 
 int hw_regel_verwarming(float t, float doel) {
-    // PID-regelaar (pid.cpp) met de waarden uit Instellingen. Niels ESP zet
-    // dit percentage om in een venster van 2 s waarin de SSR zoveel % aan staat.
-    int v = t <= -100 ? 0 : pid_bereken(t, doel, 1.0f);
-    gewenst_vermogen = v;
-    return v;
+    // De PID-regelaar draait op Niels ESP (niels_esp/main/pid.c), met de
+    // waarden uit Instellingen. Het scherm geeft alleen het doel door en
+    // toont het vermogen dat Niels ESP terugmeldt.
+    gewenst_doel = t <= -100 ? 0 : doel;
+    return hw_sensor_ok() ? vermogen : 0;
 }
 
 void hw_pomp(bool aan) {
@@ -343,14 +334,14 @@ void hw_pomp(bool aan) {
 
 void hw_verwarming_uit() {
     Serial.println("[hw] verwarming UIT");
-    pid_reset();
-    gewenst_vermogen = 0;
+    gewenst_doel = 0;
     stuur_stuur();
 }
 
-void hw_zoemer(bool aan) {
-    Serial.printf("[hw] zoemer %s\n", aan ? "AAN" : "UIT");
-    gewenst_zoemer = aan;
+void hw_zoemer(Zoemer soort) {
+    const char *naam = soort == ZOEMER_ALARM ? "alarm" : soort == ZOEMER_MELDING ? "melding" : "uit";
+    Serial.printf("[hw] zoemer: %s\n", naam);
+    gewenst_zoemer = soort;
     stuur_stuur();
 }
 
@@ -403,26 +394,4 @@ void net_meld_sg(int stap, float sg) {
     doc["stap"] = stap + 1;
     doc["sg"] = serialized(String(sg, 3));
     stuur_melding(doc);
-}
-
-void instellingen_opslaan() {
-    prefs.begin("brouwer", false);
-    prefs.putString("ip", brouw.server_ip);
-    prefs.putUShort("poort", brouw.server_poort);
-    prefs.putFloat("kp", brouw.pid_kp);
-    prefs.putFloat("ki", brouw.pid_ki);
-    prefs.putFloat("kd", brouw.pid_kd);
-    prefs.end();
-    Serial.println("[cfg] instellingen opgeslagen");
-}
-
-void instellingen_laden() {
-    prefs.begin("brouwer", true);
-    String ip = prefs.getString("ip", brouw.server_ip);
-    brouw.server_poort = prefs.getUShort("poort", brouw.server_poort);
-    brouw.pid_kp = prefs.getFloat("kp", brouw.pid_kp);
-    brouw.pid_ki = prefs.getFloat("ki", brouw.pid_ki);
-    brouw.pid_kd = prefs.getFloat("kd", brouw.pid_kd);
-    prefs.end();
-    strncpy(brouw.server_ip, ip.c_str(), sizeof(brouw.server_ip) - 1);
 }
