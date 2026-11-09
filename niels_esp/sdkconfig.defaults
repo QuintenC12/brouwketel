@@ -1,4 +1,4 @@
 CONFIG_IDF_TARGET="esp32s3"
-# 4 MB flash en één grote app-partitie: wifi + MQTT laten weinig over in 1 MB
-CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
+# Wifi + MQTT passen niet in de standaard app-partitie van 1 MB:
+# één grote app-partitie van 1,5 MB (past ook op 2 MB flash).
 CONFIG_PARTITION_TABLE_SINGLE_APP_LARGE=y
