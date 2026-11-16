@@ -10,6 +10,8 @@
  *   Aanmelden   info (JSON, retained) en status = "online" (retained)
  *   Metingen    sensor/temperatuur  "66.8"   elke seconde (alleen een geldige meting)
  *               sensor/sg           "1.050"  als op het scherm een SG wordt ingevuld
+ *               sensor/doeltemperatuur, sensor/resterend (s), sensor/maischstap
+ *                                   elke seconde, uit brouw/status van het scherm
  *   Toestand    actuator/verwarming/state  "0".."100"  (vermogen van de PID, retained)
  *               actuator/pomp/state        "on"/"off"  (retained)
  *               actuator/zoemer/state      "on"/"off"  (retained)
@@ -134,9 +136,9 @@ static void stuur_info(void)
     cJSON_AddStringToObject(o, "firmware", FIRMWARE);
 
     cJSON *sensors = cJSON_AddArrayToObject(o, "sensors");
-    const char *s_namen[] = { "temperatuur", "sg" };
-    const char *s_eenheid[] = { "°C", "SG" };
-    for (int i = 0; i < 2; i++) {
+    const char *s_namen[] = { "temperatuur", "sg", "doeltemperatuur", "resterend", "maischstap" };
+    const char *s_eenheid[] = { "°C", "SG", "°C", "s", "" };
+    for (int i = 0; i < 5; i++) {
         cJSON *s = cJSON_CreateObject();
         cJSON_AddStringToObject(s, "name", s_namen[i]);
         cJSON_AddStringToObject(s, "unit", s_eenheid[i]);
@@ -416,7 +418,25 @@ void net_van_scherm(const char *onderwerp, const char *json)
     ONTGRENDEL();
 
     if (!is_meld) {                          // brouw/status
-        if (mqtt_ok) publiceer("brouw/status", json, 0, false);
+        if (!mqtt_ok) return;
+        publiceer("brouw/status", json, 0, false);
+        // {"fase":"maischen","stap":2,"doel":63,"rest":754,"pauze":false}
+        // De getallen ook als sensor, zodat de webapp ze zonder extra werk toont.
+        cJSON *st = cJSON_Parse(json);
+        static const char *velden[][2] = {
+            { "doel", "sensor/doeltemperatuur" },
+            { "rest", "sensor/resterend" },
+            { "stap", "sensor/maischstap" },
+        };
+        for (int i = 0; i < 3; i++) {
+            const cJSON *v = cJSON_GetObjectItemCaseSensitive(st, velden[i][0]);
+            if (cJSON_IsNumber(v)) {
+                char t[16];
+                snprintf(t, sizeof t, "%g", v->valuedouble);
+                publiceer(velden[i][1], t, 0, false);
+            }
+        }
+        cJSON_Delete(st);
         return;
     }
 

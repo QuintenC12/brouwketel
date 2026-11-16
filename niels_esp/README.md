@@ -40,6 +40,7 @@ volgt nu "MQTT-afspraken met elektronica" van het back-end-team. Alle topics beg
 | vermogen van de PID | `actuator/verwarming/state` = `0`..`100` (retained, bij een verandering) |
 | pomp / zoemer uit brouw/stuur | `actuator/pomp/state`, `actuator/zoemer/state` = `on`/`off` (retained) |
 | `brouw/meld` sg | `sensor/sg` = `1.050` |
+| `brouw/status` doel, rest, stap | `sensor/doeltemperatuur` (°C), `sensor/resterend` (s), `sensor/maischstap` (elke seconde) |
 | `brouw/meld` recept_ok / recept_fout | `ack` op het recept, of `fout` met code `recept` |
 | `brouw/status`, `brouw/meld` | `brouw/status`, `brouw/meld` (extra, nog niet in de afspraken) |
 
