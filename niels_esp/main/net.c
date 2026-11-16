@@ -1,26 +1,34 @@
 /*
- * net.c - MQTT voor Niels ESP (zie net.h)
+ * net.c - vertaling tussen het scherm (UART) en de webapp (MQTT), zie net.h
  *
- * Alle verbinden en stoppen gebeurt in één taak (net_taak). net_start() en
- * net_stop() leggen alleen een vraag in een wachtrij, zodat de
- * ontvangsttaak nooit hoeft te wachten en brouw/stuur op tijd verwerkt
- * blijft (anders slaat de failsafe van 2 s aan).
+ * Volgt "MQTT-afspraken met elektronica" (back-end-team, 12 nov 2026).
+ * Alle topics beginnen met brouwer/<id>/, met <id> = het wifi-MAC-adres in
+ * kleine letters zonder dubbelpunten, bv. brouwer/a4cf12b3c8e0/.
  *
- * Verloop na net/start:
- *   1. net/status "bezig"
- *   2. wachten tot brouw_netwerk een IP-adres heeft (hooguit WIFI_MAX_MS)
- *   3. MQTT-client starten (hooguit MQTT_MAX_MS tot de broker antwoordt)
- *   4. net/status "verbonden", inschrijven op brouwketel/recept en het
- *      recept vragen met brouwketel/recept/vraag
- *   5. het recept van de server gaat als "recept {...}" naar het scherm
- * Lukt stap 2 of 3 niet: net/status "fout" met een reden.
+ *   Verbinden   client-id brouwer-<id>, keepalive 30 s, clean session,
+ *               last will: status = "offline" (QoS 1, retained)
+ *   Aanmelden   info (JSON, retained) en status = "online" (retained)
+ *   Metingen    sensor/temperatuur  "66.8"   elke seconde (alleen een geldige meting)
+ *               sensor/sg           "1.050"  als op het scherm een SG wordt ingevuld
+ *   Toestand    actuator/verwarming/state  "0".."100"  (vermogen van de PID, retained)
+ *               actuator/pomp/state        "on"/"off"  (retained)
+ *               actuator/zoemer/state      "on"/"off"  (retained)
+ *   Opdrachten  cmd/recept  -> recept omzetten en naar het scherm, antwoord op ack
+ *               cmd/<iets anders> -> ack met ok:false (het scherm regelt de ketel)
+ *   Fouten      fout {"code":"sensor"|"recept","message":".."}
  *
- * Er is maar één MQTT-client. Hij wordt één keer gemaakt en nooit
- * opgeruimd; bij een nieuwe net/start krijgt hij alleen een ander adres.
+ * Extra, nog niet in de afspraken (de back-end mag ze negeren):
+ *   brouw/status en brouw/meld: de berichten van het scherm, ongewijzigd.
+ *
+ * Wat het scherm ziet, blijft zoals in het regelboekje:
+ *   net/start -> net/status "bezig", dan "verbonden" (of "fout"), dan recept {...}
+ *
+ * Het recept komt van de webapp (cmd/recept), niet op vraag. Niels ESP
+ * bewaart het laatste recept. Zo kan je het recept eerst vanuit de webapp
+ * sturen en daarna op het scherm op Automatisch klikken.
  */
 #include "net.h"
 
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,53 +36,136 @@
 #include "brouw_netwerk.h"
 #include "cJSON.h"
 #include "esp_log.h"
+#include "esp_mac.h"
 #include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
-#include "freertos/queue.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
 #include "mqtt_client.h"
 
 #include "niels_uart.h"
+#include "recept.h"
 #include "scherm_uart.h"
 
 static const char *TAG = "net";
 
-#define NET_STATUS_MS   5000    // zo vaak net/status herhalen
-#define WIFI_MAX_MS     12000   // zo lang wachten op een IP-adres
-#define MQTT_MAX_MS     12000   // zo lang wachten op de broker
-#define MAX_BEWAARD     10      // meldingen bewaren als de server weg is
-
-#define MQTT_RECEPT       MQTT_VOORVOEGSEL "recept"
-#define MQTT_RECEPT_VRAAG MQTT_VOORVOEGSEL "recept/vraag"
+#define FIRMWARE        "0.4.0"
+#define NET_STATUS_MS   5000    // zo vaak net/status herhalen naar het scherm
+#define VERBIND_MAX_MS  25000   // na net/start: zo lang mag verbinden duren (scherm: 30 s)
+#define ACK_MAX_MS      8000    // zo lang wachten op recept_ok/recept_fout (back-end: 10 s)
 
 typedef enum { NET_UIT, NET_BEZIG, NET_VERBONDEN, NET_FOUT } net_toestand_t;
 
-// Wat net_taak aan het doen is
-typedef enum { STAP_NIETS, STAP_WACHT_WIFI, STAP_WACHT_MQTT, STAP_VERBONDEN } stap_t;
-
-typedef struct {
-    bool start;              // true = net/start, false = net/stop
-    char server[64];
-    int  poort;
-} vraag_t;
-
-static QueueHandle_t vragen;
 static SemaphoreHandle_t slot;
 #define VERGRENDEL()   xSemaphoreTake(slot, portMAX_DELAY)
 #define ONTGRENDEL()   xSemaphoreGive(slot)
 
-// Alleen net_taak maakt of verandert de client
+static char id[13];                         // MAC-adres, bv. a4cf12b3c8e0
+static char basis[24];                      // "brouwer/<id>/"
+
+// Alleen net_taak maakt de client (één keer); daarna verandert hij niet meer
 static esp_mqtt_client_handle_t mqtt = NULL;
 
-// Achter het slot (de MQTT-events draaien in een andere taak)
-static net_toestand_t net = NET_UIT;
-static stap_t   stap = STAP_NIETS;
-static uint32_t stap_sinds = 0;
-static char    *bewaard[MAX_BEWAARD];
-static int      aantal_bewaard = 0;
+// Achter het slot
+static bool     verbonden = false;          // MQTT-broker heeft ons aanvaard
+static bool     automatisch = false;        // scherm wacht na net/start op het recept
+static uint32_t automatisch_sinds = 0;
+static char     reserve_server[64] = "";    // uit net/start, als het formulier niets heeft
+static int      reserve_poort = 0;
+static net_toestand_t gemeld = NET_UIT;     // laatst naar het scherm gestuurd
+static const char    *fout_reden = NULL;
+static char    *recept_regel = NULL;        // laatste recept, al omgezet voor het scherm
+static bool     recept_gestuurd = false;    // al naar het scherm in deze Automatisch-ronde
+static char     ack_id[64] = "";            // message_id die nog een ack wacht
+static uint32_t ack_sinds = 0;
+
+// Laatst gepubliceerde toestand (-1 = nog niet), alleen vanuit temp_task
+static int  vorig_vermogen = -1, vorige_pomp = -1, vorige_zoemer = -1;
+static bool vorige_sensor_ok = true;
 
 static uint32_t nu_ms(void) { return (uint32_t)(esp_timer_get_time() / 1000); }
+
+/* ---------------- MQTT-hulpjes ---------------- */
+
+static void publiceer(const char *rest, const char *tekst, int qos, bool retained)
+{
+    char topic[96];
+    snprintf(topic, sizeof topic, "%s%s", basis, rest);
+    esp_mqtt_client_publish(mqtt, topic, tekst, 0, qos, retained);
+}
+
+static void stuur_ack(const char *message_id, bool ok, const char *fout)
+{
+    cJSON *o = cJSON_CreateObject();
+    cJSON_AddStringToObject(o, "message_id", message_id);
+    cJSON_AddBoolToObject(o, "ok", ok);
+    if (!ok && fout) cJSON_AddStringToObject(o, "fout", fout);
+    char *json = cJSON_PrintUnformatted(o);
+    cJSON_Delete(o);
+    if (json) {
+        publiceer("ack", json, 1, false);
+        free(json);
+    }
+    ESP_LOGI(TAG, "ack %s ok=%d %s", message_id, ok, fout ? fout : "");
+}
+
+static void stuur_fout(const char *code, const char *bericht)
+{
+    cJSON *o = cJSON_CreateObject();
+    cJSON_AddStringToObject(o, "code", code);
+    cJSON_AddStringToObject(o, "message", bericht);
+    char *json = cJSON_PrintUnformatted(o);
+    cJSON_Delete(o);
+    if (json) {
+        publiceer("fout", json, 1, false);
+        free(json);
+    }
+}
+
+static void stuur_info(void)
+{
+    brouw_netwerk_mqtt_t formulier;
+    bool f_ok = brouw_netwerk_lees_mqtt(&formulier) == ESP_OK;
+
+    cJSON *o = cJSON_CreateObject();
+    cJSON_AddStringToObject(o, "id", id);
+    cJSON_AddStringToObject(o, "type", "ketel");
+    cJSON_AddStringToObject(o, "name", f_ok ? formulier.ketel_id : "Brouwketel");
+    cJSON_AddStringToObject(o, "firmware", FIRMWARE);
+
+    cJSON *sensors = cJSON_AddArrayToObject(o, "sensors");
+    const char *s_namen[] = { "temperatuur", "sg" };
+    const char *s_eenheid[] = { "°C", "SG" };
+    for (int i = 0; i < 2; i++) {
+        cJSON *s = cJSON_CreateObject();
+        cJSON_AddStringToObject(s, "name", s_namen[i]);
+        cJSON_AddStringToObject(s, "unit", s_eenheid[i]);
+        cJSON_AddItemToArray(sensors, s);
+    }
+
+    cJSON *actuators = cJSON_AddArrayToObject(o, "actuators");
+    const char *aan_uit[] = { "on", "off" };
+    const char *procent[] = { "0-100" };
+    const char *a_namen[] = { "verwarming", "pomp", "zoemer" };
+    for (int i = 0; i < 3; i++) {
+        cJSON *a = cJSON_CreateObject();
+        cJSON_AddStringToObject(a, "name", a_namen[i]);
+        cJSON_AddItemToObject(a, "values", i == 0 ? cJSON_CreateStringArray(procent, 1)
+                                                  : cJSON_CreateStringArray(aan_uit, 2));
+        cJSON_AddItemToArray(actuators, a);
+    }
+
+    // Alleen het recept: setpoint en actuator regelt het scherm zelf.
+    const char *cmds[] = { "recept" };
+    cJSON_AddItemToObject(o, "commands", cJSON_CreateStringArray(cmds, 1));
+
+    char *json = cJSON_PrintUnformatted(o);
+    cJSON_Delete(o);
+    if (json) {
+        publiceer("info", json, 1, true);
+        free(json);
+    }
+}
 
 /* ---------------- naar het scherm ---------------- */
 
@@ -89,104 +180,108 @@ static void stuur_net_status(net_toestand_t toestand, const char *reden)
     scherm_uart_verstuur(OND_NET_STATUS, json);
 }
 
-/* Aanroepen met het slot vast. Stuurt net/status alleen bij een verandering. */
-static void zet_net(net_toestand_t nieuw, const char *reden)
+/* Met het slot vast: wacht het scherm en is er een recept? Dan sturen. */
+static void recept_naar_scherm_als_klaar(void)
 {
-    if (nieuw == net) return;
-    net = nieuw;
-    ESP_LOGI(TAG, "net/status %d %s", net, reden ? reden : "");
-    stuur_net_status(net, reden);
+    if (!automatisch || !verbonden || !recept_regel || recept_gestuurd) return;
+    esp_err_t err = scherm_uart_verstuur(OND_RECEPT, recept_regel);
+    if (err != ESP_OK) ESP_LOGW(TAG, "recept niet naar het scherm: %s", esp_err_to_name(err));
+    recept_gestuurd = true;
 }
 
-static void zet_stap(stap_t nieuw)
+/* ---------------- MQTT-events (taak van esp-mqtt) ---------------- */
+
+static void cmd_recept(const char *message_id, const cJSON *data)
 {
-    stap = nieuw;
-    stap_sinds = nu_ms();
-}
-
-/* ---------------- naar MQTT ---------------- */
-
-void net_publiceer(const char *onderwerp, const char *json)
-{
-    char volledig[64];
-    snprintf(volledig, sizeof volledig, MQTT_VOORVOEGSEL "%s", onderwerp);
-    bool is_melding = strcmp(onderwerp, OND_MELD) == 0;
-
-    VERGRENDEL();
-    bool verbonden = net == NET_VERBONDEN;
-    if (!verbonden && is_melding) {
-        if (aantal_bewaard == MAX_BEWAARD) {        // vol: oudste laten vallen
-            free(bewaard[0]);
-            memmove(&bewaard[0], &bewaard[1], sizeof(char *) * (MAX_BEWAARD - 1));
-            aantal_bewaard--;
-        }
-        bewaard[aantal_bewaard++] = strdup(json);
-    }
-    ONTGRENDEL();
-    // Meldingen met QoS 1: de broker bevestigt ze. De rest met QoS 0.
-    if (verbonden) esp_mqtt_client_publish(mqtt, volledig, json, 0, is_melding ? 1 : 0, 0);
-}
-
-/* ---------------- MQTT-events (draaien in de taak van esp-mqtt) ---------------- */
-
-static void recept_doorgeven(const char *data, int lengte)
-{
-    // Op één regel zetten (zonder regeleinden) en naar het scherm.
-    cJSON *recept = cJSON_ParseWithLength(data, lengte);
-    char *regel = recept ? cJSON_PrintUnformatted(recept) : NULL;
-    cJSON_Delete(recept);
-    if (!regel) {
-        ESP_LOGW(TAG, "recept is geen geldige JSON");
+    char *regel = NULL;
+    const char *reden = recept_omzetten(data, &regel);
+    if (reden) {
+        stuur_ack(message_id, false, reden);
         return;
     }
-    // Het scherm aanvaardt regels tot NIELS_MAX_REGEL tekens.
-    esp_err_t err = scherm_uart_verstuur(OND_RECEPT, regel);
-    if (err != ESP_OK) ESP_LOGW(TAG, "recept niet naar het scherm: %s", esp_err_to_name(err));
-    free(regel);
+
+    VERGRENDEL();
+    free(recept_regel);
+    recept_regel = regel;
+    recept_gestuurd = false;
+    bool scherm_wacht = automatisch;
+    if (scherm_wacht) {
+        // Het scherm wacht al: we antwoorden pas als het recept_ok/recept_fout meldt.
+        strlcpy(ack_id, message_id, sizeof ack_id);
+        ack_sinds = nu_ms();
+        recept_naar_scherm_als_klaar();
+    } else {
+        ack_id[0] = 0;
+    }
+    ONTGRENDEL();
+
+    // Het scherm wacht nog niet: het recept is geladen en gaat naar het
+    // scherm bij de volgende klik op Automatisch.
+    if (!scherm_wacht) stuur_ack(message_id, true, NULL);
 }
 
-static void mqtt_event(void *arg, esp_event_base_t base, int32_t id, void *data)
+static void opdracht_verwerken(const char *opdracht, const char *data, int lengte)
+{
+    cJSON *doc = cJSON_ParseWithLength(data, lengte);
+    const cJSON *mid = cJSON_GetObjectItemCaseSensitive(doc, "message_id");
+    char message_id[64] = "";
+    if (cJSON_IsString(mid)) strlcpy(message_id, mid->valuestring, sizeof message_id);
+    else if (cJSON_IsNumber(mid)) snprintf(message_id, sizeof message_id, "%.0f", mid->valuedouble);
+
+    if (!doc || !message_id[0]) {
+        ESP_LOGW(TAG, "cmd/%s zonder geldige JSON of message_id", opdracht);
+    } else if (strcmp(opdracht, "recept") == 0) {
+        cmd_recept(message_id, cJSON_GetObjectItemCaseSensitive(doc, "data"));
+    } else {
+        stuur_ack(message_id, false, "niet ondersteund: het scherm regelt de ketel");
+    }
+    cJSON_Delete(doc);
+}
+
+static void mqtt_event(void *arg, esp_event_base_t base, int32_t evid, void *data)
 {
     esp_mqtt_event_handle_t ev = data;
-    switch ((esp_mqtt_event_id_t)id) {
+    switch ((esp_mqtt_event_id_t)evid) {
     case MQTT_EVENT_CONNECTED: {
-        // bewaarde meldingen overnemen, en pas na het slot versturen
-        char *te_sturen[MAX_BEWAARD];
-        VERGRENDEL();
-        int n = aantal_bewaard;
-        memcpy(te_sturen, bewaard, sizeof(char *) * n);
-        aantal_bewaard = 0;
-        zet_stap(STAP_VERBONDEN);
-        zet_net(NET_VERBONDEN, NULL);
-        ONTGRENDEL();
+        ESP_LOGI(TAG, "verbonden met de broker");
+        char topic[64];
+        snprintf(topic, sizeof topic, "%scmd/#", basis);
+        esp_mqtt_client_subscribe(ev->client, topic, 2);   // recept komt met QoS 2
+        stuur_info();
+        publiceer("status", "online", 1, true);
+        vorig_vermogen = vorige_pomp = vorige_zoemer = -1;  // toestand opnieuw publiceren
 
-        esp_mqtt_client_subscribe(ev->client, MQTT_RECEPT, 1);
-        for (int i = 0; i < n; i++) {
-            esp_mqtt_client_publish(ev->client, MQTT_VOORVOEGSEL OND_MELD, te_sturen[i], 0, 1, 0);
-            free(te_sturen[i]);
-        }
-        esp_mqtt_client_publish(ev->client, MQTT_RECEPT_VRAAG, "{}", 0, 1, 0);
+        VERGRENDEL();
+        verbonden = true;
+        recept_naar_scherm_als_klaar();
+        ONTGRENDEL();
         break;
     }
 
     case MQTT_EVENT_DISCONNECTED:
+        // De client verbindt zelf opnieuw; de broker stuurt de last will.
         VERGRENDEL();
-        if (stap == STAP_VERBONDEN) {             // de client verbindt zelf opnieuw
-            zet_stap(STAP_WACHT_MQTT);
-            zet_net(NET_BEZIG, "verbinding verloren");
-        }
+        verbonden = false;
         ONTGRENDEL();
         break;
 
-    case MQTT_EVENT_DATA:
-        if (ev->topic_len != (int)strlen(MQTT_RECEPT) ||
-            strncmp(ev->topic, MQTT_RECEPT, ev->topic_len) != 0) break;
+    case MQTT_EVENT_DATA: {
+        // brouwer/<id>/cmd/<opdracht>, in één stuk (buffer 4 kB)
+        size_t b = strlen(basis);
+        if (ev->topic_len <= (int)(b + 4) || strncmp(ev->topic, basis, b) != 0 ||
+            strncmp(ev->topic + b, "cmd/", 4) != 0) break;
         if (ev->current_data_offset != 0 || ev->data_len != ev->total_data_len) {
-            ESP_LOGW(TAG, "recept te groot voor de MQTT-buffer");
+            ESP_LOGW(TAG, "opdracht te groot voor de MQTT-buffer");
             break;
         }
-        recept_doorgeven(ev->data, ev->data_len);
+        char opdracht[24];
+        int n = ev->topic_len - (int)b - 4;
+        if (n >= (int)sizeof opdracht) n = sizeof opdracht - 1;
+        memcpy(opdracht, ev->topic + b + 4, n);
+        opdracht[n] = 0;
+        opdracht_verwerken(opdracht, ev->data, ev->data_len);
         break;
+    }
 
     default:
         break;
@@ -195,132 +290,221 @@ static void mqtt_event(void *arg, esp_event_base_t base, int32_t id, void *data)
 
 /* ---------------- net_taak ---------------- */
 
-/* MQTT-client starten met het adres van het scherm, of anders dat uit het
- * wifi-formulier. Geeft een reden terug als het niet lukt, anders NULL. */
-static const char *mqtt_starten(const vraag_t *v)
+static void mqtt_maken(void)
 {
     brouw_netwerk_mqtt_t formulier;
-    bool formulier_ok = brouw_netwerk_lees_mqtt(&formulier) == ESP_OK;
-
-    const char *host = v->server[0] ? v->server : (formulier_ok ? formulier.host : NULL);
-    int poort = v->poort > 0 ? v->poort : (formulier_ok ? formulier.poort : 1883);
-    if (!host || !host[0]) return "geen serveradres";
-
-    char uri[280];                            // host mag tot 253 tekens zijn
-    snprintf(uri, sizeof uri, "mqtt://%s:%d", host, poort);
-    ESP_LOGI(TAG, "verbinden met %s", uri);
-
-    if (!mqtt) {
-        esp_mqtt_client_config_t cfg = {
-            .broker.address.uri = uri,
-            // de ketel-ID uit het formulier, anders een vaste naam
-            .credentials.client_id = formulier_ok ? formulier.ketel_id : "niels-esp",
-            .buffer.size = 2048,                  // het recept is een lang bericht
-        };
-        mqtt = esp_mqtt_client_init(&cfg);
-        if (!mqtt) return "MQTT-client";
-        esp_mqtt_client_register_event(mqtt, ESP_EVENT_ANY_ID, mqtt_event, NULL);
-    } else if (esp_mqtt_client_set_uri(mqtt, uri) != ESP_OK) {
-        return "ongeldig serveradres";
+    char host[254] = "";
+    int poort = 1883;
+    if (brouw_netwerk_lees_mqtt(&formulier) == ESP_OK) {
+        strlcpy(host, formulier.host, sizeof host);
+        poort = formulier.poort;
+    } else {
+        VERGRENDEL();
+        strlcpy(host, reserve_server, sizeof host);
+        if (reserve_poort > 0) poort = reserve_poort;
+        ONTGRENDEL();
     }
-    return esp_mqtt_client_start(mqtt) == ESP_OK ? NULL : "MQTT-client";
-}
+    if (!host[0]) return;                   // nog geen broker bekend
 
-static void mqtt_stoppen(void)
-{
-    if (mqtt) esp_mqtt_client_stop(mqtt);     // al gestopt? dan doet dit niets
+    char client_id[24], lw_topic[40];
+    snprintf(client_id, sizeof client_id, "brouwer-%s", id);
+    snprintf(lw_topic, sizeof lw_topic, "%sstatus", basis);
+    esp_mqtt_client_config_t cfg = {
+        .broker.address.hostname = host,
+        .broker.address.port = poort,
+        .broker.address.transport = MQTT_TRANSPORT_OVER_TCP,
+        .credentials.client_id = client_id,
+        .session.keepalive = 30,
+        .session.disable_clean_session = false,
+        .session.last_will = {
+            .topic = lw_topic,
+            .msg = "offline",
+            .qos = 1,
+            .retain = 1,
+        },
+        .buffer.size = 4096,                // een recept is ongeveer 1,5 kB
+    };
+    esp_mqtt_client_handle_t c = esp_mqtt_client_init(&cfg);
+    if (!c) return;
+    esp_mqtt_client_register_event(c, ESP_EVENT_ANY_ID, mqtt_event, NULL);
+    mqtt = c;
+    ESP_LOGI(TAG, "MQTT naar %s:%d als %s", host, poort, client_id);
+    esp_mqtt_client_start(c);
 }
 
 static void net_taak(void *parameters)
 {
-    vraag_t huidige = { 0 };
-    uint32_t vorige_status = nu_ms();
-
+    uint32_t vorige_status = 0;
     while (1) {
-        vraag_t v;
-        if (xQueueReceive(vragen, &v, pdMS_TO_TICKS(200)) == pdTRUE) {
-            mqtt_stoppen();                       // eerst een vorige verbinding stoppen
-            VERGRENDEL();
-            if (v.start) {
-                huidige = v;
-                zet_stap(STAP_WACHT_WIFI);
-                net = NET_UIT;                    // zodat "bezig" zeker verstuurd wordt
-                zet_net(NET_BEZIG, NULL);
-            } else {
-                zet_stap(STAP_NIETS);
-                zet_net(NET_UIT, NULL);
-            }
-            ONTGRENDEL();
-        }
+        // MQTT starten zodra er wifi is (en daarna nooit meer stoppen)
+        if (!mqtt && brouw_netwerk_status() == BROUW_NETWERK_IP_GEREED) mqtt_maken();
 
+        char verlopen_ack[64] = "";
         VERGRENDEL();
-        stap_t nu = stap;
-        uint32_t duur = nu_ms() - stap_sinds;
+        // Wat moet het scherm zien?
+        net_toestand_t nu;
+        const char *reden = NULL;
+        if (verbonden) {
+            nu = NET_VERBONDEN;
+        } else if (!automatisch) {
+            nu = NET_UIT;
+        } else if (fout_reden) {
+            nu = NET_FOUT;
+            reden = fout_reden;
+        } else if (brouw_netwerk_status() == BROUW_NETWERK_SETUP) {
+            nu = NET_FOUT;
+            reden = fout_reden = "wifi niet ingesteld";
+        } else if (nu_ms() - automatisch_sinds > VERBIND_MAX_MS) {
+            nu = NET_FOUT;
+            reden = fout_reden = brouw_netwerk_status() == BROUW_NETWERK_IP_GEREED
+                               ? "server onbereikbaar" : "wifi";
+        } else {
+            nu = NET_BEZIG;
+        }
+        bool melden = nu != gemeld || nu_ms() - vorige_status >= NET_STATUS_MS;
+        gemeld = nu;
+
+        // Recept naar het scherm gestuurd, maar geen antwoord van het scherm?
+        if (ack_id[0] && nu_ms() - ack_sinds > ACK_MAX_MS) {
+            strlcpy(verlopen_ack, ack_id, sizeof verlopen_ack);
+            ack_id[0] = 0;
+        }
         ONTGRENDEL();
 
-        const char *fout = NULL;
-        bool stoppen = false;
-        if (nu == STAP_WACHT_WIFI) {
-            brouw_netwerk_status_t w = brouw_netwerk_status();
-            if (w == BROUW_NETWERK_IP_GEREED) {
-                fout = mqtt_starten(&huidige);
-                if (!fout) {
-                    VERGRENDEL();
-                    if (stap == STAP_WACHT_WIFI) zet_stap(STAP_WACHT_MQTT);
-                    ONTGRENDEL();
-                }
-            } else if (w == BROUW_NETWERK_SETUP) {
-                fout = "wifi niet ingesteld";     // eerst het formulier invullen
-            } else if (w == BROUW_NETWERK_FOUT || w == BROUW_NETWERK_UIT) {
-                fout = "wifi";
-            } else if (duur > WIFI_MAX_MS) {
-                fout = "wifi";
-            }
-        } else if (nu == STAP_WACHT_MQTT && duur > MQTT_MAX_MS) {
-            fout = "server onbereikbaar";
-            stoppen = true;
-        }
-
-        if (fout) {
-            VERGRENDEL();
-            bool nog_zo = stap == nu;             // intussen niet toch verbonden?
-            if (nog_zo) {
-                zet_stap(STAP_NIETS);
-                zet_net(NET_FOUT, fout);
-            }
-            ONTGRENDEL();
-            if (nog_zo && stoppen) mqtt_stoppen();
-        }
-
-        if (nu_ms() - vorige_status >= NET_STATUS_MS) {
+        if (melden) {
             vorige_status = nu_ms();
-            VERGRENDEL();
-            net_toestand_t t = net;
-            ONTGRENDEL();
-            stuur_net_status(t, NULL);
+            stuur_net_status(nu, reden);
         }
+        if (verlopen_ack[0] && mqtt)
+            stuur_ack(verlopen_ack, false, "het scherm heeft het recept niet bevestigd");
+
+        vTaskDelay(pdMS_TO_TICKS(200));
     }
 }
 
-/* ---------------- voor main.c ---------------- */
+/* ---------------- van het scherm ---------------- */
 
 void net_start(const char *server, int poort)
 {
-    vraag_t v = { .start = true, .poort = poort };
-    if (server) strlcpy(v.server, server, sizeof v.server);
-    if (xQueueSend(vragen, &v, 0) != pdTRUE) ESP_LOGW(TAG, "net/start verloren");
+    VERGRENDEL();
+    if (server) strlcpy(reserve_server, server, sizeof reserve_server);
+    if (poort > 0) reserve_poort = poort;
+    automatisch = true;
+    automatisch_sinds = nu_ms();
+    fout_reden = NULL;
+    recept_gestuurd = false;
+    gemeld = NET_UIT;                       // net/status meteen opnieuw sturen
+    if (!verbonden) stuur_net_status(NET_BEZIG, NULL);
+    recept_naar_scherm_als_klaar();
+    ONTGRENDEL();
 }
 
 void net_stop(void)
 {
-    vraag_t v = { .start = false };
-    if (xQueueSend(vragen, &v, 0) != pdTRUE) ESP_LOGW(TAG, "net/stop verloren");
+    VERGRENDEL();
+    automatisch = false;
+    fout_reden = NULL;
+    ONTGRENDEL();
 }
+
+void net_van_scherm(const char *onderwerp, const char *json)
+{
+    bool is_meld = strcmp(onderwerp, OND_MELD) == 0;
+    bool mqtt_ok;
+    VERGRENDEL();
+    mqtt_ok = verbonden;
+    ONTGRENDEL();
+
+    if (!is_meld) {                          // brouw/status
+        if (mqtt_ok) publiceer("brouw/status", json, 0, false);
+        return;
+    }
+
+    cJSON *doc = cJSON_Parse(json);
+    const char *naam = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(doc, "naam"));
+    const char *reden = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(doc, "reden"));
+
+    if (naam && (strcmp(naam, "recept_ok") == 0 || strcmp(naam, "recept_fout") == 0)) {
+        bool ok = strcmp(naam, "recept_ok") == 0;
+        char wachtend[64];
+        VERGRENDEL();
+        strlcpy(wachtend, ack_id, sizeof wachtend);
+        ack_id[0] = 0;
+        if (ok) automatisch = false;         // het scherm heeft zijn recept
+        ONTGRENDEL();
+        if (mqtt_ok && wachtend[0]) {
+            stuur_ack(wachtend, ok, reden ? reden : "recept geweigerd door het scherm");
+        } else if (mqtt_ok && !ok) {
+            char tekst[96];
+            snprintf(tekst, sizeof tekst, "recept geweigerd door het scherm: %s", reden ? reden : "?");
+            stuur_fout("recept", tekst);
+        }
+    } else if (naam && strcmp(naam, "sg") == 0 && mqtt_ok) {
+        // {"nr":..,"naam":"sg","stap":2,"sg":1.050} -> sensor/sg "1.050"
+        const cJSON *sg = cJSON_GetObjectItemCaseSensitive(doc, "sg");
+        if (cJSON_IsNumber(sg)) {
+            char t[16];
+            snprintf(t, sizeof t, "%.3f", sg->valuedouble);
+            publiceer("sensor/sg", t, 0, false);
+        }
+    }
+    cJSON_Delete(doc);
+
+    if (mqtt_ok) publiceer("brouw/meld", json, 1, false);
+}
+
+/* ---------------- van de ketel ---------------- */
+
+void net_ketel(float temp, bool ok, int vermogen, bool pomp, bool zoemer)
+{
+    bool mqtt_ok;
+    VERGRENDEL();
+    mqtt_ok = verbonden;
+    ONTGRENDEL();
+    if (!mqtt_ok) {
+        vorige_sensor_ok = ok;
+        return;
+    }
+
+    if (ok) {
+        char t[16];
+        snprintf(t, sizeof t, "%.1f", temp);
+        publiceer("sensor/temperatuur", t, 0, false);
+    } else if (vorige_sensor_ok) {
+        stuur_fout("sensor", "temperatuursensor geeft geen waarde, verwarming uitgezet");
+    }
+    vorige_sensor_ok = ok;
+
+    // Toestand alleen bij een verandering (retained)
+    if (vermogen != vorig_vermogen) {
+        char v[8];
+        snprintf(v, sizeof v, "%d", vermogen);
+        publiceer("actuator/verwarming/state", v, 1, true);
+        vorig_vermogen = vermogen;
+    }
+    if ((int)pomp != vorige_pomp) {
+        publiceer("actuator/pomp/state", pomp ? "on" : "off", 1, true);
+        vorige_pomp = pomp;
+    }
+    if ((int)zoemer != vorige_zoemer) {
+        publiceer("actuator/zoemer/state", zoemer ? "on" : "off", 1, true);
+        vorige_zoemer = zoemer;
+    }
+}
+
+/* ---------------- start ---------------- */
 
 void net_init(void)
 {
     slot = xSemaphoreCreateMutex();
-    vragen = xQueueCreate(4, sizeof(vraag_t));
-    stuur_net_status(NET_UIT, NULL);              // het scherm ziet zo dat we (weer) leven
+
+    uint8_t mac[6];
+    esp_read_mac(mac, ESP_MAC_WIFI_STA);
+    snprintf(id, sizeof id, "%02x%02x%02x%02x%02x%02x",
+             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    snprintf(basis, sizeof basis, "brouwer/%s/", id);
+    ESP_LOGI(TAG, "MQTT-topics: %s...", basis);
+
+    stuur_net_status(NET_UIT, NULL);         // het scherm ziet zo dat we (weer) leven
     xTaskCreate(net_taak, "net", 4096, NULL, 4, NULL);
 }

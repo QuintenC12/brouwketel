@@ -1,4 +1,4 @@
-# ProcesRegelaar (Niels ESP) v0.3.0
+# ProcesRegelaar (Niels ESP) v0.4.0
 
 Code van Niels (ProcesRegalaar-main), afgewerkt volgens het regelboekje
 (`regelboekje-uart.md`, `main/niels_uart.h`) en het scherm op de branch
@@ -17,14 +17,58 @@ Bij de eerste build downloadt ESP-IDF de component `espressif/mdns` (voor het fo
 | Bestand | Wat |
 |---|---|
 | `main/main.c` | Taken: `temp_task` (meten + PID + ketel/temp), `receive_task` (berichten van het scherm), `ketel_task` (SSR, pomp, zoemer, failsafe) |
-| `main/net.c` | MQTT: verbinden na net/start, net/status, recept doorgeven, meldingen doorsturen |
+| `main/net.c` | Vertaling naar de MQTT-afspraken van de webapp (zie onder) + net/status naar het scherm |
+| `main/recept.c` | Recept van de webapp (`cmd/recept`) omzetten naar het `recept`-bericht van het scherm |
 | `main/pid.c` | PID-regelaar (anti-windup, D-term op de temperatuur) |
 | `main/niels_uart.h` | Kopie van `include/niels_uart.h` (zelfde bestand aan beide kanten) |
 | `components/scherm_uart` | De kabel naar het scherm (van Niels, ongewijzigd) |
 | `components/max31865` | De PT100-sensor (van Niels, ongewijzigd) |
 | `components/brouw_netwerk` | Wifi met hotspot + formulier (van Niels, ongewijzigd) |
 
-## Wat er veranderd is tegenover de code van Niels
+## v0.4.0: vertaling naar de MQTT-afspraken van de webapp
+
+Het UART-protocol met het scherm is **niet veranderd** (regelboekje). Alleen de MQTT-kant
+volgt nu "MQTT-afspraken met elektronica" van het back-end-team. Alle topics beginnen met
+`brouwer/<id>/`, met `<id>` = het wifi-MAC-adres in kleine letters zonder dubbelpunten.
+
+| Van het scherm / de ketel | Naar MQTT (na `brouwer/<id>/`) |
+|---|---|
+| verbinden | client-id `brouwer-<id>`, keepalive 30 s, last will `status` = `offline` (QoS 1, retained) |
+| na het verbinden | `info` (JSON, retained) en `status` = `online` (retained) |
+| `ketel/temp` temp | `sensor/temperatuur` = `66.8` (elke seconde, alleen een geldige meting) |
+| `ketel/temp` ok:false | `fout` = `{"code":"sensor","message":"..."}` (één keer bij het wegvallen) |
+| vermogen van de PID | `actuator/verwarming/state` = `0`..`100` (retained, bij een verandering) |
+| pomp / zoemer uit brouw/stuur | `actuator/pomp/state`, `actuator/zoemer/state` = `on`/`off` (retained) |
+| `brouw/meld` sg | `sensor/sg` = `1.050` |
+| `brouw/meld` recept_ok / recept_fout | `ack` op het recept, of `fout` met code `recept` |
+| `brouw/status`, `brouw/meld` | `brouw/status`, `brouw/meld` (extra, nog niet in de afspraken) |
+
+| Van MQTT | Naar het scherm |
+|---|---|
+| `cmd/recept` `{"message_id":..,"data":{recept}}` | `recept {"naam":..,"kooktijd":..,"stappen":[..],"hops":[..]}` |
+| `cmd/setpoint`, `cmd/actuator` | niets: `ack` met `ok:false`, het scherm regelt de ketel |
+
+Werking:
+- MQTT verbindt **vanzelf** zodra er wifi is, met de broker uit het wifi-formulier. Zo ziet de
+  webapp de ketel altijd online. `server`/`poort` uit net/start gebruikt hij alleen als het
+  formulier nog geen broker heeft.
+- **Recept:** stuur het recept eerst vanuit de webapp en klik daarna op het scherm op
+  **Automatisch**. Niels ESP bewaart het laatste recept en stuurt het na net/start naar het
+  scherm. Het antwoord van het scherm (`recept_ok` of `recept_fout`) gaat als `ack` naar de
+  back-end. Komt het recept binnen terwijl het scherm al wacht, dan gaat het meteen door. Wacht
+  het scherm nog niet, dan antwoordt Niels ESP meteen met `ok:true` (geladen).
+- **Omzetten van het recept:**
+  - `name` wordt `naam`, ingekort tot 47 bytes
+  - `mash_schedule.steps` wordt `stappen`, gesorteerd op `step_nr`, met temperatuur en minuten
+    afgerond
+  - `hops` wordt `hops`, als `"Citra - 20 g"` met `boil_time_min`, langste eerst
+  - `kooktijd` is de langste hoptijd, met een minimum van 60 min
+  - meer dan 4 stappen of meer dan 5 hopgiften: `ack` met `ok:false`
+- net/status naar het scherm: `verbonden` zolang MQTT verbonden is. Na net/start zonder
+  verbinding is het `bezig`, en na 25 s `fout` met de reden "wifi", "wifi niet ingesteld" of
+  "server onbereikbaar".
+
+## v0.3.0: wat er veranderd is tegenover de code van Niels
 
 1. **brouw/stuur** leest nu `doel`, `kp`, `ki`, `kd`, `pomp` en `zoemer`. Ontbreekt kp, ki of kd,
    dan blijft de vorige waarde. Ontbreekt `doel`, dan staat de verwarming uit.
@@ -42,7 +86,7 @@ Bij de eerste build downloadt ESP-IDF de component `espressif/mdns` (voor het fo
    staat aan.
 7. **brouw/status** antwoordde eerst met een nep-`net/status verbonden`. Nu gaat het
    ongewijzigd naar MQTT (`brouwketel/brouw/status`).
-8. **net/start** deed eerst 1 s niets en meldde dan altijd "verbonden". Nu:
+8. *(aangepast in v0.4.0)* **net/start** deed eerst 1 s niets en meldde dan altijd "verbonden". Nu:
    - het antwoord is `bezig`
    - daarna wacht hij op wifi via `brouw_netwerk`, hooguit 12 s
    - dan start hij MQTT, hooguit 12 s, en meldt hij `verbonden`
@@ -53,12 +97,12 @@ Bij de eerste build downloadt ESP-IDF de component `espressif/mdns` (voor het fo
    - de ketel-ID uit het formulier is de MQTT-client-ID
    - het verbinden gebeurt in een eigen taak, zodat brouw/stuur nooit blijft liggen
 9. **net/stop** stopt MQTT. De wifi blijft verbonden.
-10. **Meldingen**: een nieuwe brouw/meld gaat naar `brouwketel/brouw/meld`, met QoS 1. Is er
+10. *(vervangen in v0.4.0)* **Meldingen**: een nieuwe brouw/meld gaat naar `brouwketel/brouw/meld`, met QoS 1. Is er
     geen verbinding, dan bewaart hij er tot 10 en stuurt hij die later.
-11. **Recept**: na het verbinden publiceert hij op `brouwketel/recept/vraag`. Wat de server op
+11. *(vervangen in v0.4.0)* **Recept**: na het verbinden publiceert hij op `brouwketel/recept/vraag`. Wat de server op
     `brouwketel/recept` stuurt, gaat als `recept {...}` naar het scherm. Dat mag hooguit 512
     tekens zijn.
-12. **ketel/temp** gaat ook naar MQTT (`brouwketel/ketel/temp`).
+12. *(vervangen in v0.4.0)* **ketel/temp** gaat ook naar MQTT (`brouwketel/ketel/temp`).
 13. Het setupwachtwoord van de hotspot staat in menuconfig en niet meer in `main.c`. De
     standaardwaarde is nog "admin123".
 14. Grotere app-partitie (`sdkconfig.defaults`): het programma is ongeveer 1 MB.

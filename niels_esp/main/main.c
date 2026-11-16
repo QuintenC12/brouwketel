@@ -4,7 +4,8 @@
  * Doet het werk aan de ketel en praat met twee kanten:
  *   - het scherm (CrowPanel) via UART1, regels "onderwerp {json}"
  *     (component scherm_uart, afspraken in niels_uart.h en het regelboekje)
- *   - de MQTT-server via wifi (wifi: component brouw_netwerk, MQTT: net.c)
+ *   - de webapp via MQTT (wifi: component brouw_netwerk; vertaling naar de
+ *     MQTT-afspraken van de webapp: net.c en recept.c)
  *
  * Aan de ketel: PT100 via MAX31865 (temperatuur), SSR (verwarming),
  * pomp en zoemer.
@@ -21,7 +22,7 @@
  *   temp_task     elke seconde meten, PID uitrekenen, ketel/temp sturen
  *   receive_task  berichten van het scherm ontvangen en verwerken
  *   ketel_task    SSR, pomp en zoemer aansturen + veiligheid
- *   net (net.c)   MQTT starten en stoppen
+ *   net (net.c)   MQTT bijhouden, net/status naar het scherm
  *
  * Veiligheid: komt er NIELS_STIL_MAX_MS (2 s) geen brouw/stuur binnen,
  * dan gaan verwarming, pomp en zoemer uit, gaat het doel op 0 en wordt de
@@ -184,7 +185,8 @@ void temp_task(void *parameters)
         {
             printf("Temperatuur versturen mislukt: %s\n", esp_err_to_name(err));
         }
-        net_publiceer(OND_TEMP, json);
+        // Naar de webapp: sensor/temperatuur en de toestand van de actuatoren
+        net_ketel(temperature_c, ok, vermogen, pomp_aan, zoemer != ZOEMER_UIT);
 
         vTaskDelay(pdMS_TO_TICKS(TEMP_MS));
     }
@@ -316,25 +318,25 @@ static void bericht_verwerken(const scherm_uart_bericht_t *bericht)
                 printf("Ack versturen mislukt: %s\n", esp_err_to_name(err));
             }
 
-            // Elk nummer maar één keer doorgeven aan MQTT.
-            // Ook recept_ok en recept_fout komen zo bij de server.
+            // Elk nummer maar één keer doorgeven aan net.c. Die zet
+            // recept_ok/recept_fout om in de ack voor de webapp en sg in sensor/sg.
             if (message_is_new(nr))
             {
                 printf("Nieuwe melding: %s\n", bericht->json);
-                net_publiceer(OND_MELD, bericht->json);
+                net_van_scherm(OND_MELD, bericht->json);
             }
         }
     }
     else if (strcmp(bericht->onderwerp, OND_STATUS) == 0)
     {
-        // Alleen voor de webapp: ongewijzigd doorsturen naar MQTT.
-        net_publiceer(OND_STATUS, bericht->json);
+        // Alleen voor de webapp: doorsturen naar MQTT.
+        net_van_scherm(OND_STATUS, bericht->json);
     }
     else if (strcmp(bericht->onderwerp, OND_NET_START) == 0)
     {
         // {"server":"192.168.0.25","poort":1883}. Geen ack: het antwoord
-        // komt via net/status. Zonder server gebruikt net.c de broker uit
-        // het wifi-formulier.
+        // komt via net/status, daarna het recept. net.c gebruikt de broker
+        // uit het wifi-formulier; server/poort alleen als dat leeg is.
         cJSON* server = cJSON_GetObjectItemCaseSensitive(data, "server");
         cJSON* poort = cJSON_GetObjectItemCaseSensitive(data, "poort");
         net_start(cJSON_IsString(server) ? server->valuestring : NULL,
@@ -342,7 +344,8 @@ static void bericht_verwerken(const scherm_uart_bericht_t *bericht)
     }
     else if (strcmp(bericht->onderwerp, OND_NET_STOP) == 0)
     {
-        // Geen ack. MQTT stopt, de wifi blijft verbonden.
+        // Geen ack. Het scherm wacht niet meer op een recept;
+        // MQTT blijft verbonden, zodat de webapp de ketel online ziet.
         net_stop();
     }
 
