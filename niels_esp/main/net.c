@@ -19,8 +19,10 @@
  *               cmd/<iets anders> -> ack met ok:false (het scherm regelt de ketel)
  *   Fouten      fout {"code":"sensor"|"recept","message":".."}
  *
- * Extra, nog niet in de afspraken (de back-end mag ze negeren):
- *   brouw/status en brouw/meld: de berichten van het scherm, ongewijzigd.
+ * Extra, nog niet in de afspraken (voorstel aan het back-end-team):
+ *   fase   "geen" | "maischen" | "spoelen" | "koken"   (retained, bij een verandering)
+ *   event  {"naam":"hop_alarm","tekst":"Hop toevoegen: Citra - 20 g","hop":"Citra - 20 g"}
+ *          een melding van het scherm, met een tekst die de webapp zo kan tonen
  *
  * Wat het scherm ziet, blijft zoals in het regelboekje:
  *   net/start -> net/status "bezig", dan "verbonden" (of "fout"), dan recept {...}
@@ -84,6 +86,7 @@ static uint32_t ack_sinds = 0;
 // Laatst gepubliceerde toestand (-1 = nog niet), alleen vanuit temp_task
 static int  vorig_vermogen = -1, vorige_pomp = -1, vorige_zoemer = -1;
 static bool vorige_sensor_ok = true;
+static char vorige_fase[16] = "";          // laatst gepubliceerde fase, alleen receive_task
 
 static uint32_t nu_ms(void) { return (uint32_t)(esp_timer_get_time() / 1000); }
 
@@ -252,6 +255,7 @@ static void mqtt_event(void *arg, esp_event_base_t base, int32_t evid, void *dat
         stuur_info();
         publiceer("status", "online", 1, true);
         vorig_vermogen = vorige_pomp = vorige_zoemer = -1;  // toestand opnieuw publiceren
+        vorige_fase[0] = 0;
 
         VERGRENDEL();
         verbonden = true;
@@ -409,6 +413,53 @@ void net_stop(void)
     ONTGRENDEL();
 }
 
+/* Melding van het scherm -> brouwer/<id>/event, met een tekst die de webapp
+ * zo kan tonen. Het nummer (nr) is alleen voor de kabel en valt weg; de
+ * extra velden (stap, hop, sg, reden) gaan mee.
+ *   brouw/meld {"nr":5,"naam":"hop_alarm","hop":"Citra - 20 g"}
+ *   -> event {"naam":"hop_alarm","tekst":"Hop toevoegen: Citra - 20 g","hop":"Citra - 20 g"} */
+static void stuur_event(const cJSON *doc, const char *naam)
+{
+    const char *hop = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(doc, "hop"));
+    const char *reden = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(doc, "reden"));
+    const cJSON *stap = cJSON_GetObjectItemCaseSensitive(doc, "stap");
+    const cJSON *sg = cJSON_GetObjectItemCaseSensitive(doc, "sg");
+    int st = cJSON_IsNumber(stap) ? stap->valueint : 0;
+
+    char tekst[96];
+    if      (!strcmp(naam, "start"))            snprintf(tekst, sizeof tekst, "Brouwen gestart");
+    else if (!strcmp(naam, "pauze"))            snprintf(tekst, sizeof tekst, "Gepauzeerd");
+    else if (!strcmp(naam, "hervat"))           snprintf(tekst, sizeof tekst, "Hervat");
+    else if (!strcmp(naam, "stop"))             snprintf(tekst, sizeof tekst, "Brouwen gestopt");
+    else if (!strcmp(naam, "volgende_stap"))    snprintf(tekst, sizeof tekst, "Maischstap %d gestart", st);
+    else if (!strcmp(naam, "maischen_klaar"))   snprintf(tekst, sizeof tekst, "Maischen klaar, spoelen");
+    else if (!strcmp(naam, "start_koken"))      snprintf(tekst, sizeof tekst, "Koken gestart");
+    else if (!strcmp(naam, "hop_alarm"))        snprintf(tekst, sizeof tekst, "Hop toevoegen: %s", hop ? hop : "?");
+    else if (!strcmp(naam, "hop_toegevoegd"))   snprintf(tekst, sizeof tekst, "Hop toegevoegd: %s", hop ? hop : "?");
+    else if (!strcmp(naam, "koken_klaar"))      snprintf(tekst, sizeof tekst, "Koken klaar");
+    else if (!strcmp(naam, "schema_gewijzigd")) snprintf(tekst, sizeof tekst, "Brouwschema aangepast op het scherm");
+    else if (!strcmp(naam, "sensorfout"))       snprintf(tekst, sizeof tekst, "Sensorfout: verwarming uit");
+    else if (!strcmp(naam, "sg"))               snprintf(tekst, sizeof tekst, "SG na maischstap %d: %.3f", st,
+                                                         cJSON_IsNumber(sg) ? sg->valuedouble : 0.0);
+    else if (!strcmp(naam, "recept_ok"))        snprintf(tekst, sizeof tekst, "Recept geladen op het scherm");
+    else if (!strcmp(naam, "recept_fout"))      snprintf(tekst, sizeof tekst, "Recept geweigerd: %s", reden ? reden : "?");
+    else                                        snprintf(tekst, sizeof tekst, "%s", naam);
+
+    cJSON *o = cJSON_CreateObject();
+    cJSON_AddStringToObject(o, "naam", naam);
+    cJSON_AddStringToObject(o, "tekst", tekst);
+    if (cJSON_IsNumber(stap)) cJSON_AddNumberToObject(o, "stap", st);
+    if (hop) cJSON_AddStringToObject(o, "hop", hop);
+    if (cJSON_IsNumber(sg)) cJSON_AddNumberToObject(o, "sg", sg->valuedouble);
+    if (reden) cJSON_AddStringToObject(o, "reden", reden);
+    char *json = cJSON_PrintUnformatted(o);
+    cJSON_Delete(o);
+    if (json) {
+        publiceer("event", json, 1, false);
+        free(json);
+    }
+}
+
 void net_van_scherm(const char *onderwerp, const char *json)
 {
     bool is_meld = strcmp(onderwerp, OND_MELD) == 0;
@@ -419,10 +470,14 @@ void net_van_scherm(const char *onderwerp, const char *json)
 
     if (!is_meld) {                          // brouw/status
         if (!mqtt_ok) return;
-        publiceer("brouw/status", json, 0, false);
         // {"fase":"maischen","stap":2,"doel":63,"rest":754,"pauze":false}
-        // De getallen ook als sensor, zodat de webapp ze zonder extra werk toont.
+        // De getallen als sensor, de fase als tekst, zodat de webapp ze zo toont.
         cJSON *st = cJSON_Parse(json);
+        const char *fase = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(st, "fase"));
+        if (fase && strcmp(fase, vorige_fase) != 0) {
+            strlcpy(vorige_fase, fase, sizeof vorige_fase);
+            publiceer("fase", fase, 1, true);       // alleen bij een verandering
+        }
         static const char *velden[][2] = {
             { "doel", "sensor/doeltemperatuur" },
             { "rest", "sensor/resterend" },
@@ -468,9 +523,8 @@ void net_van_scherm(const char *onderwerp, const char *json)
             publiceer("sensor/sg", t, 0, false);
         }
     }
+    if (naam && mqtt_ok) stuur_event(doc, naam);
     cJSON_Delete(doc);
-
-    if (mqtt_ok) publiceer("brouw/meld", json, 1, false);
 }
 
 /* ---------------- van de ketel ---------------- */

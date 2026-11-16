@@ -42,7 +42,8 @@ volgt nu "MQTT-afspraken met elektronica" van het back-end-team. Alle topics beg
 | `brouw/meld` sg | `sensor/sg` = `1.050` |
 | `brouw/status` doel, rest, stap | `sensor/doeltemperatuur` (°C), `sensor/resterend` (s), `sensor/maischstap` (elke seconde) |
 | `brouw/meld` recept_ok / recept_fout | `ack` op het recept, of `fout` met code `recept` |
-| `brouw/status`, `brouw/meld` | `brouw/status`, `brouw/meld` (extra, nog niet in de afspraken) |
+| `brouw/status` fase | `fase` = `geen`/`maischen`/`spoelen`/`koken` (retained, bij een verandering; extra, nog niet in de afspraken) |
+| `brouw/meld` (elke nieuwe) | `event` = `{"naam":"hop_alarm","tekst":"Hop toevoegen: Citra - 20 g","hop":"Citra - 20 g"}` (zonder `nr`; extra, nog niet in de afspraken) |
 
 | Van MQTT | Naar het scherm |
 |---|---|
