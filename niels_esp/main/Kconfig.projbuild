@@ -1,12 +1,11 @@
-menu "Niels ESP: wifi en ketel"
+menu "Niels ESP: ketel en wifi-setup"
 
-    config NIELS_WIFI_NAAM
-        string "Wifi-naam (SSID)"
-        default "mijn-wifi"
-
-    config NIELS_WIFI_WACHTWOORD
-        string "Wifi-wachtwoord"
-        default "mijn-wachtwoord"
+    config NIELS_SETUP_WACHTWOORD
+        string "Wachtwoord van de setup-hotspot (8 tot 63 tekens)"
+        default "admin123"
+        help
+            Met dit wachtwoord verbind je met Brouwketel-Setup-XXXXXX om
+            wifi en de MQTT-broker in te vullen. Kies per ketel een eigen.
 
     config NIELS_PIN_SSR
         int "SSR (verwarming)"

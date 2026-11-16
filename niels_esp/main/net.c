@@ -1,13 +1,22 @@
 /*
- * net.c - wifi en MQTT voor Niels ESP (zie net.h)
+ * net.c - MQTT voor Niels ESP (zie net.h)
  *
- * Alles wat de net-taak, de wifi-events en de MQTT-events delen, staat
- * achter een mutex ("slot"). Functies van esp-mqtt worden nooit aangeroepen
- * terwijl het slot vast is: dat kan vastlopen met de eigen MQTT-taak.
+ * Alle verbinden en stoppen gebeurt in één taak (net_taak). net_start() en
+ * net_stop() leggen alleen een vraag in een wachtrij, zodat de
+ * ontvangsttaak nooit hoeft te wachten en brouw/stuur op tijd verwerkt
+ * blijft (anders slaat de failsafe van 2 s aan).
  *
- * Recept: zodra de verbinding er is, publiceert Niels ESP iets op
- * brouwketel/recept/vraag. De server stuurt dan het recept op
- * brouwketel/recept, en dat gaat als "recept {...}" naar het scherm.
+ * Verloop na net/start:
+ *   1. net/status "bezig"
+ *   2. wachten tot brouw_netwerk een IP-adres heeft (hooguit WIFI_MAX_MS)
+ *   3. MQTT-client starten (hooguit MQTT_MAX_MS tot de broker antwoordt)
+ *   4. net/status "verbonden", inschrijven op brouwketel/recept en het
+ *      recept vragen met brouwketel/recept/vraag
+ *   5. het recept van de server gaat als "recept {...}" naar het scherm
+ * Lukt stap 2 of 3 niet: net/status "fout" met een reden.
+ *
+ * Er is maar één MQTT-client. Hij wordt één keer gemaakt en nooit
+ * opgeruimd; bij een nieuwe net/start krijgt hij alleen een ander adres.
  */
 #include "net.h"
 
@@ -16,18 +25,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "brouw_netwerk.h"
 #include "cJSON.h"
-#include "esp_event.h"
 #include "esp_log.h"
-#include "esp_netif.h"
 #include "esp_timer.h"
-#include "esp_wifi.h"
 #include "freertos/FreeRTOS.h"
+#include "freertos/queue.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
 #include "mqtt_client.h"
-#include "nvs_flash.h"
-#include "sdkconfig.h"
 
 #include "niels_uart.h"
 #include "scherm_uart.h"
@@ -35,7 +41,8 @@
 static const char *TAG = "net";
 
 #define NET_STATUS_MS   5000    // zo vaak net/status herhalen
-#define VERBIND_MAX_MS  20000   // zo lang mag wifi + MQTT verbinden duren
+#define WIFI_MAX_MS     12000   // zo lang wachten op een IP-adres
+#define MQTT_MAX_MS     12000   // zo lang wachten op de broker
 #define MAX_BEWAARD     10      // meldingen bewaren als de server weg is
 
 #define MQTT_RECEPT       MQTT_VOORVOEGSEL "recept"
@@ -43,17 +50,27 @@ static const char *TAG = "net";
 
 typedef enum { NET_UIT, NET_BEZIG, NET_VERBONDEN, NET_FOUT } net_toestand_t;
 
+// Wat net_taak aan het doen is
+typedef enum { STAP_NIETS, STAP_WACHT_WIFI, STAP_WACHT_MQTT, STAP_VERBONDEN } stap_t;
+
+typedef struct {
+    bool start;              // true = net/start, false = net/stop
+    char server[64];
+    int  poort;
+} vraag_t;
+
+static QueueHandle_t vragen;
 static SemaphoreHandle_t slot;
 #define VERGRENDEL()   xSemaphoreTake(slot, portMAX_DELAY)
 #define ONTGRENDEL()   xSemaphoreGive(slot)
 
-// mqtt wordt alleen in net_start() gemaakt en daarna nooit meer veranderd
+// Alleen net_taak maakt of verandert de client
 static esp_mqtt_client_handle_t mqtt = NULL;
 
-// Achter het slot
+// Achter het slot (de MQTT-events draaien in een andere taak)
 static net_toestand_t net = NET_UIT;
-static bool     net_gewenst = false;
-static uint32_t verbind_start = 0;
+static stap_t   stap = STAP_NIETS;
+static uint32_t stap_sinds = 0;
 static char    *bewaard[MAX_BEWAARD];
 static int      aantal_bewaard = 0;
 
@@ -72,13 +89,19 @@ static void stuur_net_status(net_toestand_t toestand, const char *reden)
     scherm_uart_verstuur(OND_NET_STATUS, json);
 }
 
-/* Aanroepen met het slot vast */
+/* Aanroepen met het slot vast. Stuurt net/status alleen bij een verandering. */
 static void zet_net(net_toestand_t nieuw, const char *reden)
 {
     if (nieuw == net) return;
     net = nieuw;
-    ESP_LOGI(TAG, "toestand %d %s", net, reden ? reden : "");
+    ESP_LOGI(TAG, "net/status %d %s", net, reden ? reden : "");
     stuur_net_status(net, reden);
+}
+
+static void zet_stap(stap_t nieuw)
+{
+    stap = nieuw;
+    stap_sinds = nu_ms();
 }
 
 /* ---------------- naar MQTT ---------------- */
@@ -100,10 +123,27 @@ void net_publiceer(const char *onderwerp, const char *json)
         bewaard[aantal_bewaard++] = strdup(json);
     }
     ONTGRENDEL();
+    // Meldingen met QoS 1: de broker bevestigt ze. De rest met QoS 0.
     if (verbonden) esp_mqtt_client_publish(mqtt, volledig, json, 0, is_melding ? 1 : 0, 0);
 }
 
-/* ---------------- MQTT-events ---------------- */
+/* ---------------- MQTT-events (draaien in de taak van esp-mqtt) ---------------- */
+
+static void recept_doorgeven(const char *data, int lengte)
+{
+    // Op één regel zetten (zonder regeleinden) en naar het scherm.
+    cJSON *recept = cJSON_ParseWithLength(data, lengte);
+    char *regel = recept ? cJSON_PrintUnformatted(recept) : NULL;
+    cJSON_Delete(recept);
+    if (!regel) {
+        ESP_LOGW(TAG, "recept is geen geldige JSON");
+        return;
+    }
+    // Het scherm aanvaardt regels tot NIELS_MAX_REGEL tekens.
+    esp_err_t err = scherm_uart_verstuur(OND_RECEPT, regel);
+    if (err != ESP_OK) ESP_LOGW(TAG, "recept niet naar het scherm: %s", esp_err_to_name(err));
+    free(regel);
+}
 
 static void mqtt_event(void *arg, esp_event_base_t base, int32_t id, void *data)
 {
@@ -116,6 +156,7 @@ static void mqtt_event(void *arg, esp_event_base_t base, int32_t id, void *data)
         int n = aantal_bewaard;
         memcpy(te_sturen, bewaard, sizeof(char *) * n);
         aantal_bewaard = 0;
+        zet_stap(STAP_VERBONDEN);
         zet_net(NET_VERBONDEN, NULL);
         ONTGRENDEL();
 
@@ -130,166 +171,156 @@ static void mqtt_event(void *arg, esp_event_base_t base, int32_t id, void *data)
 
     case MQTT_EVENT_DISCONNECTED:
         VERGRENDEL();
-        if (net_gewenst && net == NET_VERBONDEN) {   // de client verbindt zelf opnieuw
-            verbind_start = nu_ms();
+        if (stap == STAP_VERBONDEN) {             // de client verbindt zelf opnieuw
+            zet_stap(STAP_WACHT_MQTT);
             zet_net(NET_BEZIG, "verbinding verloren");
         }
         ONTGRENDEL();
         break;
 
-    case MQTT_EVENT_DATA: {
-        // Recept van de server: op één regel zetten en naar het scherm.
+    case MQTT_EVENT_DATA:
         if (ev->topic_len != (int)strlen(MQTT_RECEPT) ||
             strncmp(ev->topic, MQTT_RECEPT, ev->topic_len) != 0) break;
         if (ev->current_data_offset != 0 || ev->data_len != ev->total_data_len) {
             ESP_LOGW(TAG, "recept te groot voor de MQTT-buffer");
             break;
         }
-        cJSON *recept = cJSON_ParseWithLength(ev->data, ev->data_len);
-        char *regel = recept ? cJSON_PrintUnformatted(recept) : NULL;
-        cJSON_Delete(recept);
-        if (!regel) { ESP_LOGW(TAG, "recept is geen geldige JSON"); break; }
-        // Het scherm aanvaardt regels tot NIELS_MAX_REGEL tekens.
-        esp_err_t err = scherm_uart_verstuur(OND_RECEPT, regel);
-        if (err != ESP_OK) ESP_LOGW(TAG, "recept niet naar het scherm: %s", esp_err_to_name(err));
-        free(regel);
+        recept_doorgeven(ev->data, ev->data_len);
         break;
-    }
 
     default:
         break;
     }
 }
 
-/* ---------------- wifi ---------------- */
+/* ---------------- net_taak ---------------- */
 
-static void wifi_event(void *arg, esp_event_base_t base, int32_t id, void *data)
+/* MQTT-client starten met het adres van het scherm, of anders dat uit het
+ * wifi-formulier. Geeft een reden terug als het niet lukt, anders NULL. */
+static const char *mqtt_starten(const vraag_t *v)
 {
-    if (base == WIFI_EVENT && id == WIFI_EVENT_STA_DISCONNECTED) {
-        VERGRENDEL();
-        bool opnieuw = net_gewenst;
-        if (net_gewenst && net == NET_VERBONDEN) {
-            verbind_start = nu_ms();
-            zet_net(NET_BEZIG, "wifi weg");
-        }
-        ONTGRENDEL();
-        if (opnieuw) esp_wifi_connect();
-    } else if (base == IP_EVENT && id == IP_EVENT_STA_GOT_IP) {
-        ESP_LOGI(TAG, "wifi verbonden");     // de MQTT-client verbindt nu vanzelf
-    }
-}
+    brouw_netwerk_mqtt_t formulier;
+    bool formulier_ok = brouw_netwerk_lees_mqtt(&formulier) == ESP_OK;
 
-static void wifi_starten(void)
-{
-    esp_err_t err = nvs_flash_init();         // nodig voor wifi
-    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        nvs_flash_erase();
-        nvs_flash_init();
-    }
+    const char *host = v->server[0] ? v->server : (formulier_ok ? formulier.host : NULL);
+    int poort = v->poort > 0 ? v->poort : (formulier_ok ? formulier.poort : 1883);
+    if (!host || !host[0]) return "geen serveradres";
 
-    esp_netif_init();
-    esp_event_loop_create_default();
-    esp_netif_create_default_wifi_sta();
-
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-    esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, wifi_event, NULL);
-    esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, wifi_event, NULL);
-
-    wifi_config_t wc = { 0 };
-    strlcpy((char *)wc.sta.ssid, CONFIG_NIELS_WIFI_NAAM, sizeof wc.sta.ssid);
-    strlcpy((char *)wc.sta.password, CONFIG_NIELS_WIFI_WACHTWOORD, sizeof wc.sta.password);
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
-    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wc));
-    ESP_ERROR_CHECK(esp_wifi_start());
-}
-
-/* ---------------- verbinden en stoppen ---------------- */
-
-/* Er is maar één MQTT-client, die nooit wordt opgeruimd. Bij een nieuwe
- * net/start krijgt hij alleen een ander adres. Zo kan een andere taak
- * nooit publiceren met een client die net verdwenen is. */
-static void client_stoppen(void)
-{
-    if (mqtt) esp_mqtt_client_stop(mqtt);     // al gestopt? dan doet dit niets
-}
-
-void net_start(const char *server, int poort)
-{
-    char uri[80];
-    snprintf(uri, sizeof uri, "mqtt://%s:%d", server, poort);
+    char uri[280];                            // host mag tot 253 tekens zijn
+    snprintf(uri, sizeof uri, "mqtt://%s:%d", host, poort);
     ESP_LOGI(TAG, "verbinden met %s", uri);
-
-    client_stoppen();
-    VERGRENDEL();
-    net_gewenst = true;
-    verbind_start = nu_ms();
-    net = NET_UIT;                            // zodat "bezig" zeker verstuurd wordt
-    zet_net(NET_BEZIG, NULL);
-    ONTGRENDEL();
 
     if (!mqtt) {
         esp_mqtt_client_config_t cfg = {
             .broker.address.uri = uri,
-            .credentials.client_id = "niels-esp",
-            .buffer.size = 2048,              // het recept is een lang bericht
+            // de ketel-ID uit het formulier, anders een vaste naam
+            .credentials.client_id = formulier_ok ? formulier.ketel_id : "niels-esp",
+            .buffer.size = 2048,                  // het recept is een lang bericht
         };
         mqtt = esp_mqtt_client_init(&cfg);
-        if (mqtt) esp_mqtt_client_register_event(mqtt, ESP_EVENT_ANY_ID, mqtt_event, NULL);
+        if (!mqtt) return "MQTT-client";
+        esp_mqtt_client_register_event(mqtt, ESP_EVENT_ANY_ID, mqtt_event, NULL);
     } else if (esp_mqtt_client_set_uri(mqtt, uri) != ESP_OK) {
-        ESP_LOGW(TAG, "adres niet aanvaard: %s", uri);
+        return "ongeldig serveradres";
     }
+    return esp_mqtt_client_start(mqtt) == ESP_OK ? NULL : "MQTT-client";
+}
 
-    if (!mqtt || esp_mqtt_client_start(mqtt) != ESP_OK) {
+static void mqtt_stoppen(void)
+{
+    if (mqtt) esp_mqtt_client_stop(mqtt);     // al gestopt? dan doet dit niets
+}
+
+static void net_taak(void *parameters)
+{
+    vraag_t huidige = { 0 };
+    uint32_t vorige_status = nu_ms();
+
+    while (1) {
+        vraag_t v;
+        if (xQueueReceive(vragen, &v, pdMS_TO_TICKS(200)) == pdTRUE) {
+            mqtt_stoppen();                       // eerst een vorige verbinding stoppen
+            VERGRENDEL();
+            if (v.start) {
+                huidige = v;
+                zet_stap(STAP_WACHT_WIFI);
+                net = NET_UIT;                    // zodat "bezig" zeker verstuurd wordt
+                zet_net(NET_BEZIG, NULL);
+            } else {
+                zet_stap(STAP_NIETS);
+                zet_net(NET_UIT, NULL);
+            }
+            ONTGRENDEL();
+        }
+
         VERGRENDEL();
-        net_gewenst = false;
-        zet_net(NET_FOUT, "MQTT-client start niet");
+        stap_t nu = stap;
+        uint32_t duur = nu_ms() - stap_sinds;
         ONTGRENDEL();
-        return;
+
+        const char *fout = NULL;
+        bool stoppen = false;
+        if (nu == STAP_WACHT_WIFI) {
+            brouw_netwerk_status_t w = brouw_netwerk_status();
+            if (w == BROUW_NETWERK_IP_GEREED) {
+                fout = mqtt_starten(&huidige);
+                if (!fout) {
+                    VERGRENDEL();
+                    if (stap == STAP_WACHT_WIFI) zet_stap(STAP_WACHT_MQTT);
+                    ONTGRENDEL();
+                }
+            } else if (w == BROUW_NETWERK_SETUP) {
+                fout = "wifi niet ingesteld";     // eerst het formulier invullen
+            } else if (w == BROUW_NETWERK_FOUT || w == BROUW_NETWERK_UIT) {
+                fout = "wifi";
+            } else if (duur > WIFI_MAX_MS) {
+                fout = "wifi";
+            }
+        } else if (nu == STAP_WACHT_MQTT && duur > MQTT_MAX_MS) {
+            fout = "server onbereikbaar";
+            stoppen = true;
+        }
+
+        if (fout) {
+            VERGRENDEL();
+            bool nog_zo = stap == nu;             // intussen niet toch verbonden?
+            if (nog_zo) {
+                zet_stap(STAP_NIETS);
+                zet_net(NET_FOUT, fout);
+            }
+            ONTGRENDEL();
+            if (nog_zo && stoppen) mqtt_stoppen();
+        }
+
+        if (nu_ms() - vorige_status >= NET_STATUS_MS) {
+            vorige_status = nu_ms();
+            VERGRENDEL();
+            net_toestand_t t = net;
+            ONTGRENDEL();
+            stuur_net_status(t, NULL);
+        }
     }
-    esp_wifi_connect();                       // al verbonden? dan doet dit niets
+}
+
+/* ---------------- voor main.c ---------------- */
+
+void net_start(const char *server, int poort)
+{
+    vraag_t v = { .start = true, .poort = poort };
+    if (server) strlcpy(v.server, server, sizeof v.server);
+    if (xQueueSend(vragen, &v, 0) != pdTRUE) ESP_LOGW(TAG, "net/start verloren");
 }
 
 void net_stop(void)
 {
-    VERGRENDEL();
-    net_gewenst = false;
-    zet_net(NET_UIT, NULL);
-    ONTGRENDEL();
-    client_stoppen();
-}
-
-/* Geen verbinding binnen VERBIND_MAX_MS: fout melden en stoppen.
- * Daarnaast elke NET_STATUS_MS de toestand herhalen voor het scherm. */
-static void net_taak(void *parameters)
-{
-    uint32_t vorige_status = nu_ms();
-    while (1) {
-        bool stoppen = false;
-        VERGRENDEL();
-        if (net_gewenst && net == NET_BEZIG && nu_ms() - verbind_start > VERBIND_MAX_MS) {
-            wifi_ap_record_t ap;
-            bool wifi_ok = esp_wifi_sta_get_ap_info(&ap) == ESP_OK;
-            stoppen = true;
-            net_gewenst = false;
-            zet_net(NET_FOUT, wifi_ok ? "server onbereikbaar" : "wifi niet gevonden");
-        }
-        net_toestand_t nu = net;
-        ONTGRENDEL();
-        if (stoppen) client_stoppen();
-
-        if (nu_ms() - vorige_status >= NET_STATUS_MS) {
-            vorige_status = nu_ms();
-            stuur_net_status(nu, NULL);
-        }
-        vTaskDelay(pdMS_TO_TICKS(200));
-    }
+    vraag_t v = { .start = false };
+    if (xQueueSend(vragen, &v, 0) != pdTRUE) ESP_LOGW(TAG, "net/stop verloren");
 }
 
 void net_init(void)
 {
     slot = xSemaphoreCreateMutex();
-    wifi_starten();
-    stuur_net_status(NET_UIT, NULL);          // het scherm ziet zo dat we (weer) leven
+    vragen = xQueueCreate(4, sizeof(vraag_t));
+    stuur_net_status(NET_UIT, NULL);              // het scherm ziet zo dat we (weer) leven
     xTaskCreate(net_taak, "net", 4096, NULL, 4, NULL);
 }

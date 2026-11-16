@@ -24,7 +24,7 @@ void setup() {
   lv_init();  //LVGL starten
   lv_tick_set_cb(my_tick);  //LVGL zeggen hoe laat het is
   if (!board_init()) {      //scherm (800x480 RGB) + touch (GT911) koppelen aan LVGL
-    Serial.println("Scherm kon niet starten - zie meldingen hierboven");
+    Serial.println("Scherm kon niet starten");
   }
   ui_init();        // bouwt de schermen uit EEZ Studio op
   brouwer_init();   // startwaarden + scherm in de juiste toestand

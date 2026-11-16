@@ -13,29 +13,19 @@
 #include "brouwer.h"    //eigen functies
 #include "hardware.h"   //HW... net...
 
-BrouwStatus brouw;  //het heilige brouwproces
-
 ScreensEnum ui_vorig_scherm();   // ui_update.cpp
 
-/* Stappen bij het instellen */
-#define TEMP_MIN   20
-#define TEMP_MAX   100
+/* Stappen bij het instellen (TEMP_MIN en TEMP_MAX staan in brouwer.h) */
 #define TEMP_STAP  1     // °C per klik
 #define TIJD_MIN   1
 #define TIJD_MAX   240
 #define TIJD_STAP  1     // minuten per klik
 
-/* Manuele modus: koken zonder hopschema */
-#define MAN_KOOKTIJD_MIN 60
+/* Manuele modus: koken zonder hopschema (MAN_KOOKTIJD_MIN staat in brouwer.h) */
 #define MAN_STAP_TEMP   65    // eerste stap als je manueel begint
 #define MAN_STAP_MIN    60
 #define MAN_EXTRA_TEMP  5     // nieuwe stap = vorige stap + 5 °C ...
 #define MAN_EXTRA_MIN   15    // ... gedurende 15 min
-
-/* Standaard PID-waarden (pas aan in Instellingen) */
-#define PID_KP 20.0f
-#define PID_KI 0.05f
-#define PID_KD 10.0f
 
 static int begrens(int waarde, int min, int max) {
     return waarde < min ? min : (waarde > max ? max : waarde);
@@ -43,28 +33,21 @@ static int begrens(int waarde, int min, int max) {
 
 static void ga_terug() { ui_ga_naar(ui_vorig_scherm()); }
 
-/* ======================================================================
- * Opstarten
- * ====================================================================== */
+/* Het scherm dat bij de lopende fase hoort */
+static ScreensEnum fase_scherm() {
+    switch (brouw.fase) {
+    case FASE_MAISCHEN: return brouw.gepauzeerd ? SCREEN_ID_MAISCHEN_PAUZE : SCREEN_ID_MAISCHEN;
+    case FASE_SPOELEN:  return SCREEN_ID_SPOELEN;
+    case FASE_KOKEN:    return SCREEN_ID_KOKEN;
+    default:            return SCREEN_ID_MAIN;
+    }
+}
 
-void brouwer_init() {
-    memset(&brouw, 0, sizeof brouw);    //alles op 0 zetten
-    strcpy(brouw.recept, "Geen recept geladen");
-    strcpy(brouw.server_ip, "192.168.0.25");
-    brouw.server_poort = 1200;
-    brouw.kooktijd_min = MAN_KOOKTIJD_MIN;
-    brouw.pid_kp = PID_KP;
-    brouw.pid_ki = PID_KI;
-    brouw.pid_kd = PID_KD;
-    instellingen_laden();   // overschrijft ip/poort/PID als er iets opgeslagen is
-
-    ui_init_extra();            //spinners, hopbalkjes en streepjes uit EEZ koppelen
-    ui_toon_schema();           //lege lijsten en rijen verbergen
-    ui_selecteer_schema_rij(-1);    //geen rij selecteren
-    ui_selecteer_pauze_rij(-1);
-    ui_toon_pomp();     //zet pomp op rood UIT
-    ui_toon_verbinding(false);  //zeg geen verbinding
-    ui_toon_hop_alarm(false);   //alarm pop-up niet laten zien
+/* Het numpad laat meer punten toe (voor een IP-adres); een getal heeft er hoogstens één */
+static bool is_getal(const char *t) {
+    int punten = 0;
+    for (; *t; t++) if (*t == '.') punten++;
+    return punten <= 1;
 }
 
 /* ======================================================================
@@ -72,6 +55,7 @@ void brouwer_init() {
  * ====================================================================== */
 
 void action_start_automatisch(lv_event_t *e) {
+    hw_zoemer(ZOEMER_UIT);      // melding 'koken klaar' stoppen
     brouw.automatisch = true;
     brouw.aantal_stappen = 0;   // wacht op het schema van de server
     ui_toon_modus();
@@ -89,6 +73,7 @@ void action_start_automatisch(lv_event_t *e) {
 /* Manueel: zelf de maischstappen instellen op het schemascherm,
  * daarna lopen ze net als bij automatisch na elkaar. */
 void action_start_manueel(lv_event_t *e) {
+    hw_zoemer(ZOEMER_UIT);      // melding 'koken klaar' stoppen
     if (brouw.automatisch || brouw.aantal_stappen == 0) {   // vorig recept kwam van de server
         strcpy(brouw.recept, "Manueel");
         brouw.aantal_stappen = 1;
@@ -104,6 +89,7 @@ void action_start_manueel(lv_event_t *e) {
 }
 
 void action_open_webapp(lv_event_t *e) {
+    hw_zoemer(ZOEMER_UIT);      // melding 'koken klaar' stoppen
     char url[48];
     snprintf(url, sizeof url, "http://%s", brouw.server_ip);
     lv_qrcode_update(objects.web_qr, url, strlen(url));
@@ -224,6 +210,8 @@ void action_edit_opslaan(lv_event_t *e) {
     } else if (edit_is_lopende_stap()) {
         brouw.resterend_s = edit_min * 60;   // nog aan het opwarmen: volledige tijd
     }
+    // Andere temperatuur: de timer wacht tot de ketel die bereikt heeft
+    if (edit_is_lopende_stap() && edit_temp != s.temp) brouw.op_temp = false;
     s.temp = edit_temp;
     s.minuten = edit_min;
 
@@ -273,7 +261,7 @@ void action_stop_bevestigen(lv_event_t *e) {
     brouw.pomp_aan = false;
     hw_verwarming_uit();
     hw_pomp(false);
-    hw_zoemer(false);
+    hw_zoemer(ZOEMER_UIT);
     net_meld("stop");
     ui_toon_pomp();
     ui_toon_hop_alarm(false);
@@ -306,7 +294,7 @@ static bool sg_klaar(const char *t, char *fout, int n) {
     }
     float sg = atof(t);
     if (sg > 2) sg /= 1000;          // 1052 mag ook
-    if (sg < 0.990f || sg > 1.200f) { snprintf(fout, n, "Geen geldig SG - typ bijv. 1.052"); return false; }
+    if (!is_getal(t) || sg < 0.990f || sg > 1.200f) { snprintf(fout, n, "Geen geldig SG - typ bijv. 1.052"); return false; }
     brouw.stappen[sg_stap].sg = sg;
     net_meld_sg(sg_stap, sg);
     ui_toon_maischen();
@@ -412,7 +400,7 @@ void action_kook_start(lv_event_t *e) {
 void action_hop_toegevoegd(lv_event_t *e) {
     brouw.hop_alarm_actief = false;
     brouw.hop_volgende++;
-    hw_zoemer(false);
+    hw_zoemer(ZOEMER_UIT);
     net_meld("hop_toegevoegd");
     ui_toon_hop_alarm(false);
     ui_toon_koken();
@@ -423,14 +411,14 @@ void action_hop_toegevoegd(lv_event_t *e) {
  * ====================================================================== */
 
 void action_alarm_stil(lv_event_t *e) {
-    hw_zoemer(false);
+    hw_zoemer(ZOEMER_UIT);
 }
 
 void action_sensor_opnieuw(lv_event_t *e) {
     if (hw_sensor_ok()) {
         brouw.sensor_fout = false;
-        hw_zoemer(false);
-        ga_terug();
+        hw_zoemer(ZOEMER_UIT);
+        ui_ga_naar(fase_scherm());   // niet ga_terug(): misschien was je intussen op het stopscherm
     } else {
         lv_label_set_text(objects.err_last, "Sensor reageert nog steeds niet");
     }
@@ -460,6 +448,7 @@ static void toon_instellingen() {
 }
 
 void action_open_instellingen(lv_event_t *e) {
+    hw_zoemer(ZOEMER_UIT);      // melding 'koken klaar' stoppen
     strcpy(inst_ip, brouw.server_ip);
     inst_poort = brouw.server_poort;
     inst_pid[0] = brouw.pid_kp; inst_pid[1] = brouw.pid_ki; inst_pid[2] = brouw.pid_kd;
@@ -485,7 +474,7 @@ static const float PID_MAX[3] = { 1000, 100, 10000 };
 static int pid_keuze = 0;
 static bool pid_klaar(const char *t, char *fout, int n) {
     float v = atof(t);
-    if (!*t || v < 0 || v > PID_MAX[pid_keuze]) { snprintf(fout, n, "Kies tussen 0 en %g", PID_MAX[pid_keuze]); return false; }
+    if (!*t || !is_getal(t) || v < 0 || v > PID_MAX[pid_keuze]) { snprintf(fout, n, "Kies tussen 0 en %g", PID_MAX[pid_keuze]); return false; }
     inst_pid[pid_keuze] = v; toon_instellingen(); return true;
 }
 
@@ -522,5 +511,5 @@ void action_qr_terug(lv_event_t *e) {
  * Ruim deze op in EEZ Studio (tabblad Actions) of koppel ze alsnog. */
 
 void action_zoemer_toggle(lv_event_t *e) {}
-void action_alarm_test(lv_event_t *e)    { hw_zoemer(true); }
+void action_alarm_test(lv_event_t *e)    { hw_zoemer(ZOEMER_ALARM); }
 void action_start_action1(lv_event_t *e) {}

@@ -24,8 +24,7 @@ static bool onderwerp_ontvangen_bekend(const char *onderwerp)
            strcmp(onderwerp, "brouw/status") == 0 ||
            strcmp(onderwerp, "brouw/meld") == 0 ||
            strcmp(onderwerp, "net/start") == 0 ||
-           strcmp(onderwerp, "net/stop") == 0 ||
-           strcmp(onderwerp, "recept/antwoord") == 0;
+           strcmp(onderwerp, "net/stop") == 0;
 }
 
 //Alleen deze onderwerpen sturen wij NAAR het scherm.

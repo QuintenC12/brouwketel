@@ -1,5 +1,5 @@
 /*
- * sim_hardware.cpp - vervangt hardware.cpp in de simulator
+ * sim_hardware.cpp - vervangt uart.cpp en instellingen.cpp in de simulator
  *
  * Speelt alleen de buitenwereld na:
  *  - een ketel die opwarmt naar de doeltemperatuur en daarna stabiel blijft
@@ -35,7 +35,7 @@ void hw_init()                 { printf("[sim] gestart\n"); }
 void hw_tick()                 { }
 void hw_pomp(bool aan)         { printf("[hw] pomp %s\n", aan ? "AAN" : "UIT"); }
 void hw_verwarming_uit()       { }
-void hw_zoemer(bool aan)       { printf("[hw] zoemer %s\n", aan ? "AAN" : "UIT"); }
+void hw_zoemer(Zoemer soort)   { printf("[hw] zoemer: %s\n", soort == ZOEMER_ALARM ? "alarm" : soort == ZOEMER_MELDING ? "melding" : "uit"); }
 bool hw_sensor_ok()            { return true; }
 void instellingen_opslaan()    { printf("[cfg] opgeslagen: %s:%u  PID %.2f / %.3f / %.2f\n", brouw.server_ip, brouw.server_poort, brouw.pid_kp, brouw.pid_ki, brouw.pid_kd); }
 void instellingen_laden()      {}
@@ -61,10 +61,10 @@ void net_verbreek() {
 static void demo_recept() {
     strcpy(brouw.recept, "Demo Tripel - 20 L");
     brouw.aantal_stappen = 4;
-    brouw.stappen[0] = { 52, 5, 0 };
-    brouw.stappen[1] = { 63, 5, 0 };
-    brouw.stappen[2] = { 72, 5, 0 };
-    brouw.stappen[3] = { 78, 5, 0 };
+    brouw.stappen[0] = { 52, 1, 0 };
+    brouw.stappen[1] = { 63, 1, 0 };
+    brouw.stappen[2] = { 72, 1, 0 };
+    brouw.stappen[3] = { 78, 1, 0 };
     brouw.kooktijd_min = 40;
     brouw.aantal_hops = 3;
     brouw.hops[0] = { "Magnum - 25 g", 30 };

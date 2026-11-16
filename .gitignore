@@ -11,3 +11,6 @@ niels_esp/managed_components/
 niels_esp/sdkconfig
 niels_esp/sdkconfig.old
 niels_esp/dependencies.lock
+
+# Python
+__pycache__/
