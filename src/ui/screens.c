@@ -63,7 +63,7 @@ void create_screen_main() {
                     // wifi_logo
                     lv_obj_t *obj = lv_label_create(parent_obj);
                     objects.wifi_logo = obj;
-                    lv_obj_set_pos(obj, 556, 15);
+                    lv_obj_set_pos(obj, 512, 15);
                     lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                     lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                     lv_obj_set_style_text_color(obj, lv_color_hex(0x7d868f), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -74,7 +74,7 @@ void create_screen_main() {
                     // mqtt_logo
                     lv_obj_t *obj = lv_label_create(parent_obj);
                     objects.mqtt_logo = obj;
-                    lv_obj_set_pos(obj, 588, 19);
+                    lv_obj_set_pos(obj, 544, 19);
                     lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                     lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                     lv_obj_set_style_text_color(obj, lv_color_hex(0xf85149), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -84,7 +84,7 @@ void create_screen_main() {
                 {
                     lv_obj_t *obj = lv_label_create(parent_obj);
                     objects.obj2 = obj;
-                    lv_obj_set_pos(obj, 425, 19);
+                    lv_obj_set_pos(obj, 390, 19);
                     lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                     lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                     lv_obj_set_style_text_color(obj, lv_color_hex(0x9aa3ad), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -95,7 +95,7 @@ void create_screen_main() {
                     // start_temp
                     lv_obj_t *obj = lv_label_create(parent_obj);
                     objects.start_temp = obj;
-                    lv_obj_set_pos(obj, 476, 19);
+                    lv_obj_set_pos(obj, 438, 19);
                     lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                     lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                     lv_obj_set_style_text_color(obj, lv_color_hex(0xe8eaed), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -106,7 +106,7 @@ void create_screen_main() {
                     // start_conn_dot
                     lv_obj_t *obj = lv_obj_create(parent_obj);
                     objects.start_conn_dot = obj;
-                    lv_obj_set_pos(obj, 650, 23);
+                    lv_obj_set_pos(obj, 628, 23);
                     lv_obj_set_size(obj, 10, 10);
                     lv_obj_remove_flag(obj, LV_OBJ_FLAG_CLICKABLE|LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                     lv_obj_set_style_bg_color(obj, lv_color_hex(0x2fa36b), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -123,7 +123,7 @@ void create_screen_main() {
                     // start_conn
                     lv_obj_t *obj = lv_label_create(parent_obj);
                     objects.start_conn = obj;
-                    lv_obj_set_pos(obj, 669, 19);
+                    lv_obj_set_pos(obj, 645, 19);
                     lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                     lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                     lv_obj_set_style_text_color(obj, lv_color_hex(0x9aa3ad), LV_PART_MAIN | LV_STATE_DEFAULT);
