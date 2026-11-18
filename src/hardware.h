@@ -24,6 +24,7 @@ void  net_verbind_server();                      // verbinding maken, wachten op
 void  net_verbreek();
 void  net_meld(const char *gebeurtenis);         // bijv. "start", "pauze", "stop", "hop", ...
 void  net_meld_sg(int stap, float sg);           // gemeten SG na maischstap (0 = stap 1) naar de server
+void  net_modus(bool configuratie);              // schakelaar op Instellingen: configuratie (hotspot) of werking
 
 void  instellingen_opslaan();                    // IP, poort en PID-waarden in flash (Preferences)
 void  instellingen_laden();

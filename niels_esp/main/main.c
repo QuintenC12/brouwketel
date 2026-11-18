@@ -348,6 +348,14 @@ static void bericht_verwerken(const scherm_uart_bericht_t *bericht)
         // MQTT blijft verbonden, zodat de webapp de ketel online ziet.
         net_stop();
     }
+    else if (strcmp(bericht->onderwerp, OND_NET_MODUS) == 0)
+    {
+        // {"modus":"configuratie"} of {"modus":"werking"}: schakelaar op Instellingen.
+        // Het antwoord komt via net/toestand.
+        cJSON* modus = cJSON_GetObjectItemCaseSensitive(data, "modus");
+        if (cJSON_IsString(modus))
+            net_modus(strcmp(modus->valuestring, "configuratie") == 0);
+    }
 
     cJSON_Delete(data);
 }

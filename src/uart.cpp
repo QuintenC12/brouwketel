@@ -50,6 +50,13 @@ static bool     ooit_temp = false;
 static uint32_t laatste_temp = 0;
 static bool     online = false;
 
+// Configuratiemodus (schakelaar op Instellingen) en wat Niels ESP over het netwerk meldt
+static bool     gewenst_config = false;     // gaat elke seconde mee in net/modus
+static bool     niels_wifi = false, niels_mqtt = false, niels_config = false;
+static bool     ooit_toestand = false;
+static uint32_t laatste_toestand = 0;
+#define TOESTAND_STIL_MS 3000               // zo lang geen net/toestand: wifi en MQTT als "uit" tonen
+
 // Verbinden met de server: 0 = niet bezig, 1 = wacht op "verbonden",
 // 2 = wacht op het recept, 3 = klaar, even het laatste vinkje tonen
 static int      verbind_fase = 0;
@@ -105,6 +112,34 @@ static void stuur_status() {
     doc["rest"] = brouw.resterend_s;
     doc["pauze"] = brouw.gepauzeerd;
     stuur(OND_STATUS, doc);
+}
+
+static void stuur_modus() {
+    JsonDocument doc;
+    doc["modus"] = gewenst_config ? "configuratie" : "werking";
+    stuur(OND_NET_MODUS, doc);
+}
+
+/* net/toestand: wifi en MQTT apart, en of de hotspot open staat */
+static void toestand_ontvangen(JsonDocument &doc) {
+    bool wifi = doc["wifi"] | false;
+    bool mqtt = doc["mqtt"] | false;
+    bool config = strcmp(doc["modus"] | "werking", "configuratie") == 0;
+    // Hotspot dicht terwijl de schakelaar op configuratie staat: het formulier is
+    // opgeslagen (of de hotspot sloot vanzelf). Schakelaar terug op werking.
+    if (niels_config && !config && gewenst_config) {
+        gewenst_config = false;
+        ui_zet_modus_schakelaar(false);
+        stuur_modus();
+    }
+    laatste_toestand = millis();
+    if (!ooit_toestand || wifi != niels_wifi || mqtt != niels_mqtt || config != niels_config) {
+        niels_wifi = wifi;
+        niels_mqtt = mqtt;
+        niels_config = config;
+        ui_toon_netwerk(wifi, mqtt, config);
+    }
+    ooit_toestand = true;
 }
 
 /* Melding versturen en bewaren tot de ack komt */
@@ -262,6 +297,8 @@ static void regel_verwerken(char *regel) {
         net_status_ontvangen(doc["status"] | "");
     } else if (strcmp(onderwerp, OND_RECEPT) == 0) {
         recept_ontvangen(doc);
+    } else if (strcmp(onderwerp, OND_NET_TOESTAND) == 0) {
+        toestand_ontvangen(doc);
     } else if (strcmp(onderwerp, OND_ACK) == 0) {
         if (doc["nr"].is<int>()) ack_ontvangen(doc["nr"]);
     }
@@ -309,6 +346,13 @@ void hw_tick() {
     if (millis() - vorige_status >= STATUS_MS) {
         vorige_status = millis();
         stuur_status();
+        stuur_modus();
+    }
+    // Niets meer van Niels ESP over het netwerk: wifi en MQTT als "uit" tonen
+    if (ooit_toestand && millis() - laatste_toestand > TOESTAND_STIL_MS) {
+        ooit_toestand = false;
+        niels_wifi = niels_mqtt = niels_config = false;
+        ui_toon_netwerk(false, false, false);
     }
     meldingen_herhalen();
     if (verbind_fase) verbinden_volgen();
@@ -384,6 +428,12 @@ void net_meld(const char *gebeurtenis) {
         doc["hop"] = brouw.hops[brouw.hop_volgende - 1].naam;   // hop_volgende is al opgeschoven
     }
     stuur_melding(doc);
+}
+
+void net_modus(bool configuratie) {
+    Serial.printf("[net] %s\n", configuratie ? "configuratiemodus" : "werkingsmodus");
+    gewenst_config = configuratie;
+    stuur_modus();
 }
 
 void net_meld_sg(int stap, float sg) {

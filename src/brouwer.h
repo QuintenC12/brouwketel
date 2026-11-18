@@ -94,6 +94,8 @@ enum ScreensEnum ui_huidig_scherm();
 void ui_init_extra();                                   // koppelt EEZ-objecten aan de lijsten in ui_update.cpp
 void ui_toon_meting(float temp, float doel, int vermogen_pct);
 void ui_toon_verbinding(bool online);
+void ui_toon_netwerk(bool wifi, bool mqtt, bool configuratie);   // wifi-logo, MQTT en modus (uit net/toestand)
+void ui_zet_modus_schakelaar(bool configuratie);        // schakelaar op Instellingen aan/uit zetten
 void ui_toon_pomp();
 void ui_toon_modus();
 void ui_toon_schema();                                  // schema-, maisch- en pauzelijsten vullen

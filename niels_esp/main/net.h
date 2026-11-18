@@ -26,6 +26,10 @@ void net_start(const char *server, int poort);
 // net/stop: het scherm wacht niet meer op een recept. MQTT blijft verbonden.
 void net_stop(void);
 
+// net/modus: configuratie = hotspot + formulier openen (wifi en MQTT gaan uit),
+// anders gewoon werken. Komt elke seconde; alleen een verandering doet iets.
+void net_modus(bool configuratie);
+
 // Een nieuwe brouw/meld (al zonder herhalingen) of een brouw/status.
 void net_van_scherm(const char *onderwerp, const char *json);
 

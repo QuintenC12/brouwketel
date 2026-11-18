@@ -42,6 +42,12 @@ void instellingen_laden()      {}
 void net_meld(const char *g)   { printf("[net] melding: %s\n", g); }
 void net_meld_sg(int stap, float sg) { printf("[net] SG stap %d: %.3f\n", stap + 1, sg); }
 
+/* Configuratiemodus: in de simulator gaan wifi en MQTT gewoon uit zolang de schakelaar aan staat */
+void net_modus(bool configuratie) {
+    printf("[net] %s\n", configuratie ? "configuratiemodus" : "werkingsmodus");
+    ui_toon_netwerk(!configuratie, !configuratie, configuratie);
+}
+
 /* ---------------- nep-server ---------------- */
 
 static int verbind_fase = 0;      // 0 = niet bezig, 1..4 = volgende stap in de reeks
@@ -78,6 +84,11 @@ static void demo_recept() {
 /* Verbindingsreeks: elke stap draait even en krijgt dan een vinkje.
  * Tijden in ms sinds "Automatisch" werd ingedrukt. */
 void sim_netwerk() {
+    static bool gestart = false;
+    if (!gestart) {                         // de nep-Niels heeft meteen wifi en MQTT
+        gestart = true;
+        ui_toon_netwerk(true, true, false);
+    }
     if (!verbind_fase) return;
     uint32_t verstreken = lv_tick_get() - verbind_tijd;
     if (verbind_fase == 1 && verstreken > 1500) {          // server bereikt

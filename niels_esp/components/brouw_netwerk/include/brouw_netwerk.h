@@ -33,6 +33,13 @@ esp_err_t brouw_netwerk_start(const char *setup_wachtwoord, bool setup_afdwingen
 /* IP_GEREED betekent dat de station-interface een IPv4-adres heeft. */
 brouw_netwerk_status_t brouw_netwerk_status(void);
 
+/* Configuratiemodus (hotspot + formulier) openen of sluiten, op vraag van het
+ * scherm. aan = true: de verbinding met het wifi-netwerk stopt en de hotspot
+ * gaat open. aan = false: sluit de hotspot alleen als hij op vraag open ging;
+ * zonder wifi-instellingen blijft hij open. Na het sluiten verbindt de
+ * component opnieuw met de (eventueel nieuwe) instellingen. */
+void brouw_netwerk_setup(bool aan);
+
 /* Leest de opgeslagen brokergegevens en ketel-ID uit NVS. */
 esp_err_t brouw_netwerk_lees_mqtt(brouw_netwerk_mqtt_t *mqtt);
 

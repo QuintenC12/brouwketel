@@ -57,6 +57,7 @@ static const char *TAG = "net";
 #define NET_STATUS_MS   5000    // zo vaak net/status herhalen naar het scherm
 #define VERBIND_MAX_MS  25000   // na net/start: zo lang mag verbinden duren (scherm: 30 s)
 #define ACK_MAX_MS      8000    // zo lang wachten op recept_ok/recept_fout (back-end: 10 s)
+#define TOESTAND_MS     1000    // zo vaak net/toestand (wifi, MQTT, modus) naar het scherm
 
 typedef enum { NET_UIT, NET_BEZIG, NET_VERBONDEN, NET_FOUT } net_toestand_t;
 
@@ -82,6 +83,7 @@ static char    *recept_regel = NULL;        // laatste recept, al omgezet voor h
 static bool     recept_gestuurd = false;    // al naar het scherm in deze Automatisch-ronde
 static char     ack_id[64] = "";            // message_id die nog een ack wacht
 static uint32_t ack_sinds = 0;
+static int      gevraagde_modus = -1;       // laatst toegepast uit net/modus: 1 = configuratie, -1 = nog niets
 
 // Laatst gepubliceerde toestand (-1 = nog niet), alleen vanuit temp_task
 static int  vorig_vermogen = -1, vorige_pomp = -1, vorige_zoemer = -1;
@@ -183,6 +185,16 @@ static void stuur_net_status(net_toestand_t toestand, const char *reden)
     else
         snprintf(json, sizeof json, "{\"status\":\"%s\"}", namen[toestand]);
     scherm_uart_verstuur(OND_NET_STATUS, json);
+}
+
+/* net/toestand: wifi en MQTT apart, en of de configuratiemodus (hotspot) open staat */
+static void stuur_toestand(bool wifi, bool mqtt_ok, bool configuratie)
+{
+    char json[80];
+    snprintf(json, sizeof json, "{\"wifi\":%s,\"mqtt\":%s,\"modus\":\"%s\"}",
+             wifi ? "true" : "false", mqtt_ok ? "true" : "false",
+             configuratie ? "configuratie" : "werking");
+    scherm_uart_verstuur(OND_NET_TOESTAND, json);
 }
 
 /* Met het slot vast: wacht het scherm en is er een recept? Dan sturen. */
@@ -296,7 +308,10 @@ static void mqtt_event(void *arg, esp_event_base_t base, int32_t evid, void *dat
 
 /* ---------------- net_taak ---------------- */
 
-static void mqtt_maken(void)
+/* MQTT-client maken, of (opnieuw = true) de bestaande client opnieuw starten
+ * met de gegevens uit het formulier. De client zelf blijft bestaan, zodat
+ * andere taken er veilig naar kunnen blijven publiceren. */
+static void mqtt_maken(bool opnieuw)
 {
     brouw_netwerk_mqtt_t formulier;
     char host[254] = "";
@@ -330,6 +345,16 @@ static void mqtt_maken(void)
         },
         .buffer.size = 4096,                // een recept is ongeveer 1,5 kB
     };
+    if (opnieuw && mqtt) {
+        esp_mqtt_client_stop(mqtt);
+        VERGRENDEL();
+        verbonden = false;
+        ONTGRENDEL();
+        esp_mqtt_set_config(mqtt, &cfg);
+        ESP_LOGI(TAG, "MQTT opnieuw naar %s:%d", host, poort);
+        esp_mqtt_client_start(mqtt);
+        return;
+    }
     esp_mqtt_client_handle_t c = esp_mqtt_client_init(&cfg);
     if (!c) return;
     esp_mqtt_client_register_event(c, ESP_EVENT_ANY_ID, mqtt_event, NULL);
@@ -340,10 +365,27 @@ static void mqtt_maken(void)
 
 static void net_taak(void *parameters)
 {
-    uint32_t vorige_status = 0;
+    uint32_t vorige_status = 0, vorige_toestand = 0;
+    int vorige_wifi = -1, vorige_mqtt = -1, vorige_config = -1;
+    bool was_setup = false;
     while (1) {
+        brouw_netwerk_status_t netwerk = brouw_netwerk_status();
+
+        // Na de configuratiemodus kan de broker in het formulier veranderd zijn:
+        // zodra er weer wifi is, MQTT opnieuw opzetten met de nieuwe gegevens.
+        bool is_setup = netwerk == BROUW_NETWERK_SETUP;
+        if (is_setup) was_setup = true;
+
         // MQTT starten zodra er wifi is (en daarna nooit meer stoppen)
-        if (!mqtt && brouw_netwerk_status() == BROUW_NETWERK_IP_GEREED) mqtt_maken();
+        if (netwerk == BROUW_NETWERK_IP_GEREED) {
+            if (!mqtt) {
+                mqtt_maken(false);
+                was_setup = false;
+            } else if (was_setup) {
+                mqtt_maken(true);
+                was_setup = false;
+            }
+        }
 
         char verlopen_ack[64] = "";
         VERGRENDEL();
@@ -381,6 +423,21 @@ static void net_taak(void *parameters)
             vorige_status = nu_ms();
             stuur_net_status(nu, reden);
         }
+
+        // Wifi en MQTT apart voor het wifi-logo op het scherm
+        VERGRENDEL();
+        int mqtt_nu = verbonden;
+        ONTGRENDEL();
+        int wifi_nu = netwerk == BROUW_NETWERK_IP_GEREED;
+        int config_nu = is_setup;
+        if (wifi_nu != vorige_wifi || mqtt_nu != vorige_mqtt || config_nu != vorige_config ||
+            nu_ms() - vorige_toestand >= TOESTAND_MS) {
+            vorige_toestand = nu_ms();
+            vorige_wifi = wifi_nu;
+            vorige_mqtt = mqtt_nu;
+            vorige_config = config_nu;
+            stuur_toestand(wifi_nu, mqtt_nu, config_nu);
+        }
         if (verlopen_ack[0] && mqtt)
             stuur_ack(verlopen_ack, false, "het scherm heeft het recept niet bevestigd");
 
@@ -411,6 +468,16 @@ void net_stop(void)
     automatisch = false;
     fout_reden = NULL;
     ONTGRENDEL();
+}
+
+void net_modus(bool configuratie)
+{
+    // net/modus komt elke seconde; alleen een verandering doet iets
+    int nieuw = configuratie ? 1 : 0;
+    if (nieuw == gevraagde_modus) return;
+    gevraagde_modus = nieuw;
+    ESP_LOGI(TAG, "scherm vraagt %s", configuratie ? "configuratiemodus" : "werkingsmodus");
+    brouw_netwerk_setup(configuratie);
 }
 
 /* Melding van het scherm -> brouwer/<id>/event, met een tekst die de webapp

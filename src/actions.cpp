@@ -503,6 +503,13 @@ void action_instellingen_opslaan(lv_event_t *e) {
     ui_ga_naar(SCREEN_ID_MAIN);
 }
 
+/* Schakelaar "Modus" op Instellingen: meteen doorgeven, niet pas bij Opslaan.
+ * Aan = configuratiemodus: Niels ESP opent de hotspot met het wifi-formulier. */
+void action_modus_wissel(lv_event_t *e) {
+    lv_obj_t *schakelaar = (lv_obj_t *)lv_event_get_target(e);
+    net_modus(lv_obj_has_state(schakelaar, LV_STATE_CHECKED));
+}
+
 void action_qr_terug(lv_event_t *e) {
     ui_ga_naar(SCREEN_ID_MAIN);
 }

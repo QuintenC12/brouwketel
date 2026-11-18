@@ -116,6 +116,25 @@ void ui_toon_verbinding(bool online) {
     lv_obj_set_style_bg_color(objects.set_conn_dot, kleur, 0);
 }
 
+/* Wifi-logo op het hoofdscherm: het wifi-teken is groen met wifi en grijs
+ * zonder; "MQTT" ernaast apart groen of rood. In de configuratiemodus staat
+ * de hotspot open: het teken wordt oranje en er staat "Setup" in plaats van MQTT.
+ * Op Instellingen toont het label naast de schakelaar de echte modus. */
+void ui_toon_netwerk(bool wifi, bool mqtt, bool configuratie) {
+    if (objects.wifi_logo) txt(objects.wifi_logo, configuratie ? KLEUR_ORANJE : wifi ? KLEUR_ONLINE : KLEUR_TXT_GRIJS);
+    if (objects.mqtt_logo) {
+        lv_label_set_text(objects.mqtt_logo, configuratie ? "Setup" : "MQTT");
+        txt(objects.mqtt_logo, configuratie ? KLEUR_ORANJE : mqtt ? KLEUR_ONLINE : KLEUR_OFFLINE);
+    }
+    if (objects.set_modus_label) lv_label_set_text(objects.set_modus_label, configuratie ? "Configuratie" : "Werking");
+}
+
+void ui_zet_modus_schakelaar(bool configuratie) {
+    if (!objects.set_modus) return;
+    if (configuratie) lv_obj_add_state(objects.set_modus, LV_STATE_CHECKED);
+    else              lv_obj_remove_state(objects.set_modus, LV_STATE_CHECKED);
+}
+
 /* ======================================================================
  * Maischschema: lijsten op het schema-, maisch- en pauzescherm
  * ====================================================================== */

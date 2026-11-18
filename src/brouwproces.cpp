@@ -41,6 +41,7 @@ void brouwer_init() {
     ui_selecteer_pauze_rij(-1);
     ui_toon_pomp();     //zet pomp op rood UIT
     ui_toon_verbinding(false);  //zeg geen verbinding
+    ui_toon_netwerk(false, false, false);   //wifi-logo grijs tot Niels ESP iets meldt
     ui_toon_hop_alarm(false);   //alarm pop-up niet laten zien
 }
 

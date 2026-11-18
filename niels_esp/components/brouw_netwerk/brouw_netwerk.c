@@ -23,6 +23,7 @@ enum {
     STATION_VERBIND = BIT3,
     SETUP_ACTIEF = BIT4,
     NETWERK_FOUT = BIT5,
+    SETUP_GEVRAAGD = BIT6,     // het scherm vraagt de configuratiemodus
 };
 
 static const char *TAG = "brouw_netwerk";
@@ -31,6 +32,8 @@ static esp_netif_t *s_station;
 static esp_netif_t *s_ap;
 static char s_setup_wachtwoord[64];
 static bool s_setup_afdwingen;
+static TaskHandle_t s_taak;          // netwerktaak
+static volatile bool s_setup_op_vraag;   // setup staat open omdat het scherm erom vroeg
 
 const char* dnsName = "Brouwketel-setup";
 
@@ -86,8 +89,11 @@ static esp_err_t station_onderhouden(void)
             wachttijd = verstreken < timeout ? timeout - verstreken : 0;
         }
 
-        const EventBits_t events = xEventGroupWaitBits(s_events, STATION_IP_EVENT | STATION_VERBIND,
+        const EventBits_t events = xEventGroupWaitBits(s_events, STATION_IP_EVENT | STATION_VERBIND | SETUP_GEVRAAGD,
                                                       pdTRUE, pdFALSE, wachttijd);
+        if ((events & SETUP_GEVRAAGD) != 0) {
+            return ESP_ERR_NOT_FINISHED;    // netwerktaak opent de setup
+        }
         if ((events & STATION_IP_EVENT) != 0) {
             eerste_ip_gekregen = true;
         }
@@ -123,6 +129,9 @@ static esp_err_t setup_wachten(void)
     ESP_RETURN_ON_ERROR(esp_wifi_set_config(WIFI_IF_AP, &wifi), TAG, "Instellen accesspoint");
     ESP_RETURN_ON_ERROR(esp_wifi_start(), TAG, "Starten accesspoint");
 
+    // Een oude "sluiten"-vraag mag deze setup niet meteen weer dichtdoen.
+    ulTaskNotifyTake(pdTRUE, 0);
+
     httpd_handle_t server;
     const esp_err_t fout = brouw_portaal_start(xTaskGetCurrentTaskHandle(), &server);
     if (fout != ESP_OK) {
@@ -155,6 +164,7 @@ static esp_err_t setup_wachten(void)
     const esp_err_t portaal_fout = httpd_stop(server);
     const esp_err_t stop_fout = esp_wifi_stop();
     xEventGroupClearBits(s_events, SETUP_ACTIEF);
+    s_setup_op_vraag = false;
     return portaal_fout != ESP_OK ? portaal_fout : stop_fout;
 }
 
@@ -183,11 +193,22 @@ static void netwerktaak(void *arg)
             break;
         }
 
+        if ((xEventGroupGetBits(s_events) & SETUP_GEVRAAGD) != 0) {
+            // Het scherm vroeg de configuratiemodus terwijl we nog niet verbonden waren.
+            xEventGroupClearBits(s_events, SETUP_GEVRAAGD);
+            open_setup = true;
+            continue;
+        }
+
         fout = station_start(&instellingen);
         if (fout == ESP_OK) {
             fout = station_onderhouden();
         }
-        ESP_LOGW(TAG, "Station krijgt geen IP (%s). Setup gaat open.", esp_err_to_name(fout));
+        if (fout == ESP_ERR_NOT_FINISHED) {
+            ESP_LOGI(TAG, "Configuratiemodus gevraagd. Setup gaat open.");
+        } else {
+            ESP_LOGW(TAG, "Station krijgt geen IP (%s). Setup gaat open.", esp_err_to_name(fout));
+        }
         xEventGroupClearBits(s_events, STATION_ACTIEF | STATION_HEEFT_IP);
         fout = esp_wifi_stop();
         if (fout != ESP_OK) {
@@ -246,7 +267,7 @@ esp_err_t brouw_netwerk_start(const char* setup_wachtwoord, bool setup_afdwingen
 
     strcpy(s_setup_wachtwoord, setup_wachtwoord);
     s_setup_afdwingen = setup_afdwingen;
-    if (xTaskCreate(netwerktaak, "brouw_netwerk", 4096, NULL, tskIDLE_PRIORITY + 2, NULL) == pdPASS) {
+    if (xTaskCreate(netwerktaak, "brouw_netwerk", 4096, NULL, tskIDLE_PRIORITY + 2, &s_taak) == pdPASS) {
         return ESP_OK;
     }
     ret = ESP_ERR_NO_MEM;
@@ -290,6 +311,30 @@ brouw_netwerk_status_t brouw_netwerk_status(void)
         return BROUW_NETWERK_IP_GEREED;
     }
     return BROUW_NETWERK_WACHT_OP_IP;
+}
+
+void brouw_netwerk_setup(bool aan)
+{
+    if (s_events == NULL || s_taak == NULL) {
+        return;
+    }
+    const EventBits_t bits = xEventGroupGetBits(s_events);
+    if (aan) {
+        if ((bits & SETUP_ACTIEF) != 0) {
+            s_setup_op_vraag = true;        // stond al open, nu ook op vraag
+            return;
+        }
+        s_setup_op_vraag = true;
+        xEventGroupSetBits(s_events, SETUP_GEVRAAGD);
+        return;
+    }
+    xEventGroupClearBits(s_events, SETUP_GEVRAAGD);
+    // Alleen sluiten wat het scherm zelf opende. Staat de setup open omdat er
+    // nog geen (werkende) wifi-instellingen zijn, dan blijft hij open.
+    if ((bits & SETUP_ACTIEF) != 0 && s_setup_op_vraag) {
+        s_setup_op_vraag = false;
+        xTaskNotifyGive(s_taak);            // setup_wachten() gaat verder en sluit
+    }
 }
 
 esp_err_t brouw_netwerk_lees_mqtt(brouw_netwerk_mqtt_t *mqtt)

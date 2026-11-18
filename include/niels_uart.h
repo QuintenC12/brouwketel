@@ -34,12 +34,18 @@
                                                // ook het antwoord op een recept: "recept_ok" of "recept_fout" + "reden"
 #define OND_NET_START       "net/start"        // {"server":"192.168.0.25","poort":1883}   (antwoord komt via net/status)
 #define OND_NET_STOP        "net/stop"         // {}
+#define OND_NET_MODUS       "net/modus"        // {"modus":"configuratie"} of {"modus":"werking"}   elke seconde
+                                               // configuratie = hotspot + wifi-formulier open (wifi en MQTT gaan uit)
+                                               // Niels ESP doet alleen iets bij een verandering; antwoord via net/toestand
 
 /* ---- Niels ESP -> scherm ---- */
 #define OND_TEMP            "ketel/temp"       // {"temp":65.3,"ok":true,"vermogen":40}   elke seconde (vermogen in % van de PID)
 #define OND_NET_STATUS      "net/status"       // {"status":"uit|bezig|verbonden|fout","reden":"..."}
 #define OND_RECEPT          "recept"           // {"naam":..,"kooktijd":40,"stappen":[{"temp":52,"min":5}],"hops":[{"naam":..,"min":30}]}
 #define OND_ACK             "ack"              // {"nr":7}   antwoord op brouw/meld
+#define OND_NET_TOESTAND    "net/toestand"     // {"wifi":true,"mqtt":false,"modus":"werking"}   elke seconde en bij een verandering
+                                               // wifi = verbonden met het wifi-netwerk, mqtt = verbonden met de broker
+                                               // modus = "configuratie" als de hotspot open staat, anders "werking"
 
 /* Hoort een kant langer dan dit niets, dan gaat hij uit van een fout:
  * Niels ESP zet verwarming, pomp en zoemer uit; het scherm toont een sensorfout. */

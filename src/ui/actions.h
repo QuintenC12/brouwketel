@@ -10,6 +10,7 @@ extern "C" {
 extern void action_start_manueel(lv_event_t * e);
 extern void action_start_automatisch(lv_event_t * e);
 extern void action_open_instellingen(lv_event_t * e);
+extern void action_modus_wissel(lv_event_t * e);
 extern void action_verbinden_annuleren(lv_event_t * e);
 extern void action_pomp_toggle(lv_event_t * e);
 extern void action_pauze(lv_event_t * e);
