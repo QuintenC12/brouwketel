@@ -648,7 +648,7 @@
                 {
                   "objID": "9e20246e-3e5c-4977-8225-eb5f2aa18b73",
                   "type": "LVGLLabelWidget",
-                  "left": 556,
+                  "left": 512,
                   "top": 15,
                   "width": 24,
                   "height": 25,
@@ -696,7 +696,7 @@
                 {
                   "objID": "413cccde-3c0c-4a2d-9fb7-e67a8f3d170c",
                   "type": "LVGLLabelWidget",
-                  "left": 588,
+                  "left": 544,
                   "top": 19,
                   "width": 40,
                   "height": 16,
@@ -791,7 +791,7 @@
                 {
                   "objID": "c74bb4b4-f8ec-4914-9949-0af80a921eb5",
                   "type": "LVGLLabelWidget",
-                  "left": 425,
+                  "left": 390,
                   "top": 19,
                   "width": 38,
                   "height": 16,
@@ -838,7 +838,7 @@
                 {
                   "objID": "16d64f55-3d18-4654-b9c7-59e48f14efb5",
                   "type": "LVGLLabelWidget",
-                  "left": 476,
+                  "left": 438,
                   "top": 19,
                   "width": 46,
                   "height": 16,
@@ -886,7 +886,7 @@
                 {
                   "objID": "fcbbeacc-168e-4a0b-9b59-fded89003f1c",
                   "type": "LVGLPanelWidget",
-                  "left": 650,
+                  "left": 628,
                   "top": 23,
                   "width": 10,
                   "height": 10,
@@ -936,7 +936,7 @@
                 {
                   "objID": "3776d8af-242b-4083-971f-89b96f392bbb",
                   "type": "LVGLLabelWidget",
-                  "left": 669,
+                  "left": 645,
                   "top": 19,
                   "width": 82,
                   "height": 16,
