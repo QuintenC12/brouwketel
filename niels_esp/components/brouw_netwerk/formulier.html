@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brouwketel instellen</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 1.5rem 1rem;
+      background: #edf2ed;
+      color: #19241d;
+      font: 1rem/1.5 Inter, system-ui, sans-serif;
+    }
+    main {
+      width: min(100%, 34rem);
+      margin: 0 auto;
+      padding: clamp(1.25rem, 5vw, 2rem);
+      background: white;
+      border: 1px solid #cad6cd;
+      border-radius: 1rem;
+    }
+    h1 { margin: 0 0 1.25rem; font-size: 1.7rem; line-height: 1.2; }
+    fieldset { margin: 0 0 1.25rem; padding: 0; border: 0; }
+    legend { padding: 0; font-size: 1.125rem; font-weight: 700; }
+    label { display: block; margin-top: .7rem; font-weight: 600; }
+    input, button { font: inherit; }
+    input {
+      display: block;
+      width: 100%;
+      padding: .6rem .7rem;
+      margin: .2rem 0;
+      border: 1px solid #8b9c90;
+      border-radius: .45rem;
+    }
+    small { color: #4b5d50; }
+    :focus-visible { outline: 3px solid #276a4a; outline-offset: 3px; }
+    button {
+      padding: .7rem 1rem;
+      border: 0;
+      border-radius: .45rem;
+      background: #225b3f;
+      color: white;
+      font-weight: 650;
+      cursor: pointer;
+    }
+    button:hover { background: #184630; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Brouwketel instellen</h1>
+    <form method="post" action="/opslaan" accept-charset="UTF-8" autocomplete="off">
+      <fieldset>
+        <legend>Wifi</legend>
+        <label for="ssid">Netwerknaam (SSID)</label>
+        <input id="ssid" name="ssid" required maxlength="32" spellcheck="false" autocapitalize="none" value="projectnetwerk5G" aria-describedby="wifi_hulp">
+        <label for="wifi_wachtwoord">Wifiwachtwoord</label>
+        <input id="wifi_wachtwoord" name="wifi_wachtwoord" type="password" minlength="8" maxlength="63"
+               aria-describedby="wifi_hulp">
+      </fieldset>
+      <fieldset>
+        <legend>MQTT</legend>
+        <label for="mqtt_host">MQTT-host</label>
+        <input id="mqtt_host" name="mqtt_host" required maxlength="253" value="brouwapp.local"
+               spellcheck="false" autocapitalize="none" aria-describedby="mqtt_hulp">
+        <label for="mqtt_poort">MQTT-poort</label>
+        <input id="mqtt_poort" name="mqtt_poort" required inputmode="numeric" pattern="[0-9]{1,5}"
+               maxlength="5" placeholder="Bv. 1883" aria-describedby="poort_hulp">
+        <label for="mqtt_gebruikersnaam">MQTT-gebruikersnaam</label>
+        <input id="mqtt_gebruikersnaam" name="mqtt_gebruikersnaam" required maxlength="32" spellcheck="false" autocapitalize="none">
+        <label for="mqtt_wachtwoord">MQTT-wachtwoord</label>
+        <input id="mqtt_wachtwoord" name="mqtt_wachtwoord" type="password" minlength="8" maxlength="63"
+               aria-describedby="mqtt_hulp">
+      </fieldset>
+      <button type="submit">Opslaan en verbinden</button>
+    </form>
+  </main>
+</body>
+</html>

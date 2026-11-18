@@ -170,16 +170,6 @@ typedef struct _objects_t {
     lv_obj_t *mash_row_4_temp;
     lv_obj_t *mash_row_4_time;
     lv_obj_t *mash_row_4_sg;
-    lv_obj_t *mash_row_5;
-    lv_obj_t *mash_row_5_name;
-    lv_obj_t *mash_row_5_temp;
-    lv_obj_t *mash_row_5_time;
-    lv_obj_t *mash_row_5_sg;
-    lv_obj_t *mash_row_6;
-    lv_obj_t *mash_row_6_name;
-    lv_obj_t *mash_row_6_temp;
-    lv_obj_t *mash_row_6_time;
-    lv_obj_t *mash_row_6_sg;
     lv_obj_t *mash_sg_btn;
     lv_obj_t *mash_sg_label;
     lv_obj_t *obj32;
@@ -541,6 +531,12 @@ typedef struct _objects_t {
     lv_obj_t *obj192;
     lv_obj_t *obj193;
     lv_obj_t *obj194;
+    lv_obj_t *wifi_logo;
+    lv_obj_t *mqtt_logo;
+    lv_obj_t *set_modus;
+    lv_obj_t *set_modus_label;
+    lv_obj_t *obj120b;
+    lv_obj_t *obj120c;
 } objects_t;
 
 extern objects_t objects;

@@ -1,494 +1,414 @@
 /*
- * Niels ESP - ESP-IDF
+ * ProcesRegelaar (Niels ESP) - ESP-IDF 5.4, ESP32-S3
  *
  * Doet het werk aan de ketel en praat met twee kanten:
- *   - het scherm (CrowPanel) via een seriële kabel, regels "onderwerp {json}"
- *   - de MQTT-server via wifi, zodat de webapp alles kan zien
+ *   - het scherm (CrowPanel) via UART1, regels "onderwerp {json}"
+ *     (component scherm_uart, afspraken in niels_uart.h en het regelboekje)
+ *   - de webapp via MQTT (wifi: component brouw_netwerk; vertaling naar de
+ *     MQTT-afspraken van de webapp: net.c en recept.c)
  *
- * Aan de ketel: DS18B20 (temperatuur), SSR (verwarming), pomp, zoemer.
- * Het regelboekje in het project beschrijft alle berichten.
+ * Aan de ketel: PT100 via MAX31865 (temperatuur), SSR (verwarming),
+ * pomp en zoemer.
+ *
+ * Wie doet wat:
+ *   Het scherm stuurt 5x per seconde
+ *     brouw/stuur {"doel":65,"kp":20,"ki":0.05,"kd":10,"pomp":true,"zoemer":"uit"}
+ *   Deze ESP doet de PID (pid.c): elke seconde rekent hij met de gemeten
+ *   temperatuur een vermogen uit (0..100 %). Dat vermogen wordt een venster
+ *   van 2 s waarin de SSR zoveel % aan staat. Het vermogen gaat terug naar
+ *   het scherm in ketel/temp.
  *
  * Taken:
- *   app_main (hoofdlus)  kabel lezen, uitgangen, temperatuur en status sturen
- *   sensor_taak          DS18B20 uitlezen (een meting duurt ~800 ms)
- *   wifi/MQTT-events     draaien in de taken van ESP-IDF zelf
+ *   temp_task     elke seconde meten, PID uitrekenen, ketel/temp sturen
+ *   receive_task  berichten van het scherm ontvangen en verwerken
+ *   ketel_task    SSR, pomp en zoemer aansturen + veiligheid
+ *   net (net.c)   MQTT bijhouden, net/status naar het scherm
  *
- * Veiligheid: hoort Niels ESP NIELS_STIL_MAX_MS niets van het scherm
- * (geen brouw/stuur), dan gaan verwarming, pomp en zoemer uit.
+ * Veiligheid: komt er NIELS_STIL_MAX_MS (2 s) geen brouw/stuur binnen,
+ * dan gaan verwarming, pomp en zoemer uit, gaat het doel op 0 en wordt de
+ * PID gereset.
  *
- * Wifi en pinnen: idf.py menuconfig -> "Niels ESP".
+ * Pinnen en setupwachtwoord: idf.py menuconfig -> "Niels ESP" en
+ * "Niels ESP: ketel en wifi-setup".
  */
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <limits.h>
+#include <math.h>
 #include <stdbool.h>
+#include <string.h>
+
+#include "cJSON.h"
+#include "driver/gpio.h"
+#include "esp_err.h"
+#include "esp_log.h"
+#include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "freertos/semphr.h"
-#include "driver/uart.h"
-#include "driver/gpio.h"
-#include "esp_timer.h"
-#include "esp_log.h"
-#include "esp_wifi.h"
-#include "esp_event.h"
-#include "esp_netif.h"
-#include "nvs_flash.h"
-#include "mqtt_client.h"
-#include "cJSON.h"
-#include "onewire_bus.h"
-#include "ds18b20.h"
+#include "sdkconfig.h"
+
+#include "brouw_netwerk.h"
+#include "max31865.h"
+#include "net.h"
 #include "niels_uart.h"
+#include "pid.h"
+#include "scherm_uart.h"
 
-static const char *TAG = "niels";
+#define SPI_HOST     SPI2_HOST
+#define PIN_NUM_MISO 13
+#define PIN_NUM_MOSI 1
+#define PIN_NUM_CLK  12
+#define PIN_NUM_CS   10
 
-#define SCHERM_UART      UART_NUM_1
-#define SSR_VENSTER_MS   2000   // vermogen 40 % = 800 ms aan, 1200 ms uit
-#define TEMP_MS          1000
-#define NET_STATUS_MS    5000
-#define VERBIND_MAX_MS   20000  // zo lang mag wifi + MQTT verbinden duren
+#define TEMP_MS        1000     // zo vaak meten, PID rekenen en ketel/temp sturen
+#define SSR_VENSTER_MS 2000     // vermogen 40 % = 800 ms aan, 1200 ms uit
 
-// Aanname: de server stuurt het recept op brouwketel/recept zodra
-// Niels ESP iets publiceert op brouwketel/recept/vraag.
-#define MQTT_RECEPT       MQTT_VOORVOEGSEL "recept"
-#define MQTT_RECEPT_VRAAG MQTT_VOORVOEGSEL "recept/vraag"
+// Piepritme van de zoemer (regelboekje, brouw/stuur)
+#define MELDING_PERIODE_MS 3000 // melding: om de 3 s ...
+#define MELDING_PIEP_MS    150  // ... drie korte piepjes van 150 ms aan, 150 ms uit
+#define MELDING_PIEPJES    3
+#define ALARM_PIEP_MS      200  // alarm: 200 ms aan, 200 ms uit
+
+TaskHandle_t temp_handle;
+max31865_t sensor;
+
+typedef enum { ZOEMER_UIT, ZOEMER_MELDING, ZOEMER_ALARM } zoemer_t;
+
+// Wat het scherm wil (receive_task schrijft, temp_task en ketel_task lezen)
+static volatile float      doel = 0;                     // °C, 0 = verwarming uit
+static volatile float      kp = 20, ki = 0.05f, kd = 10; // tot het scherm de echte waarden stuurt
+static volatile bool       pomp_aan = false;
+static volatile zoemer_t   zoemer = ZOEMER_UIT;
+static volatile uint32_t   zoemer_sinds = 0;             // begin van het piepritme
+static volatile TickType_t laatste_stuur = 0;
+static volatile bool       ooit_stuur = false;
+
+// Uitkomst van de PID (temp_task schrijft, ketel_task leest)
+static volatile int vermogen = 0;                        // 0..100 %
+
+// Laatst behandelde meldnummers, om herhalingen te herkennen
+static int last_message[8] = {0};
+static int next_index = 0;
 
 static uint32_t nu_ms(void) { return (uint32_t)(esp_timer_get_time() / 1000); }
 
-/* Alles wat de hoofdlus, de wifi-events en de MQTT-events delen,
- * staat achter deze mutex. Functies van esp-mqtt worden nooit aangeroepen
- * terwijl het slot vast is: dat kan vastlopen met de eigen MQTT-taak. */
-static SemaphoreHandle_t slot;
-#define VERGRENDEL()   xSemaphoreTake(slot, portMAX_DELAY)
-#define ONTGRENDEL()   xSemaphoreGive(slot)
-
-// Wat het scherm wil (alleen de hoofdlus)
-static int      vermogen = 0;
-static bool     pomp = false, zoemer = false;
-static uint32_t laatste_stuur = 0;
-static bool     ooit_stuur = false;
-
-// Laatste meting (sensor_taak schrijft, hoofdlus leest)
-static volatile float temp = 0;
-static volatile bool  temp_ok = false;
-
-// Verbinding met de server (achter slot)
-typedef enum { NET_UIT, NET_BEZIG, NET_VERBONDEN, NET_FOUT } net_toestand_t;
-static net_toestand_t net = NET_UIT;
-static bool     net_gewenst = false;
-static uint32_t verbind_start = 0;
-static esp_mqtt_client_handle_t mqtt = NULL;
-
-// Meldingen die nog naar MQTT moeten (als de server even weg was, achter slot)
-#define MAX_BEWAARD 10
-static char *bewaard[MAX_BEWAARD];
-static int   aantal_bewaard = 0;
-
-// Laatst behandelde meldnummers, om herhalingen te herkennen (alleen hoofdlus)
-static int gezien[8] = { -1, -1, -1, -1, -1, -1, -1, -1 };
-static int gezien_pos = 0;
-
-/* ---------------- naar het scherm ---------------- */
-
-/* Eén regel "onderwerp {json}\n" in één keer versturen, zodat regels uit
- * verschillende taken nooit door elkaar komen. Geeft obj vrij. */
-static void naar_scherm(const char *onderwerp, cJSON *obj) {
-    char *json = cJSON_PrintUnformatted(obj);
-    cJSON_Delete(obj);
-    if (!json) return;
-    size_t n = strlen(onderwerp) + strlen(json) + 3;
-    char *regel = malloc(n);
-    if (regel) {
-        snprintf(regel, n, "%s %s\n", onderwerp, json);
-        uart_write_bytes(SCHERM_UART, regel, strlen(regel));
-        free(regel);
-    }
-    free(json);
+/* Geen brouw/stuur in de laatste 2 s (of nog nooit)? */
+static bool scherm_stil(void)
+{
+    return !ooit_stuur ||
+           xTaskGetTickCount() - laatste_stuur > pdMS_TO_TICKS(NIELS_STIL_MAX_MS);
 }
 
-static void stuur_ack_nr(int nr) {
-    cJSON *o = cJSON_CreateObject();
-    cJSON_AddNumberToObject(o, "nr", nr);
-    naar_scherm(OND_ACK, o);
-}
-
-static void stuur_ack_voor(const char *voor) {
-    cJSON *o = cJSON_CreateObject();
-    cJSON_AddStringToObject(o, "voor", voor);
-    naar_scherm(OND_ACK, o);
-}
-
-static void stuur_net_status(net_toestand_t toestand, const char *reden) {
-    static const char *namen[] = { "uit", "bezig", "verbonden", "fout" };
-    cJSON *o = cJSON_CreateObject();
-    cJSON_AddStringToObject(o, "status", namen[toestand]);
-    if (reden) cJSON_AddStringToObject(o, "reden", reden);
-    naar_scherm(OND_NET_STATUS, o);
-}
-
-/* Aanroepen met slot vast */
-static void zet_net(net_toestand_t nieuw, const char *reden) {
-    if (nieuw == net) return;
-    net = nieuw;
-    ESP_LOGI(TAG, "net %d %s", net, reden ? reden : "");
-    stuur_net_status(net, reden);
-}
-
-/* ---------------- naar MQTT ---------------- */
-
-static void publiceer(const char *onderwerp, const char *json) {
-    char volledig[64];
-    snprintf(volledig, sizeof volledig, MQTT_VOORVOEGSEL "%s", onderwerp);
-    bool is_melding = strcmp(onderwerp, OND_MELD) == 0;
-
-    // mqtt wordt alleen in de hoofdlus aangepast, en publiceer() draait daar ook
-    VERGRENDEL();
-    bool verbonden = net == NET_VERBONDEN && mqtt;
-    if (!verbonden && is_melding) {                // status/temp komt vanzelf opnieuw
-        if (aantal_bewaard == MAX_BEWAARD) {        // vol: oudste laten vallen
-            free(bewaard[0]);
-            memmove(&bewaard[0], &bewaard[1], sizeof(char *) * (MAX_BEWAARD - 1));
-            aantal_bewaard--;
+static bool message_is_new(int nr)
+{
+    for(int i = 0; i < 8; i++)
+    {
+        if(last_message[i] == nr)
+        {
+            return false;
         }
-        bewaard[aantal_bewaard++] = strdup(json);
     }
-    ONTGRENDEL();
-    if (verbonden) esp_mqtt_client_publish(mqtt, volledig, json, 0, is_melding ? 1 : 0, 0);
+    last_message[next_index] = nr;
+    next_index = (next_index + 1) % 8;
+    return true;
 }
 
-/* ---------------- MQTT ---------------- */
-
-static void mqtt_event(void *arg, esp_event_base_t base, int32_t id, void *data) {
-    esp_mqtt_event_handle_t ev = data;
-    switch ((esp_mqtt_event_id_t)id) {
-    case MQTT_EVENT_CONNECTED: {
-        // bewaarde meldingen overnemen, en pas na het slot versturen
-        char *te_sturen[MAX_BEWAARD];
-        VERGRENDEL();
-        int n = aantal_bewaard;
-        memcpy(te_sturen, bewaard, sizeof(char *) * n);
-        aantal_bewaard = 0;
-        zet_net(NET_VERBONDEN, NULL);
-        ONTGRENDEL();
-
-        esp_mqtt_client_subscribe(ev->client, MQTT_RECEPT, 1);
-        for (int i = 0; i < n; i++) {
-            esp_mqtt_client_publish(ev->client, MQTT_VOORVOEGSEL OND_MELD, te_sturen[i], 0, 1, 0);
-            free(te_sturen[i]);
-        }
-        esp_mqtt_client_publish(ev->client, MQTT_RECEPT_VRAAG, "{}", 0, 1, 0);
-        break;
-    }
-
-    case MQTT_EVENT_DISCONNECTED:
-        VERGRENDEL();
-        if (net_gewenst && net == NET_VERBONDEN) {   // de client verbindt zelf opnieuw
-            verbind_start = nu_ms();
-            zet_net(NET_BEZIG, "verbinding verloren");
-        }
-        ONTGRENDEL();
-        break;
-
-    case MQTT_EVENT_DATA:
-        // Recept van de server: compact maken (één regel) en naar het scherm.
-        // Alleen berichten die in één stuk binnenkomen (buffer = 2048 bytes).
-        if (ev->topic_len != (int)strlen(MQTT_RECEPT) ||
-            strncmp(ev->topic, MQTT_RECEPT, ev->topic_len) != 0) break;
-        if (ev->current_data_offset != 0 || ev->data_len != ev->total_data_len) {
-            ESP_LOGW(TAG, "recept te groot");
-            break;
-        }
-        cJSON *recept = cJSON_ParseWithLength(ev->data, ev->data_len);
-        if (!recept) { ESP_LOGW(TAG, "recept is geen geldige JSON"); break; }
-        naar_scherm(OND_RECEPT, recept);
-        break;
-
-    default:
-        break;
-    }
-}
-
-/* ---------------- wifi ---------------- */
-
-static void wifi_event(void *arg, esp_event_base_t base, int32_t id, void *data) {
-    if (base == WIFI_EVENT && id == WIFI_EVENT_STA_DISCONNECTED) {
-        VERGRENDEL();
-        bool opnieuw = net_gewenst;
-        if (net_gewenst && net == NET_VERBONDEN) {
-            verbind_start = nu_ms();
-            zet_net(NET_BEZIG, "wifi weg");
-        }
-        ONTGRENDEL();
-        if (opnieuw) esp_wifi_connect();
-    } else if (base == IP_EVENT && id == IP_EVENT_STA_GOT_IP) {
-        ESP_LOGI(TAG, "wifi verbonden");
-        // MQTT-client verbindt vanzelf; zie mqtt_event
-    }
-}
-
-static void wifi_starten(void) {
-    esp_netif_init();
-    esp_event_loop_create_default();
-    esp_netif_create_default_wifi_sta();
-
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-    esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, wifi_event, NULL);
-    esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, wifi_event, NULL);
-
-    wifi_config_t wc = { 0 };
-    strlcpy((char *)wc.sta.ssid, CONFIG_NIELS_WIFI_NAAM, sizeof wc.sta.ssid);
-    strlcpy((char *)wc.sta.password, CONFIG_NIELS_WIFI_WACHTWOORD, sizeof wc.sta.password);
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
-    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wc));
-    ESP_ERROR_CHECK(esp_wifi_start());
-}
-
-/* ---------------- verbinden met de server ---------------- */
-
-static void net_starten(const char *server, int poort) {
-    char uri[80];
-    snprintf(uri, sizeof uri, "mqtt://%s:%d", server, poort);
-    ESP_LOGI(TAG, "verbinden met %s", uri);
-
-    VERGRENDEL();
-    esp_mqtt_client_handle_t oud = mqtt;
-    mqtt = NULL;
-    net_gewenst = true;
-    verbind_start = nu_ms();
-    net = NET_UIT;                                // zodat "bezig" zeker verstuurd wordt
-    zet_net(NET_BEZIG, NULL);
-    ONTGRENDEL();
-    if (oud) esp_mqtt_client_destroy(oud);        // vorige verbinding opruimen
-
-    esp_mqtt_client_config_t cfg = {
-        .broker.address.uri = uri,
-        .credentials.client_id = "niels-esp",
-        .buffer.size = 2048,                      // het recept is een lang bericht
+esp_err_t spi_init(void)
+{
+    max31865_config_t config = {
+        .spi_host = SPI_HOST,
+        .pin_sck = PIN_NUM_CLK,
+        .pin_mosi = PIN_NUM_MOSI,
+        .pin_miso = PIN_NUM_MISO,
+        .pin_cs = PIN_NUM_CS,
+        .rtd_nominal_ohms = 100.0f,
+        .reference_resistor_ohms = 430.0f,
+        .temperature_offset_c = 0.0f,
+        .filter_50hz = true,    // in Europa is het stroomnet 50 Hz
     };
-    esp_mqtt_client_handle_t nieuw = esp_mqtt_client_init(&cfg);
-    esp_mqtt_client_register_event(nieuw, ESP_EVENT_ANY_ID, mqtt_event, NULL);
-    VERGRENDEL();
-    mqtt = nieuw;
-    ONTGRENDEL();
-    esp_mqtt_client_start(nieuw);
 
-    esp_wifi_connect();                           // al verbonden? dan doet dit niets
-}
-
-static void net_stoppen(void) {
-    VERGRENDEL();
-    esp_mqtt_client_handle_t oud = mqtt;
-    mqtt = NULL;
-    net_gewenst = false;
-    zet_net(NET_UIT, NULL);
-    ONTGRENDEL();
-    if (oud) esp_mqtt_client_destroy(oud);
-}
-
-/* Geen verbinding binnen VERBIND_MAX_MS? Dan fout en stoppen. */
-static void net_bijhouden(void) {
-    esp_mqtt_client_handle_t oud = NULL;
-    VERGRENDEL();
-    if (net_gewenst && net == NET_BEZIG && nu_ms() - verbind_start > VERBIND_MAX_MS) {
-        wifi_ap_record_t ap;
-        bool wifi_ok = esp_wifi_sta_get_ap_info(&ap) == ESP_OK;
-        oud = mqtt;
-        mqtt = NULL;
-        net_gewenst = false;
-        zet_net(NET_FOUT, wifi_ok ? "server onbereikbaar" : "wifi niet gevonden");
+    esp_err_t err = max31865_init(&sensor, &config);
+    if (err != ESP_OK)
+    {
+        printf("Failed to initialize MAX31865: %s\n", esp_err_to_name(err));
     }
-    ONTGRENDEL();
-    if (oud) esp_mqtt_client_destroy(oud);
+    return err;
 }
 
-/* ---------------- berichten van het scherm ---------------- */
+/* ---------------- temperatuur en PID ---------------- */
 
-static bool al_gezien(int nr) {
-    for (int i = 0; i < 8; i++) if (gezien[i] == nr) return true;
-    gezien[gezien_pos] = nr;
-    gezien_pos = (gezien_pos + 1) % 8;
-    return false;
-}
+void temp_task(void *parameters)
+{
+    // spi_init() gebeurt alleen hier: een tweede keer weigert ESP-IDF,
+    // omdat de SPI-bus dan al gestart is.
+    bool sensor_klaar = spi_init() == ESP_OK;
 
-static int getal(const cJSON *o, const char *naam, int standaard) {
-    const cJSON *v = cJSON_GetObjectItem(o, naam);
-    return cJSON_IsNumber(v) ? v->valueint : standaard;
-}
-
-static void regel_verwerken(char *regel) {
-    char *spatie = strchr(regel, ' ');
-    const char *json = "{}";
-    if (spatie) { *spatie = 0; json = spatie + 1; }
-    const char *onderwerp = regel;
-
-    cJSON *doc = cJSON_Parse(json);
-    if (!doc) return;                             // geen geldige JSON: negeren
-
-    if (strcmp(onderwerp, OND_STUUR) == 0) {
-        vermogen = getal(doc, "vermogen", 0);
-        if (vermogen < 0) vermogen = 0;
-        if (vermogen > 100) vermogen = 100;
-        pomp = cJSON_IsTrue(cJSON_GetObjectItem(doc, "pomp"));
-        zoemer = cJSON_IsTrue(cJSON_GetObjectItem(doc, "zoemer"));
-        laatste_stuur = nu_ms();
-        ooit_stuur = true;
-    } else if (strcmp(onderwerp, OND_STATUS) == 0 || strcmp(onderwerp, OND_RECEPT_ANTWOORD) == 0) {
-        publiceer(onderwerp, json);
-    } else if (strcmp(onderwerp, OND_MELD) == 0) {
-        int nr = getal(doc, "nr", 0);
-        if (!al_gezien(nr)) publiceer(onderwerp, json);
-        stuur_ack_nr(nr);                         // ook bij een herhaling: het scherm wacht erop
-    } else if (strcmp(onderwerp, OND_NET_START) == 0) {
-        const cJSON *server = cJSON_GetObjectItem(doc, "server");
-        stuur_ack_voor(OND_NET_START);
-        if (cJSON_IsString(server)) net_starten(server->valuestring, getal(doc, "poort", 1883));
-    } else if (strcmp(onderwerp, OND_NET_STOP) == 0) {
-        stuur_ack_voor(OND_NET_STOP);
-        net_stoppen();
-    }
-    // onbekend onderwerp: negeren
-    cJSON_Delete(doc);
-}
-
-static void lees_kabel(void) {
-    static char regel[NIELS_MAX_REGEL + 1];
-    static size_t len = 0;
-    static bool te_lang = false;
-    uint8_t buf[128];
-    int n = uart_read_bytes(SCHERM_UART, buf, sizeof buf, pdMS_TO_TICKS(10));
-    for (int i = 0; i < n; i++) {
-        char c = (char)buf[i];
-        if (c == '\r') continue;
-        if (c == '\n') {
-            regel[len] = 0;
-            if (!te_lang && len > 0) regel_verwerken(regel);
-            len = 0;
-            te_lang = false;
-        } else if (len < NIELS_MAX_REGEL) {
-            regel[len++] = c;
-        } else {
-            te_lang = true;                       // rest van de regel weggooien
+    while (1)
+    {
+        if (!sensor_klaar)
+        {
+            // Niet stoppen: het scherm moet "sensorfout" kunnen tonen,
+            // dus we blijven ok:false sturen en proberen opnieuw.
+            sensor_klaar = spi_init() == ESP_OK;
         }
-    }
-}
 
-/* ---------------- ketel ---------------- */
+        float temperature_c = 0.0f;
+        esp_err_t err = sensor_klaar ? max31865_read_temperature(&sensor, &temperature_c)
+                                     : ESP_ERR_INVALID_STATE;
+        bool ok = err == ESP_OK && isfinite(temperature_c);
 
-static void uitgangen_bijwerken(void) {
-    // Veiligheid: geen hartslag van het scherm = alles uit
-    if (!ooit_stuur || nu_ms() - laatste_stuur > NIELS_STIL_MAX_MS) {
-        vermogen = 0;
-        pomp = false;
-        zoemer = false;
-    }
-    bool ssr_aan = (nu_ms() % SSR_VENSTER_MS) < (uint32_t)vermogen * SSR_VENSTER_MS / 100;
-    gpio_set_level(CONFIG_NIELS_PIN_SSR, ssr_aan);
-    gpio_set_level(CONFIG_NIELS_PIN_POMP, pomp);
-    gpio_set_level(CONFIG_NIELS_PIN_ZOEMER, zoemer);
-}
-
-static void sensor_taak(void *arg) {
-    onewire_bus_handle_t bus = NULL;
-    ds18b20_device_handle_t ds = NULL;
-    onewire_bus_config_t bus_cfg = { .bus_gpio_num = CONFIG_NIELS_PIN_SENSOR };
-    onewire_bus_rmt_config_t rmt_cfg = { .max_rx_bytes = 10 };
-    ESP_ERROR_CHECK(onewire_new_bus_rmt(&bus_cfg, &rmt_cfg, &bus));
-
-    ds18b20_config_t ds_cfg = {};
-    while (true) {
-        if (!ds && ds18b20_new_device_from_bus(bus, &ds_cfg, &ds) != ESP_OK) {
-            ds = NULL;                            // geen sensor gevonden: straks opnieuw
-            temp_ok = false;
-            vTaskDelay(pdMS_TO_TICKS(1000));
-            continue;
+        // PID: zonder geldige meting, zonder doel of zonder scherm: verwarming uit
+        float d = doel;
+        if (ok && d > 0 && !scherm_stil())
+        {
+            vermogen = pid_bereken(temperature_c, d, TEMP_MS / 1000.0f, kp, ki, kd);
         }
-        float t;
-        if (ds18b20_trigger_temperature_conversion(ds) == ESP_OK &&   // wacht ~800 ms
-            ds18b20_get_temperature(ds, &t) == ESP_OK && t > -50 && t < 150) {
-            temp = t;
-            temp_ok = true;
-        } else {
-            temp_ok = false;
-            ds18b20_del_device(ds);
-            ds = NULL;
+        else
+        {
+            pid_reset();
+            vermogen = 0;
         }
-        vTaskDelay(pdMS_TO_TICKS(100));
+
+        char json[80];
+        if (ok)
+        {
+            snprintf(json, sizeof(json), "{\"temp\":%.1f,\"ok\":true,\"vermogen\":%d}",
+                     temperature_c, vermogen);
+        }
+        else
+        {
+            snprintf(json, sizeof(json), "{\"temp\":null,\"ok\":false,\"vermogen\":0}");
+            printf("Uitlezen mislukt: %s\n", esp_err_to_name(err));
+        }
+
+        err = scherm_uart_verstuur(OND_TEMP, json);
+        if (err != ESP_OK)
+        {
+            printf("Temperatuur versturen mislukt: %s\n", esp_err_to_name(err));
+        }
+        // Naar de webapp: sensor/temperatuur en de toestand van de actuatoren
+        net_ketel(temperature_c, ok, vermogen, pomp_aan, zoemer != ZOEMER_UIT);
+
+        vTaskDelay(pdMS_TO_TICKS(TEMP_MS));
     }
 }
 
-static void temperatuur_sturen(void) {
-    cJSON *o = cJSON_CreateObject();
-    if (temp_ok) {
-        char t[16];
-        snprintf(t, sizeof t, "%.1f", temp);
-        cJSON_AddRawToObject(o, "temp", t);       // met één decimaal
-    } else {
-        cJSON_AddNullToObject(o, "temp");
-    }
-    cJSON_AddBoolToObject(o, "ok", temp_ok);
+/* ---------------- ketel: SSR, pomp, zoemer ---------------- */
 
-    char *json = cJSON_PrintUnformatted(o);
-    if (json) {
-        publiceer(OND_TEMP, json);
-        free(json);
-    }
-    naar_scherm(OND_TEMP, o);                     // geeft o vrij
+static void alles_uit(void)
+{
+    gpio_set_level(CONFIG_NIELS_PIN_SSR, 0);
+    gpio_set_level(CONFIG_NIELS_PIN_POMP, 0);
+    gpio_set_level(CONFIG_NIELS_PIN_ZOEMER, 0);
 }
 
-/* ---------------- start ---------------- */
-
-void app_main(void) {
-    slot = xSemaphoreCreateMutex();
-
+static void uitgangen_init(void)
+{
     gpio_config_t uit = {
         .pin_bit_mask = (1ULL << CONFIG_NIELS_PIN_SSR) | (1ULL << CONFIG_NIELS_PIN_POMP) |
                         (1ULL << CONFIG_NIELS_PIN_ZOEMER),
         .mode = GPIO_MODE_OUTPUT,
     };
     gpio_config(&uit);
-    uitgangen_bijwerken();                        // alles uit
+    alles_uit();
+}
 
-    uart_config_t uc = {
-        .baud_rate = NIELS_BAUD,
-        .data_bits = UART_DATA_8_BITS,
-        .parity = UART_PARITY_DISABLE,
-        .stop_bits = UART_STOP_BITS_1,
-        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
-        .source_clk = UART_SCLK_DEFAULT,
-    };
-    ESP_ERROR_CHECK(uart_driver_install(SCHERM_UART, 2048, 2048, 0, NULL, 0));
-    ESP_ERROR_CHECK(uart_param_config(SCHERM_UART, &uc));
-    ESP_ERROR_CHECK(uart_set_pin(SCHERM_UART, CONFIG_NIELS_PIN_SCHERM_TX, CONFIG_NIELS_PIN_SCHERM_RX,
-                                 UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
-
-    esp_err_t err = nvs_flash_init();             // nodig voor wifi
-    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        nvs_flash_erase();
-        nvs_flash_init();
+/* Piepritme: zo hoor je het verschil tussen een melding en een alarm.
+ *   melding: om de 3 s drie korte piepjes   (bijv. hop toevoegen, koken klaar)
+ *   alarm:   snel aan-uit                    (bijv. sensorfout)
+ * Het ritme begint opnieuw (met een piep) zodra de stand verandert. */
+static bool zoemer_piept(void)
+{
+    uint32_t t = nu_ms() - zoemer_sinds;
+    switch (zoemer)
+    {
+    case ZOEMER_MELDING:
+        t %= MELDING_PERIODE_MS;
+        return t < MELDING_PIEPJES * 2 * MELDING_PIEP_MS &&
+               t % (2 * MELDING_PIEP_MS) < MELDING_PIEP_MS;
+    case ZOEMER_ALARM:
+        return t % (2 * ALARM_PIEP_MS) < ALARM_PIEP_MS;
+    default:
+        return false;
     }
-    wifi_starten();
+}
 
-    xTaskCreate(sensor_taak, "sensor", 4096, NULL, 5, NULL);
-
-    ESP_LOGI(TAG, "Niels ESP gestart");
-    stuur_net_status(NET_UIT, NULL);              // scherm ziet zo dat we (weer) leven
-
-    uint32_t vorige_temp = 0, vorige_net = 0;
-    while (true) {
-        lees_kabel();                             // wacht hooguit 10 ms op data
-        uitgangen_bijwerken();
-        net_bijhouden();
-
-        if (nu_ms() - vorige_temp >= TEMP_MS) {
-            vorige_temp = nu_ms();
-            temperatuur_sturen();
+void ketel_task(void *parameters)
+{
+    while (1)
+    {
+        if (scherm_stil())
+        {
+            // Veiligheid: geen brouw/stuur meer van het scherm = alles uit.
+            // temp_task zet het vermogen op 0 en reset de PID.
+            doel = 0;
+            vermogen = 0;
+            pomp_aan = false;
+            zoemer = ZOEMER_UIT;
+            alles_uit();
         }
-        if (nu_ms() - vorige_net >= NET_STATUS_MS) {
-            vorige_net = nu_ms();
-            VERGRENDEL();
-            net_toestand_t n = net;
-            ONTGRENDEL();
-            stuur_net_status(n, NULL);
+        else
+        {
+            bool ssr = (nu_ms() % SSR_VENSTER_MS) < (uint32_t)vermogen * SSR_VENSTER_MS / 100;
+            gpio_set_level(CONFIG_NIELS_PIN_SSR, ssr);
+            gpio_set_level(CONFIG_NIELS_PIN_POMP, pomp_aan);
+            gpio_set_level(CONFIG_NIELS_PIN_ZOEMER, zoemer_piept());
+        }
+        vTaskDelay(pdMS_TO_TICKS(10));
+    }
+}
+
+/* ---------------- berichten van het scherm ---------------- */
+
+static float kommagetal(const cJSON *o, const char *naam, float standaard)
+{
+    const cJSON *v = cJSON_GetObjectItemCaseSensitive(o, naam);
+    return cJSON_IsNumber(v) ? (float)v->valuedouble : standaard;
+}
+
+static void bericht_verwerken(const scherm_uart_bericht_t *bericht)
+{
+    const char* einde = NULL;
+    cJSON *data = cJSON_ParseWithOpts(bericht->json, &einde, true);
+    if (data == NULL)
+    {
+        return;
+    }
+
+    if (strcmp(bericht->onderwerp, OND_STUUR) == 0)
+    {
+        // {"doel":65,"kp":20,"ki":0.05,"kd":10,"pomp":true,"zoemer":"uit"}
+        // Ontbreekt doel, dan gaat de verwarming uit (veilige kant).
+        // Ontbreekt kp, ki of kd, dan blijft de vorige waarde.
+        doel = kommagetal(data, "doel", 0);
+        kp = kommagetal(data, "kp", kp);
+        ki = kommagetal(data, "ki", ki);
+        kd = kommagetal(data, "kd", kd);
+        pomp_aan = cJSON_IsTrue(cJSON_GetObjectItemCaseSensitive(data, "pomp"));
+
+        // "uit", "melding" of "alarm"; een onbekende waarde = "uit"
+        const char *z = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(data, "zoemer"));
+        zoemer_t nieuw = z == NULL                  ? ZOEMER_UIT
+                       : strcmp(z, "melding") == 0  ? ZOEMER_MELDING
+                       : strcmp(z, "alarm") == 0    ? ZOEMER_ALARM
+                       :                              ZOEMER_UIT;
+        if (nieuw != zoemer)
+        {
+            zoemer_sinds = nu_ms();             // ritme begint opnieuw met een piep
+        }
+        zoemer = nieuw;
+
+        laatste_stuur = xTaskGetTickCount();
+        ooit_stuur = true;
+    }
+    else if (strcmp(bericht->onderwerp, OND_MELD) == 0)
+    {
+        cJSON* nummer = cJSON_GetObjectItemCaseSensitive(data, "nr");
+        if (cJSON_IsNumber(nummer) && nummer->valuedouble >= 1 &&
+            nummer->valuedouble <= INT_MAX &&
+            nummer->valuedouble == (int)nummer->valuedouble)
+        {
+            int nr = (int)nummer->valuedouble;
+            char ack[32];
+            snprintf(ack, sizeof(ack), "{\"nr\":%d}", nr);
+
+            //ALTIJD bevestigen, ook wanneer dezelfde melding opnieuw komt.
+            esp_err_t err = scherm_uart_verstuur(OND_ACK, ack);
+            if (err != ESP_OK)
+            {
+                printf("Ack versturen mislukt: %s\n", esp_err_to_name(err));
+            }
+
+            // Elk nummer maar één keer doorgeven aan net.c. Die zet
+            // recept_ok/recept_fout om in de ack voor de webapp en sg in sensor/sg.
+            if (message_is_new(nr))
+            {
+                printf("Nieuwe melding: %s\n", bericht->json);
+                net_van_scherm(OND_MELD, bericht->json);
+            }
         }
     }
+    else if (strcmp(bericht->onderwerp, OND_STATUS) == 0)
+    {
+        // Alleen voor de webapp: doorsturen naar MQTT.
+        net_van_scherm(OND_STATUS, bericht->json);
+    }
+    else if (strcmp(bericht->onderwerp, OND_NET_START) == 0)
+    {
+        // {"server":"192.168.0.25","poort":1883}. Geen ack: het antwoord
+        // komt via net/status, daarna het recept. net.c gebruikt de broker
+        // uit het wifi-formulier; server/poort alleen als dat leeg is.
+        cJSON* server = cJSON_GetObjectItemCaseSensitive(data, "server");
+        cJSON* poort = cJSON_GetObjectItemCaseSensitive(data, "poort");
+        net_start(cJSON_IsString(server) ? server->valuestring : NULL,
+                  cJSON_IsNumber(poort) ? (int)poort->valuedouble : 0);
+    }
+    else if (strcmp(bericht->onderwerp, OND_NET_STOP) == 0)
+    {
+        // Geen ack. Het scherm wacht niet meer op een recept;
+        // MQTT blijft verbonden, zodat de webapp de ketel online ziet.
+        net_stop();
+    }
+    else if (strcmp(bericht->onderwerp, OND_NET_MODUS) == 0)
+    {
+        // {"modus":"configuratie"} of {"modus":"werking"}: schakelaar op Instellingen.
+        // Het antwoord komt via net/toestand.
+        cJSON* modus = cJSON_GetObjectItemCaseSensitive(data, "modus");
+        if (cJSON_IsString(modus))
+            net_modus(strcmp(modus->valuestring, "configuratie") == 0);
+    }
+
+    cJSON_Delete(data);
+}
+
+void receive_task(void *parameters)
+{
+    bool timeout_reported = false;
+
+    while (1)
+    {
+        scherm_uart_bericht_t bericht;
+        esp_err_t err = scherm_uart_ontvang(&bericht, pdMS_TO_TICKS(50));
+
+        if(err == ESP_OK)
+        {
+            bericht_verwerken(&bericht);
+            if(strcmp(bericht.onderwerp, OND_STUUR) == 0)
+            {
+                timeout_reported = false;
+            }
+        }
+        else if (err != ESP_ERR_TIMEOUT)
+        {
+            printf("UART-ontvangst fout: %s\n", esp_err_to_name(err));
+            vTaskDelay(pdMS_TO_TICKS(20));
+        }
+
+        //Tijd tot timeout (de uitgangen zelf gaan uit in ketel_task):
+        if(scherm_stil() && !timeout_reported)
+        {
+            printf("Geen brouw/stuur ontvangen gedurende 2 seconden: alles uit.\n");
+            // Het scherm is misschien herstart en telt dan weer vanaf 1.
+            memset(last_message, 0, sizeof(last_message));
+            next_index = 0;
+            timeout_reported = true;
+        }
+    }
+}
+
+void app_main(void)
+{
+    uitgangen_init();                 // eerst alles uit
+    scherm_uart_init();
+
+    // Wifi: eigen hotspot met formulier bij de eerste start, daarna stationmodus.
+    const esp_err_t fout = brouw_netwerk_start(CONFIG_NIELS_SETUP_WACHTWOORD, false);
+    if (fout != ESP_OK)
+    {
+        ESP_LOGE("main", "Netwerkstart: %s", esp_err_to_name(fout));
+    }
+    net_init();                       // voor de taken: die publiceren meteen
+
+    xTaskCreate(ketel_task, "Ketel task", 1024*3, NULL, 6, NULL);
+    xTaskCreate(temp_task, "Temperature task", 1024*8, NULL, 5, &temp_handle);
+    xTaskCreate(receive_task, "Receive task", 1024*8, NULL, 5, NULL);
 }

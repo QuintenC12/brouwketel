@@ -1,0 +1,18 @@
+menu "Niels ESP"
+
+    config SCHERM_UART_TX_GPIO
+        int "UART1 TX naar scherm IO44"
+        range 0 48
+        default 17
+        help
+            Kies een vrije GPIO van jouw ESP32-S3. Standaard GPIO17.
+
+    config SCHERM_UART_RX_GPIO
+        int "UART1 RX vanaf scherm IO43"
+        range 0 48
+        default 18
+        help
+            Kies een vrije GPIO van jouw ESP32-S3. Standaard GPIO18.
+            Gebruik dezelfde GPIO niet ook als SPI-klok voor de MAX31865.
+
+endmenu
