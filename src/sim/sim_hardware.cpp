@@ -37,15 +37,15 @@ void hw_pomp(bool aan)         { printf("[hw] pomp %s\n", aan ? "AAN" : "UIT"); 
 void hw_verwarming_uit()       { }
 void hw_zoemer(Zoemer soort)   { printf("[hw] zoemer: %s\n", soort == ZOEMER_ALARM ? "alarm" : soort == ZOEMER_MELDING ? "melding" : "uit"); }
 bool hw_sensor_ok()            { return true; }
-void instellingen_opslaan()    { printf("[cfg] opgeslagen: %s:%u  PID %.2f / %.3f / %.2f\n", brouw.server_ip, brouw.server_poort, brouw.pid_kp, brouw.pid_ki, brouw.pid_kd); }
+void instellingen_opslaan()    { printf("[cfg] opgeslagen: PID %.2f / %.3f / %.2f\n", brouw.pid_kp, brouw.pid_ki, brouw.pid_kd); }
 void instellingen_laden()      {}
 void net_meld(const char *g)   { printf("[net] melding: %s\n", g); }
 void net_meld_sg(int stap, float sg) { printf("[net] SG stap %d: %.3f\n", stap + 1, sg); }
 
-/* Configuratiemodus: in de simulator gaan wifi en MQTT gewoon uit zolang de schakelaar aan staat */
+/* Configuratiemodus: in de simulator gaan wifi, MQTT en server gewoon uit zolang de schakelaar aan staat */
 void net_modus(bool configuratie) {
     printf("[net] %s\n", configuratie ? "configuratiemodus" : "werkingsmodus");
-    ui_toon_netwerk(!configuratie, !configuratie, configuratie);
+    ui_toon_netwerk(!configuratie, !configuratie, !configuratie, configuratie);
 }
 
 /* ---------------- nep-server ---------------- */
@@ -54,7 +54,7 @@ static int verbind_fase = 0;      // 0 = niet bezig, 1..4 = volgende stap in de 
 static uint32_t verbind_tijd = 0;
 
 void net_verbind_server() {
-    printf("[net] verbinden met %s:%u\n", brouw.server_ip, brouw.server_poort);
+    printf("[net] recept vragen (broker %s:%u)\n", brouw.server_ip, brouw.server_poort);
     verbind_fase = 1;
     verbind_tijd = lv_tick_get();
 }
@@ -87,14 +87,16 @@ void sim_netwerk() {
     static bool gestart = false;
     if (!gestart) {                         // de nep-Niels heeft meteen wifi en MQTT
         gestart = true;
-        ui_toon_netwerk(true, true, false);
+        strcpy(brouw.server_ip, "192.168.0.10");
+        brouw.server_poort = 1883;
+        ui_toon_server();
+        ui_toon_netwerk(true, true, true, false);
     }
     if (!verbind_fase) return;
     uint32_t verstreken = lv_tick_get() - verbind_tijd;
     if (verbind_fase == 1 && verstreken > 1500) {          // server bereikt
         ui_verbind_stap(1, VS_KLAAR);
         ui_verbind_stap(2, VS_BEZIG);
-        ui_toon_verbinding(true);
         verbind_fase = 2;
     } else if (verbind_fase == 2 && verstreken > 4500) {   // recept ontvangen
         demo_recept();

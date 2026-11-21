@@ -59,7 +59,8 @@ void action_start_automatisch(lv_event_t *e) {
     brouw.automatisch = true;
     brouw.aantal_stappen = 0;   // wacht op het schema van de server
     ui_toon_modus();
-    lv_label_set_text_fmt(objects.conn_step1_sub, "%s : %u", brouw.server_ip, brouw.server_poort);
+    if (brouw.server_ip[0]) lv_label_set_text_fmt(objects.conn_step1_sub, "%s : %u", brouw.server_ip, brouw.server_poort);
+    else                    lv_label_set_text(objects.conn_step1_sub, "Broker uit de hotspot van Niels ESP");
     ui_verbind_stap(1, VS_BEZIG);
     ui_verbind_stap(2, VS_WACHT);
     ui_verbind_stap(3, VS_WACHT);
@@ -90,8 +91,8 @@ void action_start_manueel(lv_event_t *e) {
 
 void action_open_webapp(lv_event_t *e) {
     hw_zoemer(ZOEMER_UIT);      // melding 'koken klaar' stoppen
-    char url[48];
-    snprintf(url, sizeof url, "http://%s", brouw.server_ip);
+    char url[80];   // de webapp staat op dezelfde computer als de MQTT-broker
+    snprintf(url, sizeof url, "http://%s", brouw.server_ip[0] ? brouw.server_ip : "brouwapp.local");
     lv_qrcode_update(objects.web_qr, url, strlen(url));
     ui_ga_naar(SCREEN_ID_WEB_APP);
 }
@@ -428,9 +429,9 @@ void action_sensor_opnieuw(lv_event_t *e) {
  * Instellingen en web-app
  * ====================================================================== */
 
-/* Wijzigingen gaan eerst naar een kopie; pas bij Opslaan naar brouw + flash */
-static char     inst_ip[16];
-static uint16_t inst_poort;
+/* Wijzigingen gaan eerst naar een kopie; pas bij Opslaan naar brouw + flash.
+ * Server-IP en poort zijn alleen om te bekijken: Niels ESP meldt ze in
+ * net/toestand, en je past ze aan via zijn hotspot (Modus op Configuratie). */
 static float    inst_pid[3];   // kp, ki, kd
 
 static void getal_tekst(char *buf, int n, float v) {
@@ -441,35 +442,18 @@ static void getal_tekst(char *buf, int n, float v) {
 
 static void toon_instellingen() {
     char t[16];
-    lv_label_set_text(objects.set_ip_label, inst_ip);
-    lv_label_set_text_fmt(objects.set_port_label, "%u", inst_poort);
+    ui_toon_server();
     lv_obj_t *pid[3] = { objects.set_kp_label, objects.set_ki_label, objects.set_kd_label };
     for (int i = 0; i < 3; i++) { getal_tekst(t, sizeof t, inst_pid[i]); lv_label_set_text(pid[i], t); }
 }
 
 void action_open_instellingen(lv_event_t *e) {
     hw_zoemer(ZOEMER_UIT);      // melding 'koken klaar' stoppen
-    strcpy(inst_ip, brouw.server_ip);
-    inst_poort = brouw.server_poort;
     inst_pid[0] = brouw.pid_kp; inst_pid[1] = brouw.pid_ki; inst_pid[2] = brouw.pid_kd;
     toon_instellingen();
     ui_ga_naar(SCREEN_ID_INSTELLINGEN);
 }
 
-static bool ip_klaar(const char *t, char *fout, int n) {
-    int a, b, c, d; char rest;
-    if (sscanf(t, "%d.%d.%d.%d%c", &a, &b, &c, &d, &rest) != 4 ||
-        a < 0 || a > 255 || b < 0 || b > 255 || c < 0 || c > 255 || d < 0 || d > 255) {
-        snprintf(fout, n, "Geen geldig IP-adres - bijv. 192.168.0.25"); return false;
-    }
-    snprintf(inst_ip, sizeof inst_ip, "%d.%d.%d.%d", a, b, c, d);
-    toon_instellingen(); return true;
-}
-static bool poort_klaar(const char *t, char *fout, int n) {
-    long v = atol(t);
-    if (!*t || strchr(t, '.') || v < 1 || v > 65535) { snprintf(fout, n, "Kies een poort tussen 1 en 65535"); return false; }
-    inst_poort = (uint16_t)v; toon_instellingen(); return true;
-}
 static const float PID_MAX[3] = { 1000, 100, 10000 };
 static int pid_keuze = 0;
 static bool pid_klaar(const char *t, char *fout, int n) {
@@ -478,12 +462,11 @@ static bool pid_klaar(const char *t, char *fout, int n) {
     inst_pid[pid_keuze] = v; toon_instellingen(); return true;
 }
 
-/* userData: 0 = IP, 1 = poort, 2 = Kp, 3 = Ki, 4 = Kd */
+/* userData: 2 = Kp, 3 = Ki, 4 = Kd (0 en 1 waren IP en poort; die tik je niet meer aan) */
 void action_instelling_numpad(lv_event_t *e) {
     int keuze = (int)(intptr_t)lv_event_get_user_data(e);
     char waarde[16], info[40];
-    if (keuze == 0) { numpad_open("Server IP", inst_ip, "Bijv. 192.168.0.25", ip_klaar); return; }
-    if (keuze == 1) { snprintf(waarde, sizeof waarde, "%u", inst_poort); numpad_open("Poort", waarde, "Bereik 1 - 65535", poort_klaar); return; }
+    if (keuze < 2 || keuze > 4) return;
     static const char *naam[3] = { "Kp (proportioneel)", "Ki (integraal)", "Kd (differentieel)" };
     pid_keuze = keuze - 2;
     getal_tekst(waarde, sizeof waarde, inst_pid[pid_keuze]);
@@ -496,8 +479,6 @@ void action_instellingen_terug(lv_event_t *e) {
 }
 
 void action_instellingen_opslaan(lv_event_t *e) {
-    strcpy(brouw.server_ip, inst_ip);
-    brouw.server_poort = inst_poort;
     brouw.pid_kp = inst_pid[0]; brouw.pid_ki = inst_pid[1]; brouw.pid_kd = inst_pid[2];
     instellingen_opslaan();
     ui_ga_naar(SCREEN_ID_MAIN);

@@ -27,21 +27,19 @@ BrouwStatus brouw;  //het heilige brouwproces
 void brouwer_init() {
     memset(&brouw, 0, sizeof brouw);    //alles op 0 zetten
     strcpy(brouw.recept, "Geen recept geladen");
-    strcpy(brouw.server_ip, "192.168.0.25");
-    brouw.server_poort = 1200;
     brouw.kooktijd_min = MAN_KOOKTIJD_MIN;
     brouw.pid_kp = PID_KP;
     brouw.pid_ki = PID_KI;
     brouw.pid_kd = PID_KD;
-    instellingen_laden();   // overschrijft ip/poort/PID als er iets opgeslagen is
+    instellingen_laden();   // overschrijft de PID-waarden als er iets opgeslagen is
 
     ui_init_extra();            //spinners, hopbalkjes en streepjes uit EEZ koppelen
     ui_toon_schema();           //lege lijsten en rijen verbergen
     ui_selecteer_schema_rij(-1);    //geen rij selecteren
     ui_selecteer_pauze_rij(-1);
     ui_toon_pomp();     //zet pomp op rood UIT
-    ui_toon_verbinding(false);  //zeg geen verbinding
-    ui_toon_netwerk(false, false, false);   //wifi-logo grijs tot Niels ESP iets meldt
+    ui_toon_netwerk(false, false, false, false);   //wifi grijs, server rood tot Niels ESP iets meldt
+    ui_toon_server();           //server en poort: '-' tot Niels ESP ze meldt
     ui_toon_hop_alarm(false);   //alarm pop-up niet laten zien
 }
 

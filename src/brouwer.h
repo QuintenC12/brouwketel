@@ -66,9 +66,12 @@ struct BrouwStatus {
     bool hop_alarm_actief;
     bool sensor_fout;
 
-    // Instellingen
-    char server_ip[16];
+    // Broker zoals Niels ESP die meldt in net/toestand (ingevuld via zijn hotspot).
+    // Het scherm toont ze alleen; leeg/0 zolang Niels ESP niets gemeld heeft.
+    char server_ip[64];
     uint16_t server_poort;
+
+    // Instellingen
     float pid_kp, pid_ki, pid_kd;   // PID-regelaar van de verwarming (draait op Niels ESP)
 };
 
@@ -93,8 +96,8 @@ enum ScreensEnum ui_huidig_scherm();
 /* ---- Scherm bijwerken (ui_update.cpp) ---- */
 void ui_init_extra();                                   // koppelt EEZ-objecten aan de lijsten in ui_update.cpp
 void ui_toon_meting(float temp, float doel, int vermogen_pct);
-void ui_toon_verbinding(bool online);
-void ui_toon_netwerk(bool wifi, bool mqtt, bool configuratie);   // wifi-logo, MQTT en modus (uit net/toestand)
+void ui_toon_netwerk(bool wifi, bool mqtt, bool server, bool configuratie);   // wifi-logo, bolletjes en modus (uit net/toestand)
+void ui_toon_server();                                  // server-IP en poort op Instellingen (uit net/toestand)
 void ui_zet_modus_schakelaar(bool configuratie);        // schakelaar op Instellingen aan/uit zetten
 void ui_toon_pomp();
 void ui_toon_modus();
