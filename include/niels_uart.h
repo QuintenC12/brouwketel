@@ -32,7 +32,7 @@
 #define OND_STATUS          "brouw/status"     // {"fase":"maischen","stap":2,"doel":63,"rest":754,"pauze":false}   elke seconde
 #define OND_MELD            "brouw/meld"       // {"nr":7,"naam":"pauze"}  -> antwoord ack {"nr":7}
                                                // ook het antwoord op een recept: "recept_ok" of "recept_fout" + "reden"
-#define OND_NET_START       "net/start"        // {"server":"192.168.0.25","poort":1883}   (antwoord komt via net/status)
+#define OND_NET_START       "net/start"        // {}   recept vragen (antwoord komt via net/status); de broker komt uit de hotspot van Niels ESP
 #define OND_NET_STOP        "net/stop"         // {}
 #define OND_NET_MODUS       "net/modus"        // {"modus":"configuratie"} of {"modus":"werking"}   elke seconde
                                                // configuratie = hotspot + wifi-formulier open (wifi en MQTT gaan uit)
@@ -43,9 +43,12 @@
 #define OND_NET_STATUS      "net/status"       // {"status":"uit|bezig|verbonden|fout","reden":"..."}
 #define OND_RECEPT          "recept"           // {"naam":..,"kooktijd":40,"stappen":[{"temp":52,"min":5}],"hops":[{"naam":..,"min":30}]}
 #define OND_ACK             "ack"              // {"nr":7}   antwoord op brouw/meld
-#define OND_NET_TOESTAND    "net/toestand"     // {"wifi":true,"mqtt":false,"modus":"werking"}   elke seconde en bij een verandering
+#define OND_NET_TOESTAND    "net/toestand"     // {"wifi":true,"mqtt":false,"modus":"werking","server":"192.168.0.10","poort":1883}
+                                               // elke seconde en bij een verandering
                                                // wifi = verbonden met het wifi-netwerk, mqtt = verbonden met de broker
                                                // modus = "configuratie" als de hotspot open staat, anders "werking"
+                                               // server, poort = de broker uit het hotspot-formulier ("" en 0 als er nog geen is);
+                                               // het scherm toont ze alleen op Instellingen
 
 /* Hoort een kant langer dan dit niets, dan gaat hij uit van een fout:
  * Niels ESP zet verwarming, pomp en zoemer uit; het scherm toont een sensorfout. */

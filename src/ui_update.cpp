@@ -103,30 +103,40 @@ void ui_toon_meting(float temp, float doel, int vermogen) {
     lv_label_set_text_fmt(objects.start_temp, "%.1f °C", temp);
 }
 
-void ui_toon_verbinding(bool online) {
-    lv_color_t kleur = lv_color_hex(online ? KLEUR_ONLINE : KLEUR_OFFLINE);
+/* Netwerk zoals Niels ESP het meldt in net/toestand.
+ *  - Hoofdscherm: het wifi-teken is groen met wifi en grijs zonder. Het bolletje
+ *    ernaast toont de MQTT-broker: groen "MQTT verbonden" of rood "MQTT niet verbonden".
+ *  - Instellingen: een lijn voor wifi en een lijn voor MQTT, elk met een bolletje.
+ *  - Zijbalk: "Online" zodra MQTT verbonden is (dan ziet de webapp de ketel).
+ * In de configuratiemodus staat de hotspot open: alles wordt oranje ("Setup").
+ * Zo zie je meteen waar het probleem zit: grijs wifi-teken = wifi, rood bolletje = broker. */
+static void lijn(lv_obj_t *dot, lv_obj_t *label, bool ok, bool configuratie,
+                 const char *tekst_ok, const char *tekst_nok, const char *tekst_setup) {
+    uint32_t kleur = configuratie ? KLEUR_ORANJE : ok ? KLEUR_ONLINE : KLEUR_OFFLINE;
+    if (dot) bg(dot, kleur);
+    if (label) lv_label_set_text(label, configuratie ? tekst_setup : ok ? tekst_ok : tekst_nok);
+}
+
+void ui_toon_netwerk(bool wifi, bool mqtt, bool configuratie) {
+    if (objects.wifi_logo) txt(objects.wifi_logo, configuratie ? KLEUR_ORANJE : wifi ? KLEUR_ONLINE : KLEUR_TXT_GRIJS);
+    lijn(objects.start_conn_dot, objects.start_conn, mqtt, configuratie, "MQTT verbonden", "MQTT niet verbonden", "Setup: hotspot open");
+    lijn(objects.set_wifi_dot, objects.set_wifi, wifi, configuratie, "Verbonden", "Niet verbonden", "Hotspot open");
+    lijn(objects.set_conn_dot, objects.set_conn, mqtt, configuratie, "Verbonden", "Niet verbonden", "Uit (setup)");
+    bool online = mqtt && !configuratie;
     for (int i = 0; i < AANTAL_ZIJBALKEN; i++) {
         Zijbalk z = zijbalk(i);
         lv_label_set_text(z.conn, online ? "Online" : "Offline");
-        lv_obj_set_style_bg_color(z.conn_dot, kleur, 0);
-    }
-    lv_label_set_text(objects.start_conn, online ? "Verbonden" : "Niet verbonden");
-    lv_obj_set_style_bg_color(objects.start_conn_dot, kleur, 0);
-    lv_label_set_text(objects.set_conn, online ? "Verbonden" : "Niet verbonden");
-    lv_obj_set_style_bg_color(objects.set_conn_dot, kleur, 0);
-}
-
-/* Wifi-logo op het hoofdscherm: het wifi-teken is groen met wifi en grijs
- * zonder; "MQTT" ernaast apart groen of rood. In de configuratiemodus staat
- * de hotspot open: het teken wordt oranje en er staat "Setup" in plaats van MQTT.
- * Op Instellingen toont het label naast de schakelaar de echte modus. */
-void ui_toon_netwerk(bool wifi, bool mqtt, bool configuratie) {
-    if (objects.wifi_logo) txt(objects.wifi_logo, configuratie ? KLEUR_ORANJE : wifi ? KLEUR_ONLINE : KLEUR_TXT_GRIJS);
-    if (objects.mqtt_logo) {
-        lv_label_set_text(objects.mqtt_logo, configuratie ? "Setup" : "MQTT");
-        txt(objects.mqtt_logo, configuratie ? KLEUR_ORANJE : mqtt ? KLEUR_ONLINE : KLEUR_OFFLINE);
+        bg(z.conn_dot, online ? KLEUR_ONLINE : KLEUR_OFFLINE);
     }
     if (objects.set_modus_label) lv_label_set_text(objects.set_modus_label, configuratie ? "Configuratie" : "Werking");
+}
+
+/* Server-IP en poort op Instellingen: alleen tonen, aanpassen gaat via de hotspot */
+void ui_toon_server() {
+    if (objects.set_ip_label) lv_label_set_text(objects.set_ip_label, brouw.server_ip[0] ? brouw.server_ip : "-");
+    if (!objects.set_port_label) return;
+    if (brouw.server_poort) lv_label_set_text_fmt(objects.set_port_label, "%u", brouw.server_poort);
+    else                    lv_label_set_text(objects.set_port_label, "-");
 }
 
 void ui_zet_modus_schakelaar(bool configuratie) {

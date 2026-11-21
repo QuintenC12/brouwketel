@@ -48,7 +48,6 @@ static int      vermogen = 0;       // uitkomst van de PID op Niels ESP, in %
 static bool     sensor_ok = false;
 static bool     ooit_temp = false;
 static uint32_t laatste_temp = 0;
-static bool     online = false;
 
 // Configuratiemodus (schakelaar op Instellingen) en wat Niels ESP over het netwerk meldt
 static bool     gewenst_config = false;     // gaat elke seconde mee in net/modus
@@ -131,6 +130,15 @@ static void toestand_ontvangen(JsonDocument &doc) {
         gewenst_config = false;
         ui_zet_modus_schakelaar(false);
         stuur_modus();
+    }
+    // Broker uit het hotspot-formulier van Niels ESP: alleen tonen
+    const char *server = doc["server"] | "";
+    uint16_t poort = doc["poort"] | 0;
+    if (strcmp(server, brouw.server_ip) != 0 || poort != brouw.server_poort) {
+        strncpy(brouw.server_ip, server, sizeof(brouw.server_ip) - 1);
+        brouw.server_ip[sizeof(brouw.server_ip) - 1] = 0;
+        brouw.server_poort = poort;
+        ui_toon_server();
     }
     laatste_toestand = millis();
     if (!ooit_toestand || wifi != niels_wifi || mqtt != niels_mqtt || config != niels_config) {
@@ -247,11 +255,9 @@ static void recept_ontvangen(JsonDocument &doc) {
 }
 
 static void net_status_ontvangen(const char *status) {
+    // Alleen voor de vinkjes op het verbindingsscherm. Het bolletje "MQTT
+    // verbonden" volgt net/toestand, dat ook zonder Automatisch komt.
     bool nu_online = strcmp(status, "verbonden") == 0;
-    if (nu_online != online) {
-        online = nu_online;
-        ui_toon_verbinding(online);
-    }
     if (verbind_fase == 1 && nu_online) {
         ui_verbind_stap(1, VS_KLAAR);
         ui_verbind_stap(2, VS_BEZIG);
@@ -396,11 +402,10 @@ bool hw_sensor_ok() {
 /* ---------------- net_* (Niels ESP praat met de server) ---------------- */
 
 void net_verbind_server() {
-    Serial.printf("[net] verbinden met %s:%u\n", brouw.server_ip, brouw.server_poort);
+    Serial.println("[net] recept vragen via Niels ESP");
     if (!kabel_ok) { verbinden_mislukt(1); return; }
-    JsonDocument doc;
-    doc["server"] = brouw.server_ip;
-    doc["poort"] = brouw.server_poort;
+    JsonDocument doc;               // leeg: Niels ESP gebruikt de broker uit zijn hotspot-formulier
+    doc.to<JsonObject>();
     stuur(OND_NET_START, doc);
     verbind_fase = 1;
     verbind_tijd = millis();

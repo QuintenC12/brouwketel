@@ -420,6 +420,10 @@ typedef struct _objects_t {
     lv_obj_t *obj112;
     lv_obj_t *set_conn_dot;
     lv_obj_t *set_conn;
+    lv_obj_t *obj111b;
+    lv_obj_t *obj112b;
+    lv_obj_t *set_wifi_dot;
+    lv_obj_t *set_wifi;
     lv_obj_t *obj113;
     lv_obj_t *obj114;
     lv_obj_t *obj115;
@@ -532,7 +536,6 @@ typedef struct _objects_t {
     lv_obj_t *obj193;
     lv_obj_t *obj194;
     lv_obj_t *wifi_logo;
-    lv_obj_t *mqtt_logo;
     lv_obj_t *set_modus;
     lv_obj_t *set_modus_label;
     lv_obj_t *obj120b;
