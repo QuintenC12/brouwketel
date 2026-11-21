@@ -51,7 +51,7 @@ static uint32_t laatste_temp = 0;
 
 // Configuratiemodus (schakelaar op Instellingen) en wat Niels ESP over het netwerk meldt
 static bool     gewenst_config = false;     // gaat elke seconde mee in net/modus
-static bool     niels_wifi = false, niels_mqtt = false, niels_config = false;
+static bool     niels_wifi = false, niels_mqtt = false, niels_server = false, niels_config = false;
 static bool     ooit_toestand = false;
 static uint32_t laatste_toestand = 0;
 #define TOESTAND_STIL_MS 3000               // zo lang geen net/toestand: wifi en MQTT als "uit" tonen
@@ -123,6 +123,7 @@ static void stuur_modus() {
 static void toestand_ontvangen(JsonDocument &doc) {
     bool wifi = doc["wifi"] | false;
     bool mqtt = doc["mqtt"] | false;
+    bool online = mqtt && (doc["online"] | false);   // de server van de webapp meldt zich op de broker
     bool config = strcmp(doc["modus"] | "werking", "configuratie") == 0;
     // Hotspot dicht terwijl de schakelaar op configuratie staat: het formulier is
     // opgeslagen (of de hotspot sloot vanzelf). Schakelaar terug op werking.
@@ -141,11 +142,12 @@ static void toestand_ontvangen(JsonDocument &doc) {
         ui_toon_server();
     }
     laatste_toestand = millis();
-    if (!ooit_toestand || wifi != niels_wifi || mqtt != niels_mqtt || config != niels_config) {
+    if (!ooit_toestand || wifi != niels_wifi || mqtt != niels_mqtt || online != niels_server || config != niels_config) {
         niels_wifi = wifi;
         niels_mqtt = mqtt;
+        niels_server = online;
         niels_config = config;
-        ui_toon_netwerk(wifi, mqtt, config);
+        ui_toon_netwerk(wifi, mqtt, online, config);
     }
     ooit_toestand = true;
 }
@@ -357,8 +359,8 @@ void hw_tick() {
     // Niets meer van Niels ESP over het netwerk: wifi en MQTT als "uit" tonen
     if (ooit_toestand && millis() - laatste_toestand > TOESTAND_STIL_MS) {
         ooit_toestand = false;
-        niels_wifi = niels_mqtt = niels_config = false;
-        ui_toon_netwerk(false, false, false);
+        niels_wifi = niels_mqtt = niels_server = niels_config = false;
+        ui_toon_netwerk(false, false, false, false);
     }
     meldingen_herhalen();
     if (verbind_fase) verbinden_volgen();

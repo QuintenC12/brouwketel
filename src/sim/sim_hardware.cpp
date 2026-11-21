@@ -42,10 +42,10 @@ void instellingen_laden()      {}
 void net_meld(const char *g)   { printf("[net] melding: %s\n", g); }
 void net_meld_sg(int stap, float sg) { printf("[net] SG stap %d: %.3f\n", stap + 1, sg); }
 
-/* Configuratiemodus: in de simulator gaan wifi en MQTT gewoon uit zolang de schakelaar aan staat */
+/* Configuratiemodus: in de simulator gaan wifi, MQTT en server gewoon uit zolang de schakelaar aan staat */
 void net_modus(bool configuratie) {
     printf("[net] %s\n", configuratie ? "configuratiemodus" : "werkingsmodus");
-    ui_toon_netwerk(!configuratie, !configuratie, configuratie);
+    ui_toon_netwerk(!configuratie, !configuratie, !configuratie, configuratie);
 }
 
 /* ---------------- nep-server ---------------- */
@@ -90,7 +90,7 @@ void sim_netwerk() {
         strcpy(brouw.server_ip, "192.168.0.10");
         brouw.server_poort = 1883;
         ui_toon_server();
-        ui_toon_netwerk(true, true, false);
+        ui_toon_netwerk(true, true, true, false);
     }
     if (!verbind_fase) return;
     uint32_t verstreken = lv_tick_get() - verbind_tijd;

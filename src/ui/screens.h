@@ -424,6 +424,10 @@ typedef struct _objects_t {
     lv_obj_t *obj112b;
     lv_obj_t *set_wifi_dot;
     lv_obj_t *set_wifi;
+    lv_obj_t *obj111c;
+    lv_obj_t *obj112c;
+    lv_obj_t *set_srv_dot;
+    lv_obj_t *set_srv;
     lv_obj_t *obj113;
     lv_obj_t *obj114;
     lv_obj_t *obj115;

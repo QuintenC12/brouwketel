@@ -43,9 +43,10 @@
 #define OND_NET_STATUS      "net/status"       // {"status":"uit|bezig|verbonden|fout","reden":"..."}
 #define OND_RECEPT          "recept"           // {"naam":..,"kooktijd":40,"stappen":[{"temp":52,"min":5}],"hops":[{"naam":..,"min":30}]}
 #define OND_ACK             "ack"              // {"nr":7}   antwoord op brouw/meld
-#define OND_NET_TOESTAND    "net/toestand"     // {"wifi":true,"mqtt":false,"modus":"werking","server":"192.168.0.10","poort":1883}
+#define OND_NET_TOESTAND    "net/toestand"     // {"wifi":true,"mqtt":true,"online":true,"modus":"werking","server":"192.168.0.10","poort":1883}
                                                // elke seconde en bij een verandering
                                                // wifi = verbonden met het wifi-netwerk, mqtt = verbonden met de broker
+                                               // online = de server van de webapp is er (retained brouwer/server/status = "online")
                                                // modus = "configuratie" als de hotspot open staat, anders "werking"
                                                // server, poort = de broker uit het hotspot-formulier ("" en 0 als er nog geen is);
                                                // het scherm toont ze alleen op Instellingen

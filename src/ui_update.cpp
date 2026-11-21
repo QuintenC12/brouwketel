@@ -105,11 +105,12 @@ void ui_toon_meting(float temp, float doel, int vermogen) {
 
 /* Netwerk zoals Niels ESP het meldt in net/toestand.
  *  - Hoofdscherm: het wifi-teken is groen met wifi en grijs zonder. Het bolletje
- *    ernaast toont de MQTT-broker: groen "MQTT verbonden" of rood "MQTT niet verbonden".
- *  - Instellingen: een lijn voor wifi en een lijn voor MQTT, elk met een bolletje.
- *  - Zijbalk: "Online" zodra MQTT verbonden is (dan ziet de webapp de ketel).
+ *    ernaast toont de server van de webapp: groen "Server verbonden" of rood
+ *    "Server niet bereikbaar". De server meldt zich op de broker (brouwer/server/status).
+ *  - Instellingen: een lijn voor wifi, MQTT-broker en server, elk met een bolletje.
+ *  - Zijbalk: "Online" zodra de server bereikbaar is.
  * In de configuratiemodus staat de hotspot open: alles wordt oranje ("Setup").
- * Zo zie je meteen waar het probleem zit: grijs wifi-teken = wifi, rood bolletje = broker. */
+ * Zo zie je waar het probleem zit: grijs wifi-teken = wifi, rood bolletje = broker of server. */
 static void lijn(lv_obj_t *dot, lv_obj_t *label, bool ok, bool configuratie,
                  const char *tekst_ok, const char *tekst_nok, const char *tekst_setup) {
     uint32_t kleur = configuratie ? KLEUR_ORANJE : ok ? KLEUR_ONLINE : KLEUR_OFFLINE;
@@ -117,12 +118,13 @@ static void lijn(lv_obj_t *dot, lv_obj_t *label, bool ok, bool configuratie,
     if (label) lv_label_set_text(label, configuratie ? tekst_setup : ok ? tekst_ok : tekst_nok);
 }
 
-void ui_toon_netwerk(bool wifi, bool mqtt, bool configuratie) {
+void ui_toon_netwerk(bool wifi, bool mqtt, bool server, bool configuratie) {
     if (objects.wifi_logo) txt(objects.wifi_logo, configuratie ? KLEUR_ORANJE : wifi ? KLEUR_ONLINE : KLEUR_TXT_GRIJS);
-    lijn(objects.start_conn_dot, objects.start_conn, mqtt, configuratie, "MQTT verbonden", "MQTT niet verbonden", "Setup: hotspot open");
+    lijn(objects.start_conn_dot, objects.start_conn, server, configuratie, "Server verbonden", "Server niet bereikbaar", "Setup: hotspot open");
     lijn(objects.set_wifi_dot, objects.set_wifi, wifi, configuratie, "Verbonden", "Niet verbonden", "Hotspot open");
     lijn(objects.set_conn_dot, objects.set_conn, mqtt, configuratie, "Verbonden", "Niet verbonden", "Uit (setup)");
-    bool online = mqtt && !configuratie;
+    lijn(objects.set_srv_dot, objects.set_srv, server, configuratie, "Bereikbaar", "Niet bereikbaar", "Uit (setup)");
+    bool online = server && !configuratie;
     for (int i = 0; i < AANTAL_ZIJBALKEN; i++) {
         Zijbalk z = zijbalk(i);
         lv_label_set_text(z.conn, online ? "Online" : "Offline");

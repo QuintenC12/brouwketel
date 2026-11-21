@@ -38,7 +38,7 @@ void brouwer_init() {
     ui_selecteer_schema_rij(-1);    //geen rij selecteren
     ui_selecteer_pauze_rij(-1);
     ui_toon_pomp();     //zet pomp op rood UIT
-    ui_toon_netwerk(false, false, false);   //wifi grijs, MQTT rood tot Niels ESP iets meldt
+    ui_toon_netwerk(false, false, false, false);   //wifi grijs, server rood tot Niels ESP iets meldt
     ui_toon_server();           //server en poort: '-' tot Niels ESP ze meldt
     ui_toon_hop_alarm(false);   //alarm pop-up niet laten zien
 }

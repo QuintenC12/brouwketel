@@ -117,7 +117,7 @@ void create_screen_main() {
                     lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                     lv_obj_set_style_text_color(obj, lv_color_hex(0x9aa3ad), LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_text_font(obj, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    lv_label_set_text(obj, "MQTT niet verbonden");
+                    lv_label_set_text(obj, "Server niet bereikbaar");
                 }
             }
         }
@@ -5598,6 +5598,63 @@ void create_screen_instellingen() {
             }
         }
         {
+            lv_obj_t *obj = lv_obj_create(parent_obj);
+            objects.obj111c = obj;
+            lv_obj_set_pos(obj, 16, 340);
+            lv_obj_set_size(obj, 376, 52);
+            lv_obj_remove_flag(obj, LV_OBJ_FLAG_CLICKABLE|LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
+            lv_obj_set_style_bg_color(obj, lv_color_hex(0x262c33), LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_bg_opa(obj, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_radius(obj, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_pad_top(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_pad_left(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_pad_right(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_shadow_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+            {
+                lv_obj_t *parent_obj = obj;
+                {
+                    lv_obj_t *obj = lv_label_create(parent_obj);
+                    objects.obj112c = obj;
+                    lv_obj_set_pos(obj, 16, 16);
+                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                    lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
+                    lv_obj_set_style_text_color(obj, lv_color_hex(0xe8eaed), LV_PART_MAIN | LV_STATE_DEFAULT);
+                    lv_obj_set_style_text_font(obj, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
+                    lv_label_set_text_static(obj, "Server");
+                }
+                {
+                    // set_srv_dot
+                    lv_obj_t *obj = lv_obj_create(parent_obj);
+                    objects.set_srv_dot = obj;
+                    lv_obj_set_pos(obj, 222, 21);
+                    lv_obj_set_size(obj, 10, 10);
+                    lv_obj_remove_flag(obj, LV_OBJ_FLAG_CLICKABLE|LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
+                    lv_obj_set_style_bg_color(obj, lv_color_hex(0xf85149), LV_PART_MAIN | LV_STATE_DEFAULT);
+                    lv_obj_set_style_bg_opa(obj, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+                    lv_obj_set_style_radius(obj, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+                    lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+                    lv_obj_set_style_pad_top(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+                    lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+                    lv_obj_set_style_pad_left(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+                    lv_obj_set_style_pad_right(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+                    lv_obj_set_style_shadow_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+                }
+                {
+                    // set_srv
+                    lv_obj_t *obj = lv_label_create(parent_obj);
+                    objects.set_srv = obj;
+                    lv_obj_set_pos(obj, 238, 17);
+                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                    lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
+                    lv_obj_set_style_text_color(obj, lv_color_hex(0x9aa3ad), LV_PART_MAIN | LV_STATE_DEFAULT);
+                    lv_obj_set_style_text_font(obj, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+                    lv_label_set_text(obj, "Niet verbonden");
+                }
+            }
+        }
+        {
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.obj113 = obj;
             lv_obj_set_pos(obj, 408, 80);
@@ -5793,7 +5850,7 @@ void create_screen_instellingen() {
         {
             lv_obj_t *obj = lv_obj_create(parent_obj);
             objects.obj120b = obj;
-            lv_obj_set_pos(obj, 16, 340);
+            lv_obj_set_pos(obj, 16, 400);
             lv_obj_set_size(obj, 376, 52);
             lv_obj_remove_flag(obj, LV_OBJ_FLAG_CLICKABLE|LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
             lv_obj_set_style_bg_color(obj, lv_color_hex(0x262c33), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -5842,7 +5899,7 @@ void create_screen_instellingen() {
         {
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.obj120 = obj;
-            lv_obj_set_pos(obj, 16, 440);
+            lv_obj_set_pos(obj, 16, 456);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
             lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
             lv_obj_set_style_text_color(obj, lv_color_hex(0x9aa3ad), LV_PART_MAIN | LV_STATE_DEFAULT);

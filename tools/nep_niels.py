@@ -60,6 +60,7 @@ def stuur_toestand(poort):
     hotspot = toestand["modus"] == "configuratie"
     stuur(poort, "net/toestand " + json.dumps({"wifi": toestand["wifi"] and not hotspot,
                                                "mqtt": toestand["mqtt"] and not hotspot,
+                                               "online": toestand["mqtt"] and not hotspot,
                                                "modus": toestand["modus"],
                                                "server": "192.168.0.10", "poort": 1883}))
 
