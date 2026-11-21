@@ -28,6 +28,7 @@ Typen:
     ok / fout               net/status verbonden / fout
     wifi aan / wifi uit     wifi in net/toestand
     mqtt aan / mqtt uit     MQTT in net/toestand
+    server aan / server uit de server van de webapp ("online" in net/toestand)
     stop                    afsluiten
     alles anders            gaat letterlijk naar het scherm, bijv.:
                             net/status {"status":"verbonden"}
@@ -47,7 +48,7 @@ VOORBEELD_RECEPT = {
 }
 
 toestand = {"temp": 20.0, "ok": True, "praat": True, "stuur_tonen": False, "doel": 0, "zoemer": "uit",
-            "wifi": True, "mqtt": True, "modus": "werking"}
+            "wifi": True, "mqtt": True, "server": True, "modus": "werking"}
 slot = threading.Lock()
 
 
@@ -60,7 +61,7 @@ def stuur_toestand(poort):
     hotspot = toestand["modus"] == "configuratie"
     stuur(poort, "net/toestand " + json.dumps({"wifi": toestand["wifi"] and not hotspot,
                                                "mqtt": toestand["mqtt"] and not hotspot,
-                                               "online": toestand["mqtt"] and not hotspot,
+                                               "online": toestand["mqtt"] and toestand["server"] and not hotspot,
                                                "modus": toestand["modus"],
                                                "server": "192.168.0.10", "poort": 1883}))
 
@@ -142,7 +143,7 @@ def main():
         elif invoer in ("ok", "fout"):
             status = {"status": "verbonden"} if invoer == "ok" else {"status": "fout", "reden": "test"}
             stuur(poort, "net/status " + json.dumps(status))
-        elif invoer in ("wifi aan", "wifi uit", "mqtt aan", "mqtt uit"):
+        elif invoer in ("wifi aan", "wifi uit", "mqtt aan", "mqtt uit", "server aan", "server uit"):
             toestand[woorden[0]] = woorden[1] == "aan"
             stuur_toestand(poort)
         else:
