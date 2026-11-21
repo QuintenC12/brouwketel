@@ -66,8 +66,9 @@ struct BrouwStatus {
     bool hop_alarm_actief;
     bool sensor_fout;
 
-    // Broker zoals Niels ESP die meldt in net/toestand (ingevuld via zijn hotspot).
-    // Het scherm toont ze alleen; leeg/0 zolang Niels ESP niets gemeld heeft.
+    // Wifi-netwerk en broker zoals Niels ESP die meldt in net/toestand (ingevuld via
+    // zijn hotspot). Het scherm toont ze alleen; leeg/0 zolang Niels ESP niets gemeld heeft.
+    char wifi_ssid[33];
     char server_ip[64];
     uint16_t server_poort;
 

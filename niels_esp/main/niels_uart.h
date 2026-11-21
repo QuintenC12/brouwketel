@@ -43,7 +43,7 @@
 #define OND_NET_STATUS      "net/status"       // {"status":"uit|bezig|verbonden|fout","reden":"..."}
 #define OND_RECEPT          "recept"           // {"naam":..,"kooktijd":40,"stappen":[{"temp":52,"min":5}],"hops":[{"naam":..,"min":30}]}
 #define OND_ACK             "ack"              // {"nr":7}   antwoord op brouw/meld
-#define OND_NET_TOESTAND    "net/toestand"     // {"wifi":true,"mqtt":true,"online":true,"modus":"werking","server":"192.168.0.10","poort":1883}
+#define OND_NET_TOESTAND    "net/toestand"     // {"wifi":true,"mqtt":true,"online":true,"modus":"werking","ssid":"projectnetwork5G","server":"192.168.0.10","poort":1883}
                                                // elke seconde en bij een verandering
                                                // wifi = verbonden met het wifi-netwerk, mqtt = verbonden met de broker
                                                // online = de server van de webapp is er (retained brouwer/server/status = "online")

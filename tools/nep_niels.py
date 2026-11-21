@@ -8,8 +8,9 @@ USB-kabel. Dit script doet zich voor als Niels ESP:
     (de echte Niels ESP doet hier de PID)
   - meldingen (brouw/meld) krijgen vanzelf een ack
   - verandert de zoemer (uit / melding / alarm), dan zie je dat hier
-  - elke seconde net/toestand (wifi, MQTT, modus en de broker 192.168.0.10:1883); de
-    schakelaar Modus op het scherm (net/modus) zet de nep-hotspot open of dicht
+  - elke seconde net/toestand (wifi, MQTT, modus, wifinaam projectnetwork5G en de
+    broker 192.168.0.10:1883); de schakelaar Modus op het scherm (net/modus) zet de
+    nep-hotspot open of dicht
   - wat het scherm stuurt, zie je hier (zonder de hartslag brouw/stuur,
     brouw/status en net/modus)
 
@@ -63,6 +64,7 @@ def stuur_toestand(poort):
                                                "mqtt": toestand["mqtt"] and not hotspot,
                                                "online": toestand["mqtt"] and toestand["server"] and not hotspot,
                                                "modus": toestand["modus"],
+                                               "ssid": "projectnetwork5G",
                                                "server": "192.168.0.10", "poort": 1883}))
 
 
