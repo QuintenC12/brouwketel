@@ -5388,14 +5388,14 @@ void create_screen_instellingen() {
                     lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                     lv_obj_set_style_text_color(obj, lv_color_hex(0xe8eaed), LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_text_font(obj, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    lv_label_set_text_static(obj, "Server IP");
+                    lv_label_set_text_static(obj, "Wifi-netwerk");
                 }
                 {
-                    // set_ip
+                    // set_ssid
                     lv_obj_t *obj = lv_button_create(parent_obj);
-                    objects.set_ip = obj;
-                    lv_obj_set_pos(obj, 214, 6);
-                    lv_obj_set_size(obj, 150, 40);
+                    objects.set_ssid = obj;
+                    lv_obj_set_pos(obj, 150, 6);
+                    lv_obj_set_size(obj, 214, 40);
                     lv_obj_remove_flag(obj, LV_OBJ_FLAG_CLICKABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                     lv_obj_set_style_bg_color(obj, lv_color_hex(0x262c33), LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_bg_opa(obj, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -5408,9 +5408,9 @@ void create_screen_instellingen() {
                     {
                         lv_obj_t *parent_obj = obj;
                         {
-                            // set_ip_label
+                            // set_ssid_label
                             lv_obj_t *obj = lv_label_create(parent_obj);
-                            objects.set_ip_label = obj;
+                            objects.set_ssid_label = obj;
                             lv_obj_set_pos(obj, 0, 0);
                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                             lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
@@ -5448,14 +5448,14 @@ void create_screen_instellingen() {
                     lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                     lv_obj_set_style_text_color(obj, lv_color_hex(0xe8eaed), LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_text_font(obj, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    lv_label_set_text_static(obj, "Poort");
+                    lv_label_set_text_static(obj, "MQTT-broker");
                 }
                 {
-                    // set_port
+                    // set_broker
                     lv_obj_t *obj = lv_button_create(parent_obj);
-                    objects.set_port = obj;
-                    lv_obj_set_pos(obj, 214, 6);
-                    lv_obj_set_size(obj, 150, 40);
+                    objects.set_broker = obj;
+                    lv_obj_set_pos(obj, 150, 6);
+                    lv_obj_set_size(obj, 214, 40);
                     lv_obj_remove_flag(obj, LV_OBJ_FLAG_CLICKABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                     lv_obj_set_style_bg_color(obj, lv_color_hex(0x262c33), LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_obj_set_style_bg_opa(obj, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -5468,9 +5468,9 @@ void create_screen_instellingen() {
                     {
                         lv_obj_t *parent_obj = obj;
                         {
-                            // set_port_label
+                            // set_broker_label
                             lv_obj_t *obj = lv_label_create(parent_obj);
-                            objects.set_port_label = obj;
+                            objects.set_broker_label = obj;
                             lv_obj_set_pos(obj, 0, 0);
                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                             lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);

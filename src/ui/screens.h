@@ -410,12 +410,12 @@ typedef struct _objects_t {
     lv_obj_t *obj106;
     lv_obj_t *obj107;
     lv_obj_t *obj108;
-    lv_obj_t *set_ip;
-    lv_obj_t *set_ip_label;
+    lv_obj_t *set_ssid;
+    lv_obj_t *set_ssid_label;
     lv_obj_t *obj109;
     lv_obj_t *obj110;
-    lv_obj_t *set_port;
-    lv_obj_t *set_port_label;
+    lv_obj_t *set_broker;
+    lv_obj_t *set_broker_label;
     lv_obj_t *obj111;
     lv_obj_t *obj112;
     lv_obj_t *set_conn_dot;

@@ -132,10 +132,13 @@ static void toestand_ontvangen(JsonDocument &doc) {
         ui_zet_modus_schakelaar(false);
         stuur_modus();
     }
-    // Broker uit het hotspot-formulier van Niels ESP: alleen tonen
+    // Wifi-netwerk en broker uit het hotspot-formulier van Niels ESP: alleen tonen
+    const char *ssid = doc["ssid"] | "";
     const char *server = doc["server"] | "";
     uint16_t poort = doc["poort"] | 0;
-    if (strcmp(server, brouw.server_ip) != 0 || poort != brouw.server_poort) {
+    if (strcmp(ssid, brouw.wifi_ssid) != 0 || strcmp(server, brouw.server_ip) != 0 || poort != brouw.server_poort) {
+        strncpy(brouw.wifi_ssid, ssid, sizeof(brouw.wifi_ssid) - 1);
+        brouw.wifi_ssid[sizeof(brouw.wifi_ssid) - 1] = 0;
         strncpy(brouw.server_ip, server, sizeof(brouw.server_ip) - 1);
         brouw.server_ip[sizeof(brouw.server_ip) - 1] = 0;
         brouw.server_poort = poort;

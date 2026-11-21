@@ -87,6 +87,7 @@ void sim_netwerk() {
     static bool gestart = false;
     if (!gestart) {                         // de nep-Niels heeft meteen wifi en MQTT
         gestart = true;
+        strcpy(brouw.wifi_ssid, "projectnetwork5G");
         strcpy(brouw.server_ip, "192.168.0.10");
         brouw.server_poort = 1883;
         ui_toon_server();

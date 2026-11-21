@@ -135,10 +135,15 @@ void ui_toon_netwerk(bool wifi, bool mqtt, bool server, bool configuratie) {
 
 /* Server-IP en poort op Instellingen: alleen tonen, aanpassen gaat via de hotspot */
 void ui_toon_server() {
-    if (objects.set_ip_label) lv_label_set_text(objects.set_ip_label, brouw.server_ip[0] ? brouw.server_ip : "-");
-    if (!objects.set_port_label) return;
-    if (brouw.server_poort) lv_label_set_text_fmt(objects.set_port_label, "%u", brouw.server_poort);
-    else                    lv_label_set_text(objects.set_port_label, "-");
+    // Wifi-netwerk en MQTT-broker zoals Niels ESP ze meldt: alleen tonen
+    if (objects.set_ssid_label) lv_label_set_text(objects.set_ssid_label, brouw.wifi_ssid[0] ? brouw.wifi_ssid : "-");
+    if (!objects.set_broker_label) return;
+    if (brouw.server_ip[0] && brouw.server_poort)
+        lv_label_set_text_fmt(objects.set_broker_label, "%s : %u", brouw.server_ip, brouw.server_poort);
+    else if (brouw.server_ip[0])
+        lv_label_set_text(objects.set_broker_label, brouw.server_ip);
+    else
+        lv_label_set_text(objects.set_broker_label, "-");
 }
 
 void ui_zet_modus_schakelaar(bool configuratie) {
