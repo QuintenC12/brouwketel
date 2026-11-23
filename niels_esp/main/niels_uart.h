@@ -36,9 +36,9 @@
 #define OND_NET_START       "net/start"        // {}   recept vragen (antwoord komt via net/status); de broker komt uit de hotspot van Niels ESP
 #define OND_NET_STOP        "net/stop"         // {}
 #define OND_NET_VRAAG       "net/vraag"        // {}   stuur meteen net/toestand terug (scherm net opgestart of contact terug)
-#define OND_NET_MODUS       "net/modus"        // {"modus":"configuratie"} of {"modus":"werking"}   elke seconde
+#define OND_NET_MODUS       "net/modus"        // {"modus":"configuratie"} of {"modus":"werking"}   alleen als de schakelaar verandert
                                                // configuratie = hotspot + wifi-formulier open (wifi en MQTT gaan uit)
-                                               // Niels ESP doet alleen iets bij een verandering; antwoord via net/toestand
+                                               // Niels ESP voert het gewoon uit; antwoord via net/toestand
 
 /* ---- Niels ESP -> scherm ---- */
 #define OND_TEMP            "ketel/temp"       // {"temp":65.3,"ok":true,"vermogen":40}   elke seconde (vermogen in % van de PID)
@@ -47,7 +47,6 @@
 #define OND_ACK             "ack"              // {"nr":7}   antwoord op brouw/meld
 #define OND_NET_TOESTAND    "net/toestand"     // {"wifi":true,"mqtt":true,"online":true,"modus":"werking","ssid":"projectnetwork5G","server":"192.168.0.10","poort":1883}
                                                // alleen bij een verandering (wifi/mqtt/server/modus/instellingen) en als antwoord op net/vraag
-                                               // elke seconde en bij een verandering
                                                // wifi = verbonden met het wifi-netwerk, mqtt = verbonden met de broker
                                                // online = de server van de webapp is er (retained brouwer/server/status = "online")
                                                // modus = "configuratie" als de hotspot open staat, anders "werking"

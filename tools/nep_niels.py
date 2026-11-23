@@ -13,7 +13,7 @@ USB-kabel. Dit script doet zich voor als Niels ESP:
     stuurt, net zoals Niels ESP; de schakelaar Modus op het scherm (net/modus) zet de
     nep-hotspot open of dicht
   - wat het scherm stuurt, zie je hier (zonder de hartslag brouw/stuur,
-    brouw/status en net/modus)
+    brouw/status)
 
 Hang de echte Niels ESP los (TX en RX) voor je dit start.
 
@@ -52,8 +52,7 @@ VOORBEELD_RECEPT = {
 }
 
 toestand = {"temp": 20.0, "ok": True, "praat": True, "stuur_tonen": False, "doel": 0, "zoemer": "uit",
-            "wifi": True, "mqtt": True, "server": True, "modus": "werking",
-            "laatste_net_modus": "werking"}
+            "wifi": True, "mqtt": True, "server": True, "modus": "werking"}
 slot = threading.Lock()
 
 
@@ -105,10 +104,9 @@ def lees_lus(poort):
                 modus = json.loads(rest).get("modus", "werking")
             except ValueError:
                 modus = toestand["modus"]
-            # Zoals de echte Niels ESP: alleen iets doen als net/modus VERANDERT,
-            # niet elke seconde opnieuw (anders gaat de hotspot na "opslaan" weer open)
-            if modus != toestand["laatste_net_modus"]:
-                toestand["laatste_net_modus"] = modus
+            # net/modus komt alleen als de schakelaar verandert: gewoon uitvoeren
+            # (al in die modus, bijv. na "opslaan": niets doen)
+            if modus != toestand["modus"]:
                 toestand["modus"] = modus
                 print("  modus: " + modus + (" (nep-hotspot open)" if modus == "configuratie" else ""))
                 stuur_toestand(poort)
