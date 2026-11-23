@@ -50,7 +50,7 @@ static bool     ooit_temp = false;
 static uint32_t laatste_temp = 0;
 
 // Configuratiemodus (schakelaar op Instellingen) en wat Niels ESP over het netwerk meldt
-static bool     gewenst_config = false;     // gaat elke seconde mee in net/modus
+static bool     gewenst_config = false;     // stand van de schakelaar Modus (net/modus alleen bij een verandering)
 static bool     hotspot_gezien = false;     // sinds de schakelaar op configuratie ging: Niels ESP meldde modus "configuratie"
 static bool     wifi_weg_gezien = false;    // sinds de schakelaar op configuratie ging: Niels ESP meldde wifi uit
 static bool     niels_wifi = false, niels_mqtt = false, niels_server = false, niels_config = false;
@@ -367,7 +367,6 @@ void hw_tick() {
     if (millis() - vorige_status >= STATUS_MS) {
         vorige_status = millis();
         stuur_status();
-        stuur_modus();
     }
     // net/toestand komt alleen als er iets verandert (geen hartslag). Het contact
     // met Niels ESP volgen we via ketel/temp (elke seconde).
