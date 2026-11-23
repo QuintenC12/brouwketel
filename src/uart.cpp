@@ -32,7 +32,7 @@
 #define STATUS_MS        1000   // zo vaak brouw/status voor de webapp
 #define MELD_HERHAAL_MS  500    // zo lang wachten op een ack
 #define MELD_POGINGEN    3
-#define VERBIND_MAX_MS   30000  // zo lang mag verbinden + recept ophalen duren
+#define VERBIND_MAX_MS   30000  // zo lang mag stap 1 (verbinden) duren; op het recept wacht het scherm onbeperkt
 
 static HardwareSerial &niels = Serial;
 static bool kabel_ok = false;     // poort gestart
@@ -132,6 +132,15 @@ static void toestand_ontvangen(JsonDocument &doc) {
     // Dus de schakelaar terug op werking zodra het formulier opgeslagen is:
     //  - de hotspot was open en is nu dicht, of
     //  - de wifi was weg (hotspot open) en is nu weer verbonden.
+    // Niels ESP opent de hotspot zelf (bijv. de wifi uit het formulier werkt niet:
+    // na 25 s zonder IP gaat de hotspot vanzelf open). Schakelaar meezetten, zodat
+    // die klopt met wat er gebeurt. Niets sturen: Niels ESP staat er al.
+    if (!gewenst_config && config) {
+        Serial.println("[net] Niels ESP opende de hotspot zelf");
+        gewenst_config = true;
+        hotspot_gezien = wifi_weg_gezien = false;
+        ui_zet_modus_schakelaar(true);
+    }
     if (gewenst_config) {
         if (config) hotspot_gezien = true;
         if (!wifi)  wifi_weg_gezien = true;
@@ -288,7 +297,11 @@ static void verbinden_volgen() {
         if (verstreken > 1000) { verbind_fase = 0; ui_ga_naar(SCREEN_ID_SCHEMA); }
         return;
     }
-    if (verstreken > VERBIND_MAX_MS || (verstreken > 3000 && !contact())) {
+    // Stap 1 (verbinden) mag hoogstens VERBIND_MAX_MS duren. In stap 2 wacht het
+    // scherm zo lang als nodig tot iemand op de website het recept doorstuurt;
+    // alleen als Niels ESP wegvalt, of met Annuleren, stopt het wachten.
+    bool te_lang = verbind_fase == 1 && verstreken > VERBIND_MAX_MS;
+    if (te_lang || (verstreken > 3000 && !contact())) {
         verbinden_mislukt(verbind_fase);
         JsonDocument leeg;
         leeg.to<JsonObject>();
