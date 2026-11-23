@@ -55,8 +55,8 @@ static bool     hotspot_gezien = false;     // sinds de schakelaar op configurat
 static bool     wifi_weg_gezien = false;    // sinds de schakelaar op configuratie ging: Niels ESP meldde wifi uit
 static bool     niels_wifi = false, niels_mqtt = false, niels_server = false, niels_config = false;
 static bool     ooit_toestand = false;
-static uint32_t laatste_toestand = 0;
-#define TOESTAND_STIL_MS 3000               // zo lang geen net/toestand: wifi en MQTT als "uit" tonen
+#define VRAAG_MS         2000               // zo vaak net/vraag zolang er nog geen net/toestand kwam
+static uint32_t vorige_vraag = 0;
 
 // Verbinden met de server: 0 = niet bezig, 1 = wacht op "verbonden",
 // 2 = wacht op het recept, 3 = klaar, even het laatste vinkje tonen
@@ -155,7 +155,6 @@ static void toestand_ontvangen(JsonDocument &doc) {
         brouw.server_poort = poort;
         ui_toon_server();
     }
-    laatste_toestand = millis();
     if (!ooit_toestand || wifi != niels_wifi || mqtt != niels_mqtt || online != niels_server || config != niels_config) {
         niels_wifi = wifi;
         niels_mqtt = mqtt;
@@ -370,11 +369,22 @@ void hw_tick() {
         stuur_status();
         stuur_modus();
     }
-    // Niets meer van Niels ESP over het netwerk: wifi en MQTT als "uit" tonen
-    if (ooit_toestand && millis() - laatste_toestand > TOESTAND_STIL_MS) {
-        ooit_toestand = false;
-        niels_wifi = niels_mqtt = niels_server = niels_config = false;
-        ui_toon_netwerk(false, false, false, false);
+    // net/toestand komt alleen als er iets verandert (geen hartslag). Het contact
+    // met Niels ESP volgen we via ketel/temp (elke seconde).
+    if (!contact()) {
+        // Contact kwijt: wifi, MQTT en server als "uit" tonen; bij nieuw contact opnieuw vragen
+        if (ooit_toestand) {
+            ooit_toestand = false;
+            niels_wifi = niels_mqtt = niels_server = niels_config = false;
+            ui_toon_netwerk(false, false, false, false);
+        }
+    } else if (!ooit_toestand && millis() - vorige_vraag >= VRAAG_MS) {
+        // Contact, maar nog geen net/toestand gezien (scherm net opgestart of
+        // Niels ESP was weg): vraag de huidige toestand op
+        vorige_vraag = millis();
+        JsonDocument doc;
+        doc.to<JsonObject>();
+        stuur(OND_NET_VRAAG, doc);
     }
     meldingen_herhalen();
     if (verbind_fase) verbinden_volgen();

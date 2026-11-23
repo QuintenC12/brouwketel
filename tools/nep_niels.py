@@ -8,8 +8,9 @@ USB-kabel. Dit script doet zich voor als Niels ESP:
     (de echte Niels ESP doet hier de PID)
   - meldingen (brouw/meld) krijgen vanzelf een ack
   - verandert de zoemer (uit / melding / alarm), dan zie je dat hier
-  - elke seconde net/toestand (wifi, MQTT, modus, wifinaam projectnetwork5G en de
-    broker 192.168.0.10:1883); de schakelaar Modus op het scherm (net/modus) zet de
+  - net/toestand (wifi, MQTT, modus, wifinaam projectnetwork5G en de broker
+    192.168.0.10:1883) alleen bij een verandering en als het scherm net/vraag
+    stuurt, net zoals Niels ESP; de schakelaar Modus op het scherm (net/modus) zet de
     nep-hotspot open of dicht
   - wat het scherm stuurt, zie je hier (zonder de hartslag brouw/stuur,
     brouw/status en net/modus)
@@ -77,7 +78,6 @@ def temperatuur_lus(poort):
             t = toestand["temp"] if toestand["ok"] else None
             vermogen = 100 if toestand["ok"] and toestand["temp"] < toestand["doel"] else 0
             stuur(poort, "ketel/temp " + json.dumps({"temp": t, "ok": toestand["ok"], "vermogen": vermogen}))
-            stuur_toestand(poort)
         time.sleep(1)
 
 
@@ -96,6 +96,10 @@ def lees_lus(poort):
                     print("  zoemer: " + toestand["zoemer"])
             except ValueError:
                 pass
+        if onderwerp == "net/vraag":
+            print("  scherm vraagt net/toestand")
+            stuur_toestand(poort)
+            continue
         if onderwerp == "net/modus":
             try:
                 modus = json.loads(rest).get("modus", "werking")
