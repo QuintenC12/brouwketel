@@ -8,8 +8,9 @@ USB-kabel. Dit script doet zich voor als Niels ESP:
     (de echte Niels ESP doet hier de PID)
   - meldingen (brouw/meld) krijgen vanzelf een ack
   - verandert de zoemer (uit / melding / alarm), dan zie je dat hier
-  - elke seconde net/toestand (wifi, MQTT, modus, wifinaam projectnetwork5G en de
-    broker 192.168.0.10:1883); de schakelaar Modus op het scherm (net/modus) zet de
+  - net/toestand (wifi, MQTT, modus, wifinaam projectnetwork5G en de broker
+    192.168.0.10:1883) alleen bij een verandering en als het scherm net/vraag
+    stuurt, net zoals Niels ESP; de schakelaar Modus op het scherm (net/modus) zet de
     nep-hotspot open of dicht
   - wat het scherm stuurt, zie je hier (zonder de hartslag brouw/stuur,
     brouw/status en net/modus)
@@ -30,6 +31,8 @@ Typen:
     wifi aan / wifi uit     wifi in net/toestand
     mqtt aan / mqtt uit     MQTT in net/toestand
     server aan / server uit de server van de webapp ("online" in net/toestand)
+    opslaan                 wifi-formulier op de nep-hotspot opslaan: hotspot dicht,
+                            wifi verbonden (de schakelaar Modus moet terug naar Werking)
     stop                    afsluiten
     alles anders            gaat letterlijk naar het scherm, bijv.:
                             net/status {"status":"verbonden"}
@@ -49,7 +52,8 @@ VOORBEELD_RECEPT = {
 }
 
 toestand = {"temp": 20.0, "ok": True, "praat": True, "stuur_tonen": False, "doel": 0, "zoemer": "uit",
-            "wifi": True, "mqtt": True, "server": True, "modus": "werking"}
+            "wifi": True, "mqtt": True, "server": True, "modus": "werking",
+            "laatste_net_modus": "werking"}
 slot = threading.Lock()
 
 
@@ -74,7 +78,6 @@ def temperatuur_lus(poort):
             t = toestand["temp"] if toestand["ok"] else None
             vermogen = 100 if toestand["ok"] and toestand["temp"] < toestand["doel"] else 0
             stuur(poort, "ketel/temp " + json.dumps({"temp": t, "ok": toestand["ok"], "vermogen": vermogen}))
-            stuur_toestand(poort)
         time.sleep(1)
 
 
@@ -93,12 +96,19 @@ def lees_lus(poort):
                     print("  zoemer: " + toestand["zoemer"])
             except ValueError:
                 pass
+        if onderwerp == "net/vraag":
+            print("  scherm vraagt net/toestand")
+            stuur_toestand(poort)
+            continue
         if onderwerp == "net/modus":
             try:
                 modus = json.loads(rest).get("modus", "werking")
             except ValueError:
                 modus = toestand["modus"]
-            if modus != toestand["modus"]:
+            # Zoals de echte Niels ESP: alleen iets doen als net/modus VERANDERT,
+            # niet elke seconde opnieuw (anders gaat de hotspot na "opslaan" weer open)
+            if modus != toestand["laatste_net_modus"]:
+                toestand["laatste_net_modus"] = modus
                 toestand["modus"] = modus
                 print("  modus: " + modus + (" (nep-hotspot open)" if modus == "configuratie" else ""))
                 stuur_toestand(poort)
@@ -145,6 +155,11 @@ def main():
         elif invoer in ("ok", "fout"):
             status = {"status": "verbonden"} if invoer == "ok" else {"status": "fout", "reden": "test"}
             stuur(poort, "net/status " + json.dumps(status))
+        elif invoer == "opslaan":
+            toestand["modus"] = "werking"
+            toestand["wifi"] = True
+            print("  formulier opgeslagen: nep-hotspot dicht, wifi verbonden")
+            stuur_toestand(poort)
         elif invoer in ("wifi aan", "wifi uit", "mqtt aan", "mqtt uit", "server aan", "server uit"):
             toestand[woorden[0]] = woorden[1] == "aan"
             stuur_toestand(poort)

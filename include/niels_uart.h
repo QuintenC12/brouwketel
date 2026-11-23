@@ -23,6 +23,7 @@
 
 /* Twee soorten berichten:
  *  - toestand: wordt steeds opnieuw gestuurd, dus een verloren bericht is geen probleem
+ *    (behalve net/toestand: alleen bij een verandering, het scherm vraagt hem op met net/vraag)
  *  - gebeurtenis (brouw/meld): gebeurt maar één keer, dus met nr en ack, en herhaald tot de ack komt */
 
 /* ---- scherm -> Niels ESP ---- */
@@ -34,6 +35,7 @@
                                                // ook het antwoord op een recept: "recept_ok" of "recept_fout" + "reden"
 #define OND_NET_START       "net/start"        // {}   recept vragen (antwoord komt via net/status); de broker komt uit de hotspot van Niels ESP
 #define OND_NET_STOP        "net/stop"         // {}
+#define OND_NET_VRAAG       "net/vraag"        // {}   stuur meteen net/toestand terug (scherm net opgestart of contact terug)
 #define OND_NET_MODUS       "net/modus"        // {"modus":"configuratie"} of {"modus":"werking"}   elke seconde
                                                // configuratie = hotspot + wifi-formulier open (wifi en MQTT gaan uit)
                                                // Niels ESP doet alleen iets bij een verandering; antwoord via net/toestand
@@ -44,6 +46,7 @@
 #define OND_RECEPT          "recept"           // {"naam":..,"kooktijd":40,"stappen":[{"temp":52,"min":5}],"hops":[{"naam":..,"min":30}]}
 #define OND_ACK             "ack"              // {"nr":7}   antwoord op brouw/meld
 #define OND_NET_TOESTAND    "net/toestand"     // {"wifi":true,"mqtt":true,"online":true,"modus":"werking","ssid":"projectnetwork5G","server":"192.168.0.10","poort":1883}
+                                               // alleen bij een verandering (wifi/mqtt/server/modus/instellingen) en als antwoord op net/vraag
                                                // elke seconde en bij een verandering
                                                // wifi = verbonden met het wifi-netwerk, mqtt = verbonden met de broker
                                                // online = de server van de webapp is er (retained brouwer/server/status = "online")
