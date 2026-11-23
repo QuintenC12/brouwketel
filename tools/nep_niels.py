@@ -30,6 +30,8 @@ Typen:
     wifi aan / wifi uit     wifi in net/toestand
     mqtt aan / mqtt uit     MQTT in net/toestand
     server aan / server uit de server van de webapp ("online" in net/toestand)
+    opslaan                 wifi-formulier op de nep-hotspot opslaan: hotspot dicht,
+                            wifi verbonden (de schakelaar Modus moet terug naar Werking)
     stop                    afsluiten
     alles anders            gaat letterlijk naar het scherm, bijv.:
                             net/status {"status":"verbonden"}
@@ -49,7 +51,8 @@ VOORBEELD_RECEPT = {
 }
 
 toestand = {"temp": 20.0, "ok": True, "praat": True, "stuur_tonen": False, "doel": 0, "zoemer": "uit",
-            "wifi": True, "mqtt": True, "server": True, "modus": "werking"}
+            "wifi": True, "mqtt": True, "server": True, "modus": "werking",
+            "laatste_net_modus": "werking"}
 slot = threading.Lock()
 
 
@@ -98,7 +101,10 @@ def lees_lus(poort):
                 modus = json.loads(rest).get("modus", "werking")
             except ValueError:
                 modus = toestand["modus"]
-            if modus != toestand["modus"]:
+            # Zoals de echte Niels ESP: alleen iets doen als net/modus VERANDERT,
+            # niet elke seconde opnieuw (anders gaat de hotspot na "opslaan" weer open)
+            if modus != toestand["laatste_net_modus"]:
+                toestand["laatste_net_modus"] = modus
                 toestand["modus"] = modus
                 print("  modus: " + modus + (" (nep-hotspot open)" if modus == "configuratie" else ""))
                 stuur_toestand(poort)
@@ -145,6 +151,11 @@ def main():
         elif invoer in ("ok", "fout"):
             status = {"status": "verbonden"} if invoer == "ok" else {"status": "fout", "reden": "test"}
             stuur(poort, "net/status " + json.dumps(status))
+        elif invoer == "opslaan":
+            toestand["modus"] = "werking"
+            toestand["wifi"] = True
+            print("  formulier opgeslagen: nep-hotspot dicht, wifi verbonden")
+            stuur_toestand(poort)
         elif invoer in ("wifi aan", "wifi uit", "mqtt aan", "mqtt uit", "server aan", "server uit"):
             toestand[woorden[0]] = woorden[1] == "aan"
             stuur_toestand(poort)

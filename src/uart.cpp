@@ -51,6 +51,8 @@ static uint32_t laatste_temp = 0;
 
 // Configuratiemodus (schakelaar op Instellingen) en wat Niels ESP over het netwerk meldt
 static bool     gewenst_config = false;     // gaat elke seconde mee in net/modus
+static bool     hotspot_gezien = false;     // sinds de schakelaar op configuratie ging: Niels ESP meldde modus "configuratie"
+static bool     wifi_weg_gezien = false;    // sinds de schakelaar op configuratie ging: Niels ESP meldde wifi uit
 static bool     niels_wifi = false, niels_mqtt = false, niels_server = false, niels_config = false;
 static bool     ooit_toestand = false;
 static uint32_t laatste_toestand = 0;
@@ -125,12 +127,21 @@ static void toestand_ontvangen(JsonDocument &doc) {
     bool mqtt = doc["mqtt"] | false;
     bool online = mqtt && (doc["online"] | false);   // de server van de webapp meldt zich op de broker
     bool config = strcmp(doc["modus"] | "werking", "configuratie") == 0;
-    // Hotspot dicht terwijl de schakelaar op configuratie staat: het formulier is
-    // opgeslagen (of de hotspot sloot vanzelf). Schakelaar terug op werking.
-    if (niels_config && !config && gewenst_config) {
-        gewenst_config = false;
-        ui_zet_modus_schakelaar(false);
-        stuur_modus();
+    // Configuratie klaar? Zolang de schakelaar op configuratie staat, stuurt het
+    // scherm elke seconde "configuratie" en blijft (of gaat) de hotspot open.
+    // Dus de schakelaar terug op werking zodra het formulier opgeslagen is:
+    //  - de hotspot was open en is nu dicht, of
+    //  - de wifi was weg (hotspot open) en is nu weer verbonden.
+    if (gewenst_config) {
+        if (config) hotspot_gezien = true;
+        if (!wifi)  wifi_weg_gezien = true;
+        bool klaar = (hotspot_gezien && !config) || ((hotspot_gezien || wifi_weg_gezien) && wifi);
+        if (klaar) {
+            Serial.println("[net] configuratie klaar, terug naar werking");
+            gewenst_config = false;
+            ui_zet_modus_schakelaar(false);
+            stuur_modus();
+        }
     }
     // Wifi-netwerk en broker uit het hotspot-formulier van Niels ESP: alleen tonen
     const char *ssid = doc["ssid"] | "";
@@ -443,6 +454,7 @@ void net_meld(const char *gebeurtenis) {
 void net_modus(bool configuratie) {
     Serial.printf("[net] %s\n", configuratie ? "configuratiemodus" : "werkingsmodus");
     gewenst_config = configuratie;
+    hotspot_gezien = wifi_weg_gezien = false;
     stuur_modus();
 }
 
