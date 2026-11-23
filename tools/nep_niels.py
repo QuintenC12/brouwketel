@@ -33,6 +33,8 @@ Typen:
     server aan / server uit de server van de webapp ("online" in net/toestand)
     opslaan                 wifi-formulier op de nep-hotspot opslaan: hotspot dicht,
                             wifi verbonden (de schakelaar Modus moet terug naar Werking)
+    opslaan fout            formulier opslaan met een fout wachtwoord: hotspot dicht,
+                            na 5 s vanzelf weer open (schakelaar moet mee naar Configuratie)
     stop                    afsluiten
     alles anders            gaat letterlijk naar het scherm, bijv.:
                             net/status {"status":"verbonden"}
@@ -158,6 +160,18 @@ def main():
             toestand["wifi"] = True
             print("  formulier opgeslagen: nep-hotspot dicht, wifi verbonden")
             stuur_toestand(poort)
+        elif invoer == "opslaan fout":
+            toestand["modus"] = "werking"
+            toestand["wifi"] = False
+            print("  formulier opgeslagen met fout wifiwachtwoord: nep-hotspot dicht,")
+            print("  na 5 s geen wifi -> nep-hotspot gaat vanzelf weer open")
+            stuur_toestand(poort)
+
+            def weer_open():
+                toestand["modus"] = "configuratie"
+                print("  nep-hotspot vanzelf weer open (geen wifi)")
+                stuur_toestand(poort)
+            threading.Timer(5.0, weer_open).start()
         elif invoer in ("wifi aan", "wifi uit", "mqtt aan", "mqtt uit", "server aan", "server uit"):
             toestand[woorden[0]] = woorden[1] == "aan"
             stuur_toestand(poort)

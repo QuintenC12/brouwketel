@@ -132,6 +132,15 @@ static void toestand_ontvangen(JsonDocument &doc) {
     // Dus de schakelaar terug op werking zodra het formulier opgeslagen is:
     //  - de hotspot was open en is nu dicht, of
     //  - de wifi was weg (hotspot open) en is nu weer verbonden.
+    // Niels ESP opent de hotspot zelf (bijv. de wifi uit het formulier werkt niet:
+    // na 25 s zonder IP gaat de hotspot vanzelf open). Schakelaar meezetten, zodat
+    // die klopt met wat er gebeurt. Niets sturen: Niels ESP staat er al.
+    if (!gewenst_config && config) {
+        Serial.println("[net] Niels ESP opende de hotspot zelf");
+        gewenst_config = true;
+        hotspot_gezien = wifi_weg_gezien = false;
+        ui_zet_modus_schakelaar(true);
+    }
     if (gewenst_config) {
         if (config) hotspot_gezien = true;
         if (!wifi)  wifi_weg_gezien = true;
