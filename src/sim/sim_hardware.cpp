@@ -41,7 +41,8 @@ void instellingen_opslaan()    { printf("[cfg] opgeslagen: PID %.2f / %.3f / %.2
 void instellingen_laden()      {}
 void net_meld(const char *g)   { printf("[net] melding: %s\n", g); }
 void net_meld_fout(const char *g, const char *r) { printf("[net] melding: %s (%s)\n", g, r); }
-void net_meld_sg(int stap, float sg) { printf("[net] SG stap %d: %.3f\n", stap + 1, sg); }
+void net_meld_meting(const char *soort, int stap, float w) { printf("[net] %s %s %d: %.3f\n", soort, stap < 0 ? "na koken" : "stap", stap + 1, w); }
+void net_stuur_verslag(const char *json) { printf("[net] verslag: %s\n", json); }
 
 /* Configuratiemodus: in de simulator gaan wifi, MQTT en server gewoon uit zolang de schakelaar aan staat */
 void net_modus(bool configuratie) {

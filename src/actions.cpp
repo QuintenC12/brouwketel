@@ -119,8 +119,9 @@ void action_schema_annuleren(lv_event_t *e) {
 }
 
 void action_schema_start(lv_event_t *e) {
-    for (int i = 0; i < brouw.aantal_stappen; i++) brouw.stappen[i].sg = 0;
+    for (int i = 0; i < brouw.aantal_stappen; i++) brouw.stappen[i].sg = brouw.stappen[i].ph = 0;
     brouwer_start_fase(FASE_MAISCHEN);
+    verslag_begin();
     ui_selecteer_sg_rij(-1);
     net_meld("start");
     ui_ga_naar(SCREEN_ID_MAISCHEN);
@@ -237,6 +238,7 @@ void action_pauze(lv_event_t *e) {
     if (ui_huidig_scherm() == SCREEN_ID_MAISCHEN) {
         // Maischen: timer stil, naar pauzescherm waar je stappen kan aanpassen
         brouw.gepauzeerd = true;
+        verslag_pauze();
         net_meld("pauze");
         ui_toon_maischen();
         ui_selecteer_pauze_rij(brouw.actieve_stap);
@@ -244,6 +246,7 @@ void action_pauze(lv_event_t *e) {
     } else {
         // Koken: knop wisselt tussen PAUZE en HERVAT
         brouw.gepauzeerd = !brouw.gepauzeerd;
+        if (brouw.gepauzeerd) verslag_pauze();
         net_meld(brouw.gepauzeerd ? "pauze" : "hervat");
         ui_toon_koken();
     }
@@ -258,6 +261,7 @@ void action_stop_annuleren(lv_event_t *e) {
 }
 
 void action_stop_bevestigen(lv_event_t *e) {
+    verslag_einde(true);        // afgebroken: het verslag tot hier toch versturen
     brouwer_start_fase(FASE_GEEN);
     brouw.pomp_aan = false;
     hw_verwarming_uit();
@@ -282,22 +286,44 @@ void action_mpause_aanpassen(lv_event_t *e) {
 }
 
 /* ======================================================================
- * SG per maischstap: rij aantikken op het maischscherm
+ * SG en pH per maischstap: rij aantikken op het maisch- of spoelscherm,
+ * dan op "SG invullen" of "pH invullen"
  * ====================================================================== */
 
 static int sg_stap = 0;
 
+/* Getypte meting controleren. Leeg = 0 (wissen of overslaan). */
+static bool lees_sg(const char *t, float *sg, char *fout, int n) {
+    if (!*t) { *sg = 0; return true; }
+    float w = atof(t);
+    if (w > 2) w /= 1000;            // 1052 mag ook
+    if (!is_getal(t) || w < 0.990f || w > 1.200f) { snprintf(fout, n, "Geen geldig SG - typ bijv. 1.052"); return false; }
+    *sg = w;
+    return true;
+}
+
+static bool lees_ph(const char *t, float *ph, char *fout, int n) {
+    if (!*t) { *ph = 0; return true; }
+    float w = atof(t);
+    if (!is_getal(t) || w < 1.0f || w > 14.0f) { snprintf(fout, n, "Geen geldige pH - typ bijv. 5.4"); return false; }
+    *ph = w;
+    return true;
+}
+
 static bool sg_klaar(const char *t, char *fout, int n) {
-    if (!*t) {                       // leeg = wissen
-        brouw.stappen[sg_stap].sg = 0;
-        ui_toon_maischen();
-        return true;
-    }
-    float sg = atof(t);
-    if (sg > 2) sg /= 1000;          // 1052 mag ook
-    if (!is_getal(t) || sg < 0.990f || sg > 1.200f) { snprintf(fout, n, "Geen geldig SG - typ bijv. 1.052"); return false; }
-    brouw.stappen[sg_stap].sg = sg;
-    net_meld_sg(sg_stap, sg);
+    float sg;
+    if (!lees_sg(t, &sg, fout, n)) return false;
+    brouw.stappen[sg_stap].sg = sg;  // leeg = wissen
+    if (sg > 0) net_meld_meting("sg", sg_stap, sg);
+    ui_toon_maischen();
+    return true;
+}
+
+static bool ph_klaar(const char *t, char *fout, int n) {
+    float ph;
+    if (!lees_ph(t, &ph, fout, n)) return false;
+    brouw.stappen[sg_stap].ph = ph;  // leeg = wissen
+    if (ph > 0) net_meld_meting("ph", sg_stap, ph);
     ui_toon_maischen();
     return true;
 }
@@ -320,6 +346,51 @@ void action_sg_invullen(lv_event_t *e) {
     numpad_open(titel, waarde, "Bijv. 1.052 of 1052 - leeg = wissen", sg_klaar);
 }
 
+/* Knop "pH invullen": voor dezelfde stap als de SG-knop */
+void action_ph_invullen(lv_event_t *e) {
+    int stap = ui_sg_doelstap();
+    if (stap < 0) return;
+    sg_stap = stap;
+    char titel[32], waarde[12] = "";
+    snprintf(titel, sizeof titel, "pH na stap %d", stap + 1);
+    if (brouw.stappen[stap].ph > 0) snprintf(waarde, sizeof waarde, "%.2f", brouw.stappen[stap].ph);
+    numpad_open(titel, waarde, "Bijv. 5.4 - leeg = wissen", ph_klaar);
+}
+
+/* ======================================================================
+ * Na het koken: SG en pH vragen (allebei mag je overslaan), daarna gaat
+ * het brouwverslag naar de server. Het numpad keert terug naar het startscherm.
+ * ====================================================================== */
+
+static bool kook_ph_klaar(const char *t, char *fout, int n) {
+    float ph;
+    if (!lees_ph(t, &ph, fout, n)) return false;
+    verslag_kook_ph(ph);
+    if (ph > 0) net_meld_meting("ph", -1, ph);
+    verslag_einde(false);
+    return true;
+}
+static void kook_ph_overslaan() { verslag_einde(false); }
+
+static void vraag_kook_ph() {
+    numpad_open("pH na het koken", "", "Bijv. 5.2 - leeg = overslaan", kook_ph_klaar);
+    numpad_bij_annuleren(kook_ph_overslaan);
+}
+
+static bool kook_sg_klaar(const char *t, char *fout, int n) {
+    float sg;
+    if (!lees_sg(t, &sg, fout, n)) return false;
+    verslag_kook_sg(sg);
+    if (sg > 0) net_meld_meting("sg", -1, sg);
+    vraag_kook_ph();
+    return true;
+}
+
+void meting_na_koken() {
+    numpad_open("SG na het koken", "", "Bijv. 1.060 of 1060 - leeg = overslaan", kook_sg_klaar);
+    numpad_bij_annuleren(vraag_kook_ph);
+}
+
 void action_hervatten(lv_event_t *e) {
     brouw.gepauzeerd = false;
     net_meld("hervat");
@@ -338,6 +409,7 @@ void action_start_koken(lv_event_t *e) {
         return;
     }
     brouwer_start_fase(FASE_KOKEN);
+    verslag_koken_begin();
     net_meld("start_koken");
     ui_ga_naar(SCREEN_ID_KOKEN);
 }
@@ -394,12 +466,14 @@ void action_kook_start(lv_event_t *e) {
             HopGift t = brouw.hops[j]; brouw.hops[j] = brouw.hops[j - 1]; brouw.hops[j - 1] = t;
         }
     brouwer_start_fase(FASE_KOKEN);
+    verslag_koken_begin();
     net_meld("start_koken");
     ui_ga_naar(SCREEN_ID_KOKEN);
 }
 
 void action_hop_toegevoegd(lv_event_t *e) {
     brouw.hop_alarm_actief = false;
+    verslag_hop(brouw.hop_volgende);
     brouw.hop_volgende++;
     hw_zoemer(ZOEMER_UIT);
     net_meld("hop_toegevoegd");

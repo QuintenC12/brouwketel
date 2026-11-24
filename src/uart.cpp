@@ -33,6 +33,8 @@
 #define STATUS_MS        1000   // zo vaak brouw/status voor de webapp
 #define MELD_HERHAAL_MS  500    // zo lang wachten op een ack
 #define MELD_POGINGEN    3
+#define VERSLAG_HERHAAL_MS 2000 // brouwverslag: zo lang wachten op een ack ...
+#define VERSLAG_POGINGEN   10   // ... en zo vaak proberen
 #define VERBIND_MAX_MS   30000  // zo lang mag stap 1 (verbinden) duren; op het recept wacht het scherm onbeperkt
 
 static HardwareSerial &niels = Serial;
@@ -75,6 +77,13 @@ struct Melding {
 static Melding  wachtend[MAX_WACHTEND];
 static int      aantal_wachtend = 0;
 static uint16_t volgnummer = 0;
+
+// Brouwverslag dat op een ack wacht (eigen buffer: te lang voor een melding)
+static char     verslag_regel[NIELS_MAX_REGEL + 1];
+static uint16_t verslag_nr = 0;
+static uint32_t verslag_tijd = 0;
+static uint8_t  verslag_pogingen = 0;        // 0 = niets te versturen
+static void     verslag_herhalen();
 
 /* ---------------- versturen ---------------- */
 
@@ -212,6 +221,7 @@ static void meldingen_herhalen() {
 }
 
 static void ack_ontvangen(uint16_t nr) {
+    if (verslag_pogingen && nr == verslag_nr) { verslag_pogingen = 0; return; }
     for (int i = 0; i < aantal_wachtend; i++) {
         if (wachtend[i].nr != nr) continue;
         memmove(&wachtend[i], &wachtend[i + 1], sizeof(Melding) * (aantal_wachtend - i - 1));
@@ -385,7 +395,7 @@ static void lees_kabel() {
 
 void hw_init() {
     niels.end();                   // main.cpp heeft Serial al gestart
-    niels.setRxBufferSize(1024);   // het recept is één lange regel
+    niels.setRxBufferSize(2048);   // het recept is één lange regel
     niels.begin(NIELS_BAUD);       // standaardpinnen van UART0: IO44 (RX), IO43 (TX)
     kabel_ok = true;
 }
@@ -421,6 +431,7 @@ void hw_tick() {
         stuur(OND_NET_VRAAG, doc);
     }
     meldingen_herhalen();
+    verslag_herhalen();
     if (verbind_fase) verbinden_volgen();
 }
 
@@ -511,12 +522,49 @@ void net_modus(bool configuratie) {
     stuur_modus();
 }
 
-void net_meld_sg(int stap, float sg) {
-    Serial.printf("[net] SG stap %d: %.3f\n", stap + 1, sg);
+void net_meld_meting(const char *soort, int stap, float waarde) {
+    bool ph = strcmp(soort, "ph") == 0;
+    Serial.printf("[net] %s %s %d: %.3f\n", soort, stap < 0 ? "na koken" : "stap", stap + 1, waarde);
     JsonDocument doc;
     doc["nr"] = ++volgnummer;
-    doc["naam"] = "sg";
-    doc["stap"] = stap + 1;
-    doc["sg"] = serialized(String(sg, 3));
+    doc["naam"] = soort;
+    if (stap < 0) doc["fase"] = "koken";      // na het koken
+    else          doc["stap"] = stap + 1;
+    doc[soort] = serialized(String(waarde, ph ? 2 : 3));
     stuur_melding(doc);
+}
+
+/* Brouwverslag: te lang voor een gewone melding, dus een eigen buffer.
+ * Herhalen tot de ack komt (zoals een melding), maar langer volhouden. */
+
+static void verslag_versturen() {
+    niels.print(verslag_regel);
+    niels.print('\n');
+    verslag_tijd = millis();
+    verslag_pogingen++;
+}
+
+static void verslag_herhalen() {
+    if (!verslag_pogingen || millis() - verslag_tijd < VERSLAG_HERHAAL_MS) return;
+    if (verslag_pogingen >= VERSLAG_POGINGEN) {
+        Serial.printf("[uart] verslag %u kreeg geen ack\n", verslag_nr);
+        verslag_pogingen = 0;
+        return;
+    }
+    verslag_versturen();
+}
+
+void net_stuur_verslag(const char *json) {
+    if (!kabel_ok || json[0] != '{') return;
+    verslag_nr = ++volgnummer;
+    int n = snprintf(verslag_regel, sizeof verslag_regel, "%s {\"nr\":%u,%s",
+                     OND_VERSLAG, verslag_nr, json + 1);
+    if (n < 0 || n >= (int)sizeof verslag_regel) {
+        Serial.println("[net] verslag te lang voor de kabel");
+        verslag_pogingen = 0;
+        return;
+    }
+    Serial.printf("[net] verslag (%d tekens)\n", n);
+    verslag_pogingen = 0;
+    verslag_versturen();
 }

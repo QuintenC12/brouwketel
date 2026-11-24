@@ -156,7 +156,7 @@ void ui_zet_modus_schakelaar(bool configuratie) {
  * Maischschema: lijsten op het schema-, maisch- en pauzescherm
  * ====================================================================== */
 
-struct Rij { lv_obj_t *rij, *naam, *temp, *tijd, *potlood, *edit, *sg; };
+struct Rij { lv_obj_t *rij, *naam, *temp, *tijd, *potlood, *edit, *sg, *ph; };
 
 static Rij schema_rij(int i) {
     switch (i) {
@@ -178,19 +178,19 @@ static Rij pauze_rij(int i) {
 
 static Rij maisch_rij(int i) {
     switch (i) {
-    case 0:  return { objects.mash_row_1, objects.mash_row_1_name, objects.mash_row_1_temp, objects.mash_row_1_time, NULL, NULL, objects.mash_row_1_sg };
-    case 1:  return { objects.mash_row_2, objects.mash_row_2_name, objects.mash_row_2_temp, objects.mash_row_2_time, NULL, NULL, objects.mash_row_2_sg };
-    case 2:  return { objects.mash_row_3, objects.mash_row_3_name, objects.mash_row_3_temp, objects.mash_row_3_time, NULL, NULL, objects.mash_row_3_sg };
-    default: return { objects.mash_row_4, objects.mash_row_4_name, objects.mash_row_4_temp, objects.mash_row_4_time, NULL, NULL, objects.mash_row_4_sg };
+    case 0:  return { objects.mash_row_1, objects.mash_row_1_name, objects.mash_row_1_temp, objects.mash_row_1_time, NULL, NULL, objects.mash_row_1_sg, objects.mash_row_1_ph };
+    case 1:  return { objects.mash_row_2, objects.mash_row_2_name, objects.mash_row_2_temp, objects.mash_row_2_time, NULL, NULL, objects.mash_row_2_sg, objects.mash_row_2_ph };
+    case 2:  return { objects.mash_row_3, objects.mash_row_3_name, objects.mash_row_3_temp, objects.mash_row_3_time, NULL, NULL, objects.mash_row_3_sg, objects.mash_row_3_ph };
+    default: return { objects.mash_row_4, objects.mash_row_4_name, objects.mash_row_4_temp, objects.mash_row_4_time, NULL, NULL, objects.mash_row_4_sg, objects.mash_row_4_ph };
     }
 }
 
 static Rij spoel_rij(int i) {
     switch (i) {
-    case 0:  return { objects.rinse_row_1, objects.rinse_row_1_name, objects.rinse_row_1_temp, objects.rinse_row_1_time, NULL, NULL, objects.rinse_row_1_sg };
-    case 1:  return { objects.rinse_row_2, objects.rinse_row_2_name, objects.rinse_row_2_temp, objects.rinse_row_2_time, NULL, NULL, objects.rinse_row_2_sg };
-    case 2:  return { objects.rinse_row_3, objects.rinse_row_3_name, objects.rinse_row_3_temp, objects.rinse_row_3_time, NULL, NULL, objects.rinse_row_3_sg };
-    default: return { objects.rinse_row_4, objects.rinse_row_4_name, objects.rinse_row_4_temp, objects.rinse_row_4_time, NULL, NULL, objects.rinse_row_4_sg };
+    case 0:  return { objects.rinse_row_1, objects.rinse_row_1_name, objects.rinse_row_1_temp, objects.rinse_row_1_time, NULL, NULL, objects.rinse_row_1_sg, objects.rinse_row_1_ph };
+    case 1:  return { objects.rinse_row_2, objects.rinse_row_2_name, objects.rinse_row_2_temp, objects.rinse_row_2_time, NULL, NULL, objects.rinse_row_2_sg, objects.rinse_row_2_ph };
+    case 2:  return { objects.rinse_row_3, objects.rinse_row_3_name, objects.rinse_row_3_temp, objects.rinse_row_3_time, NULL, NULL, objects.rinse_row_3_sg, objects.rinse_row_3_ph };
+    default: return { objects.rinse_row_4, objects.rinse_row_4_name, objects.rinse_row_4_temp, objects.rinse_row_4_time, NULL, NULL, objects.rinse_row_4_sg, objects.rinse_row_4_ph };
     }
 }
 
@@ -281,9 +281,11 @@ void ui_toon_maischen() {
         bool klaar = i < brouw.actieve_stap, bezig = i == brouw.actieve_stap;
         lv_text_decor_t lijn = klaar ? LV_TEXT_DECOR_STRIKETHROUGH : LV_TEXT_DECOR_NONE;
 
-        char sg[12] = "";                 // ingevuld = waarde, gestart = "-", later = leeg
+        char sg[12] = "", ph[12] = "";    // ingevuld = waarde, gestart = "-", later = leeg
         if (brouw.stappen[i].sg > 0) snprintf(sg, sizeof sg, "%.3f", brouw.stappen[i].sg);
         else if (i <= brouw.actieve_stap) strcpy(sg, "SG -");
+        if (brouw.stappen[i].ph > 0) snprintf(ph, sizeof ph, "pH %.2f", brouw.stappen[i].ph);
+        else if (i <= brouw.actieve_stap) strcpy(ph, "pH -");
 
         Rij lijsten[3] = { maisch_rij(i), spoel_rij(i), pauze_rij(i) };
         for (int l = 0; l < 3; l++) {
@@ -293,8 +295,8 @@ void ui_toon_maischen() {
                 bg(r.rij, bezig ? KLEUR_ORANJE : KLEUR_RIJ_BG);
                 if (bezig) voor = KLEUR_TXT_DONKER;
             }
-            lv_obj_t *labels[4] = { r.naam, r.temp, r.tijd, r.sg };
-            for (int k = 0; k < 4; k++) {
+            lv_obj_t *labels[5] = { r.naam, r.temp, r.tijd, r.sg, r.ph };
+            for (int k = 0; k < 5; k++) {
                 if (!labels[k]) continue;
                 txt(labels[k], voor);
                 lv_obj_set_style_text_decor(labels[k], lijn, 0);
@@ -302,6 +304,10 @@ void ui_toon_maischen() {
             if (r.sg) {
                 lv_label_set_text(r.sg, sg);
                 lv_obj_set_style_text_decor(r.sg, LV_TEXT_DECOR_NONE, 0);   // SG-waarde zelf niet doorstrepen
+            }
+            if (r.ph) {
+                lv_label_set_text(r.ph, ph);
+                lv_obj_set_style_text_decor(r.ph, LV_TEXT_DECOR_NONE, 0);
             }
             if (l < 2) {                  // selectie voor SG: oranje rand (wit op de oranje balk)
                 if (i == sg_keuze) lv_obj_add_state(r.rij, LV_STATE_CHECKED);
@@ -313,6 +319,8 @@ void ui_toon_maischen() {
     int doel = ui_sg_doelstap();
     lv_label_set_text_fmt(objects.mash_sg_label, "SG invullen - stap %d", doel + 1);
     lv_label_set_text_fmt(objects.rinse_sg_label, "SG invullen - stap %d", doel + 1);
+    lv_label_set_text_fmt(objects.mash_ph_label, "pH invullen - stap %d", doel + 1);
+    lv_label_set_text_fmt(objects.rinse_ph_label, "pH invullen - stap %d", doel + 1);
 
     // "Daarna"-regel met de resterende tijd van het hele maischschema
     uint32_t rest = brouw.resterend_s;

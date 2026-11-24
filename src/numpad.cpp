@@ -19,6 +19,8 @@ static bool nieuw;                  // eerste toets vervangt de oude waarde
 static char info_tekst[64];
 static NumpadKlaar bij_ok;
 static ScreensEnum terug_naar = SCREEN_ID_MAIN;
+static void (*bij_annuleren)() = nullptr;
+static uint32_t geopend = 0;        // telt elke numpad_open: zo zien we of klaar() een nieuw numpad opende
 
 static void toon() {
     lv_label_set_text(objects.numpad_value, invoer[0] ? invoer : "-");
@@ -29,11 +31,17 @@ void numpad_open(const char *titel, const char *waarde, const char *info, Numpad
     strncpy(info_tekst, info, sizeof info_tekst - 1); info_tekst[sizeof info_tekst - 1] = 0;
     nieuw = true;
     bij_ok = klaar;
-    terug_naar = ui_huidig_scherm();
+    bij_annuleren = nullptr;
+    geopend++;
+    if (ui_huidig_scherm() != SCREEN_ID_NUMPAD) terug_naar = ui_huidig_scherm();   // tweede vraag: zelfde terugweg
     lv_label_set_text(objects.numpad_title, titel);
     lv_label_set_text(objects.numpad_info, info_tekst);
     toon();
     ui_ga_naar(SCREEN_ID_NUMPAD);
+}
+
+void numpad_bij_annuleren(void (*annuleren)()) {
+    bij_annuleren = annuleren;
 }
 
 void action_numpad_toets(lv_event_t *e) {
@@ -52,13 +60,18 @@ void action_numpad_toets(lv_event_t *e) {
 
 void action_numpad_ok(lv_event_t *e) {
     char fout[64] = "";
+    uint32_t nu = geopend;
     if (bij_ok && !bij_ok(invoer, fout, sizeof fout)) {
         lv_label_set_text(objects.numpad_info, fout);
         return;
     }
+    if (geopend != nu) return;      // klaar() vroeg meteen de volgende waarde
     ui_ga_naar(terug_naar);
 }
 
 void action_numpad_annuleren(lv_event_t *e) {
+    uint32_t nu = geopend;
+    if (bij_annuleren) bij_annuleren();
+    if (geopend != nu) return;      // annuleren() vroeg meteen de volgende waarde
     ui_ga_naar(terug_naar);
 }

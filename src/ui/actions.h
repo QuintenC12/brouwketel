@@ -57,6 +57,7 @@ extern void action_kook_annuleren(lv_event_t * e);
 extern void action_kook_start(lv_event_t * e);
 extern void action_stap_select(lv_event_t * e);
 extern void action_sg_invullen(lv_event_t * e);
+extern void action_ph_invullen(lv_event_t * e);
 
 #ifdef __cplusplus
 }
