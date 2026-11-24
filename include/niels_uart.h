@@ -45,6 +45,8 @@
 #define OND_NET_STATUS      "net/status"       // {"status":"uit|bezig|verbonden|fout","reden":"..."}
 #define OND_RECEPT          "recept"           // {"naam":..,"kooktijd":40,"stappen":[{"temp":52,"min":5}],"hops":[{"naam":..,"min":30}]}
 #define OND_ACK             "ack"              // {"nr":7}   antwoord op brouw/meld
+#define OND_BROUW_START     "brouw/start"      // {}   de website vraagt om te starten (cmd/start)
+                                               // het scherm antwoordt met brouw/meld "start" of "start_fout" + "reden"
 #define OND_NET_TOESTAND    "net/toestand"     // {"wifi":true,"mqtt":true,"online":true,"modus":"werking","ssid":"projectnetwork5G","server":"192.168.0.10","poort":1883}
                                                // alleen bij een verandering (wifi/mqtt/server/modus/instellingen) en als antwoord op net/vraag
                                                // wifi = verbonden met het wifi-netwerk, mqtt = verbonden met de broker

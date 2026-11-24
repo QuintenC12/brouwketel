@@ -18,6 +18,7 @@
 #include <ArduinoJson.h>
 #include <string.h>
 #include "ui/screens.h"
+#include "ui/actions.h"
 #include "hardware.h"
 #include "brouwer.h"
 #include "niels_uart.h"
@@ -309,6 +310,25 @@ static void verbinden_volgen() {
     }
 }
 
+/* ---------------- starten vanaf de website ---------------- */
+
+/* De website mag alleen starten als het scherm klaar staat: het recept van de
+ * server staat op het schemascherm. Dan doen we hetzelfde als de knop Start
+ * (die stuurt zelf de melding "start"). Anders melden we "start_fout". */
+static void start_van_website() {
+    const char *reden = NULL;
+    if (brouw.fase != FASE_GEEN)                          reden = "er loopt al een brouwsessie";
+    else if (ui_huidig_scherm() != SCREEN_ID_SCHEMA)      reden = "het scherm staat niet op het schema";
+    else if (!brouw.automatisch || brouw.aantal_stappen == 0) reden = "er is geen recept van de server";
+    if (reden) {
+        Serial.printf("[net] start van de website geweigerd: %s\n", reden);
+        net_meld_fout("start_fout", reden);
+        return;
+    }
+    Serial.println("[net] start van de website");
+    action_schema_start(NULL);
+}
+
 /* ---------------- ontvangen ---------------- */
 
 static void regel_verwerken(char *regel) {
@@ -335,6 +355,8 @@ static void regel_verwerken(char *regel) {
         toestand_ontvangen(doc);
     } else if (strcmp(onderwerp, OND_ACK) == 0) {
         if (doc["nr"].is<int>()) ack_ontvangen(doc["nr"]);
+    } else if (strcmp(onderwerp, OND_BROUW_START) == 0) {
+        start_van_website();
     }
     // onbekend onderwerp: negeren
 }
@@ -470,6 +492,15 @@ void net_meld(const char *gebeurtenis) {
     } else if (strcmp(gebeurtenis, "hop_toegevoegd") == 0 && brouw.hop_volgende > 0) {
         doc["hop"] = brouw.hops[brouw.hop_volgende - 1].naam;   // hop_volgende is al opgeschoven
     }
+    stuur_melding(doc);
+}
+
+void net_meld_fout(const char *gebeurtenis, const char *reden) {
+    Serial.printf("[net] melding: %s (%s)\n", gebeurtenis, reden);
+    JsonDocument doc;
+    doc["nr"] = ++volgnummer;
+    doc["naam"] = gebeurtenis;
+    doc["reden"] = reden;
     stuur_melding(doc);
 }
 
