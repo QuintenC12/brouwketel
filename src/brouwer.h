@@ -142,6 +142,7 @@ void verslag_kook_ph(float ph);
 bool verslag_actief();
 void verslag_einde(bool afgebroken);            // verslag versturen naar Niels ESP
 void meting_na_koken();                         // actions.cpp: SG en pH na het koken vragen, daarna het verslag
+void ui_toon_overzicht();                       // overzichtscherm "Brouwsessie klaar" vullen
 
 /* seconden als "m:ss" */
 void tijd_tekst(char *buf, int n, uint32_t s);

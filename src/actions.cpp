@@ -359,7 +359,8 @@ void action_ph_invullen(lv_event_t *e) {
 
 /* ======================================================================
  * Na het koken: SG en pH vragen (allebei mag je overslaan), daarna gaat
- * het brouwverslag naar de server. Het numpad keert terug naar het startscherm.
+ * het brouwverslag naar de server. Het numpad keert terug naar het
+ * overzicht "Brouwsessie klaar"; met "Klaar" ga je naar het startscherm.
  * ====================================================================== */
 
 static bool kook_ph_klaar(const char *t, char *fout, int n) {
@@ -368,6 +369,7 @@ static bool kook_ph_klaar(const char *t, char *fout, int n) {
     verslag_kook_ph(ph);
     if (ph > 0) net_meld_meting("ph", -1, ph);
     verslag_einde(false);
+    ui_toon_overzicht();
     return true;
 }
 static void kook_ph_overslaan() { verslag_einde(false); }
@@ -377,10 +379,17 @@ static void vraag_kook_ph() {
     numpad_bij_annuleren(kook_ph_overslaan);
 }
 
+static void kook_sg_overslaan() {
+    hw_zoemer(ZOEMER_UIT);          // melding 'koken klaar' stoppen
+    vraag_kook_ph();
+}
+
 static bool kook_sg_klaar(const char *t, char *fout, int n) {
     float sg;
     if (!lees_sg(t, &sg, fout, n)) return false;
+    hw_zoemer(ZOEMER_UIT);
     verslag_kook_sg(sg);
+    ui_toon_overzicht();
     if (sg > 0) net_meld_meting("sg", -1, sg);
     vraag_kook_ph();
     return true;
@@ -388,7 +397,13 @@ static bool kook_sg_klaar(const char *t, char *fout, int n) {
 
 void meting_na_koken() {
     numpad_open("SG na het koken", "", "Bijv. 1.060 of 1060 - leeg = overslaan", kook_sg_klaar);
-    numpad_bij_annuleren(vraag_kook_ph);
+    numpad_bij_annuleren(kook_sg_overslaan);
+}
+
+/* Knop "Klaar" op het overzicht */
+void action_overzicht_klaar(lv_event_t *e) {
+    hw_zoemer(ZOEMER_UIT);
+    ui_ga_naar(SCREEN_ID_MAIN);
 }
 
 void action_hervatten(lv_event_t *e) {

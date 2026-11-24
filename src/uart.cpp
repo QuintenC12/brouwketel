@@ -524,7 +524,8 @@ void net_modus(bool configuratie) {
 
 void net_meld_meting(const char *soort, int stap, float waarde) {
     bool ph = strcmp(soort, "ph") == 0;
-    Serial.printf("[net] %s %s %d: %.3f\n", soort, stap < 0 ? "na koken" : "stap", stap + 1, waarde);
+    if (stap < 0) Serial.printf("[net] %s na het koken: %.3f\n", soort, waarde);
+    else          Serial.printf("[net] %s stap %d: %.3f\n", soort, stap + 1, waarde);
     JsonDocument doc;
     doc["nr"] = ++volgnummer;
     doc["naam"] = soort;

@@ -18,6 +18,7 @@
 #include <string.h>
 #include "brouwer.h"
 #include "hardware.h"
+#include "ui/screens.h"
 
 struct Verslag {
     bool     actief;                     // er loopt een sessie waarvoor nog geen verslag verstuurd is
@@ -178,4 +179,69 @@ void verslag_einde(bool afgebroken) {
         return;
     }
     net_stuur_verslag(json);
+}
+
+/* ---------------- Overzichtscherm (Brouwsessie klaar) ---------------- */
+
+static void duur_tekst(char *buf, int n, uint32_t s) {
+    uint32_t min = (s + 30) / 60;
+    if (min >= 60) snprintf(buf, n, "%lu u %02lu min", (unsigned long)(min / 60), (unsigned long)(min % 60));
+    else           snprintf(buf, n, "%lu min", (unsigned long)min);
+}
+
+static void meting_tekst(char *buf, int n, const char *voor, float w, int decimalen) {
+    if (w > 0) snprintf(buf, n, "%s%.*f", voor, decimalen, w);
+    else       snprintf(buf, n, "%s-", voor);
+}
+
+struct OvRij { lv_obj_t *rij, *naam, *temp, *tijd, *duur, *sg, *ph; };
+
+static OvRij ov_rij(int i) {
+    switch (i) {
+    case 0:  return { objects.ov_row_1, objects.ov_row_1_name, objects.ov_row_1_temp, objects.ov_row_1_time, objects.ov_row_1_duur, objects.ov_row_1_sg, objects.ov_row_1_ph };
+    case 1:  return { objects.ov_row_2, objects.ov_row_2_name, objects.ov_row_2_temp, objects.ov_row_2_time, objects.ov_row_2_duur, objects.ov_row_2_sg, objects.ov_row_2_ph };
+    case 2:  return { objects.ov_row_3, objects.ov_row_3_name, objects.ov_row_3_temp, objects.ov_row_3_time, objects.ov_row_3_duur, objects.ov_row_3_sg, objects.ov_row_3_ph };
+    default: return { objects.ov_row_4, objects.ov_row_4_name, objects.ov_row_4_temp, objects.ov_row_4_time, objects.ov_row_4_duur, objects.ov_row_4_sg, objects.ov_row_4_ph };
+    }
+}
+
+static void vul(OvRij r, const char *naam, const char *temp, const char *tijd,
+                const char *duur, const char *sg, const char *ph) {
+    lv_label_set_text(r.naam, naam);
+    lv_label_set_text(r.temp, temp);
+    lv_label_set_text(r.tijd, tijd);
+    lv_label_set_text(r.duur, duur);
+    lv_label_set_text(r.sg, sg);
+    lv_label_set_text(r.ph, ph);
+}
+
+/* Vult het overzicht met de echte waarden (ook al is het verslag al verstuurd) */
+void ui_toon_overzicht() {
+    char t1[16], t2[16], t3[24], sg[16], ph[16], info[96];
+    duur_tekst(t3, sizeof t3, v.totaal_s);
+    snprintf(info, sizeof info, "%s  |  totale duur %s", v.recept, t3);
+    lv_label_set_text(objects.ov_info, info);
+
+    for (int i = 0; i < MAX_STAPPEN; i++) {
+        OvRij r = ov_rij(i);
+        if (i >= brouw.aantal_stappen) { lv_obj_add_flag(r.rij, LV_OBJ_FLAG_HIDDEN); continue; }
+        lv_obj_remove_flag(r.rij, LV_OBJ_FLAG_HIDDEN);
+        const MaischStap &s = brouw.stappen[i];
+        char naam[12];
+        snprintf(naam, sizeof naam, "Stap %d", i + 1);
+        snprintf(t1, sizeof t1, "%d °C", s.temp);
+        snprintf(t2, sizeof t2, "%d min", s.minuten);
+        duur_tekst(t3, sizeof t3, v.stap_s[i]);
+        meting_tekst(sg, sizeof sg, "", s.sg, 3);
+        meting_tekst(ph, sizeof ph, "pH ", s.ph, 2);
+        vul(r, naam, t1, t2, t3, sg, ph);
+    }
+
+    OvRij k = { objects.ov_kook, objects.ov_kook_name, objects.ov_kook_temp, objects.ov_kook_time,
+                objects.ov_kook_duur, objects.ov_kook_sg, objects.ov_kook_ph };
+    snprintf(t2, sizeof t2, "%d min", brouw.kooktijd_min);
+    duur_tekst(t3, sizeof t3, v.koken_s);
+    meting_tekst(sg, sizeof sg, "", v.kook_sg, 3);
+    meting_tekst(ph, sizeof ph, "pH ", v.kook_ph, 2);
+    vul(k, "Koken", "-", t2, t3, sg, ph);
 }

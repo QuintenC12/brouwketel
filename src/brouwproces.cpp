@@ -91,10 +91,11 @@ void brouwer_start_fase(Fase f) {
 
 static void koken_klaar() {
     net_meld("koken_klaar");
-    hw_zoemer(ZOEMER_MELDING);   // stopt bij de eerste knop op het startscherm
+    hw_zoemer(ZOEMER_MELDING);   // stopt zodra je het SG na het koken invult of overslaat
     brouwer_start_fase(FASE_GEEN);
-    ui_ga_naar(SCREEN_ID_MAIN);
-    meting_na_koken();           // SG en pH na het koken, daarna gaat het brouwverslag weg
+    ui_toon_overzicht();
+    ui_ga_naar(SCREEN_ID_OVERZICHT);   // overzicht "Brouwsessie klaar"
+    meting_na_koken();           // eerst SG en pH na het koken (numpad), daarna het verslag en het overzicht
 }
 
 /* Recept controleren en overnemen (bijv. van de server via Niels ESP) */
