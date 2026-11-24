@@ -1667,7 +1667,7 @@ void create_screen_maischen() {
                             // mash_row_1_temp
                             lv_obj_t *obj = lv_label_create(parent_obj);
                             objects.mash_row_1_temp = obj;
-                            lv_obj_set_pos(obj, 96, 10);
+                            lv_obj_set_pos(obj, 94, 10);
                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                             lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                             lv_obj_set_style_text_color(obj, lv_color_hex(0x7d868f), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1678,7 +1678,7 @@ void create_screen_maischen() {
                             // mash_row_1_time
                             lv_obj_t *obj = lv_label_create(parent_obj);
                             objects.mash_row_1_time = obj;
-                            lv_obj_set_pos(obj, 160, 10);
+                            lv_obj_set_pos(obj, 156, 10);
                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                             lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                             lv_obj_set_style_text_color(obj, lv_color_hex(0x7d868f), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1689,7 +1689,7 @@ void create_screen_maischen() {
                             // mash_row_1_sg
                             lv_obj_t *obj = lv_label_create(parent_obj);
                             objects.mash_row_1_sg = obj;
-                            lv_obj_set_pos(obj, 222, 10);
+                            lv_obj_set_pos(obj, 212, 10);
                             lv_obj_set_size(obj, 62, LV_SIZE_CONTENT);
                             lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                             lv_obj_set_style_text_color(obj, lv_color_hex(0x7d868f), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1701,8 +1701,8 @@ void create_screen_maischen() {
                             // mash_row_1_ph
                             lv_obj_t *obj = lv_label_create(parent_obj);
                             objects.mash_row_1_ph = obj;
-                            lv_obj_set_pos(obj, 290, 10);
-                            lv_obj_set_size(obj, 60, LV_SIZE_CONTENT);
+                            lv_obj_set_pos(obj, 280, 10);
+                            lv_obj_set_size(obj, 70, LV_SIZE_CONTENT);
                             lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                             lv_obj_set_style_text_color(obj, lv_color_hex(0x7d868f), LV_PART_MAIN | LV_STATE_DEFAULT);
                             lv_obj_set_style_text_font(obj, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1748,7 +1748,7 @@ void create_screen_maischen() {
                             // mash_row_2_temp
                             lv_obj_t *obj = lv_label_create(parent_obj);
                             objects.mash_row_2_temp = obj;
-                            lv_obj_set_pos(obj, 96, 10);
+                            lv_obj_set_pos(obj, 94, 10);
                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                             lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                             lv_obj_set_style_text_color(obj, lv_color_hex(0x15181c), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1759,7 +1759,7 @@ void create_screen_maischen() {
                             // mash_row_2_time
                             lv_obj_t *obj = lv_label_create(parent_obj);
                             objects.mash_row_2_time = obj;
-                            lv_obj_set_pos(obj, 160, 10);
+                            lv_obj_set_pos(obj, 156, 10);
                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                             lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                             lv_obj_set_style_text_color(obj, lv_color_hex(0x15181c), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1770,7 +1770,7 @@ void create_screen_maischen() {
                             // mash_row_2_sg
                             lv_obj_t *obj = lv_label_create(parent_obj);
                             objects.mash_row_2_sg = obj;
-                            lv_obj_set_pos(obj, 222, 10);
+                            lv_obj_set_pos(obj, 212, 10);
                             lv_obj_set_size(obj, 62, LV_SIZE_CONTENT);
                             lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                             lv_obj_set_style_text_color(obj, lv_color_hex(0x15181c), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1782,8 +1782,8 @@ void create_screen_maischen() {
                             // mash_row_2_ph
                             lv_obj_t *obj = lv_label_create(parent_obj);
                             objects.mash_row_2_ph = obj;
-                            lv_obj_set_pos(obj, 290, 10);
-                            lv_obj_set_size(obj, 60, LV_SIZE_CONTENT);
+                            lv_obj_set_pos(obj, 280, 10);
+                            lv_obj_set_size(obj, 70, LV_SIZE_CONTENT);
                             lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                             lv_obj_set_style_text_color(obj, lv_color_hex(0x15181c), LV_PART_MAIN | LV_STATE_DEFAULT);
                             lv_obj_set_style_text_font(obj, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1829,7 +1829,7 @@ void create_screen_maischen() {
                             // mash_row_3_temp
                             lv_obj_t *obj = lv_label_create(parent_obj);
                             objects.mash_row_3_temp = obj;
-                            lv_obj_set_pos(obj, 96, 10);
+                            lv_obj_set_pos(obj, 94, 10);
                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                             lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                             lv_obj_set_style_text_color(obj, lv_color_hex(0xe8eaed), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1840,7 +1840,7 @@ void create_screen_maischen() {
                             // mash_row_3_time
                             lv_obj_t *obj = lv_label_create(parent_obj);
                             objects.mash_row_3_time = obj;
-                            lv_obj_set_pos(obj, 160, 10);
+                            lv_obj_set_pos(obj, 156, 10);
                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                             lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                             lv_obj_set_style_text_color(obj, lv_color_hex(0xe8eaed), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1851,7 +1851,7 @@ void create_screen_maischen() {
                             // mash_row_3_sg
                             lv_obj_t *obj = lv_label_create(parent_obj);
                             objects.mash_row_3_sg = obj;
-                            lv_obj_set_pos(obj, 222, 10);
+                            lv_obj_set_pos(obj, 212, 10);
                             lv_obj_set_size(obj, 62, LV_SIZE_CONTENT);
                             lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                             lv_obj_set_style_text_color(obj, lv_color_hex(0xe8eaed), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1863,8 +1863,8 @@ void create_screen_maischen() {
                             // mash_row_3_ph
                             lv_obj_t *obj = lv_label_create(parent_obj);
                             objects.mash_row_3_ph = obj;
-                            lv_obj_set_pos(obj, 290, 10);
-                            lv_obj_set_size(obj, 60, LV_SIZE_CONTENT);
+                            lv_obj_set_pos(obj, 280, 10);
+                            lv_obj_set_size(obj, 70, LV_SIZE_CONTENT);
                             lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                             lv_obj_set_style_text_color(obj, lv_color_hex(0xe8eaed), LV_PART_MAIN | LV_STATE_DEFAULT);
                             lv_obj_set_style_text_font(obj, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1910,7 +1910,7 @@ void create_screen_maischen() {
                             // mash_row_4_temp
                             lv_obj_t *obj = lv_label_create(parent_obj);
                             objects.mash_row_4_temp = obj;
-                            lv_obj_set_pos(obj, 96, 10);
+                            lv_obj_set_pos(obj, 94, 10);
                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                             lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                             lv_obj_set_style_text_color(obj, lv_color_hex(0xe8eaed), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1921,7 +1921,7 @@ void create_screen_maischen() {
                             // mash_row_4_time
                             lv_obj_t *obj = lv_label_create(parent_obj);
                             objects.mash_row_4_time = obj;
-                            lv_obj_set_pos(obj, 160, 10);
+                            lv_obj_set_pos(obj, 156, 10);
                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                             lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                             lv_obj_set_style_text_color(obj, lv_color_hex(0xe8eaed), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1932,7 +1932,7 @@ void create_screen_maischen() {
                             // mash_row_4_sg
                             lv_obj_t *obj = lv_label_create(parent_obj);
                             objects.mash_row_4_sg = obj;
-                            lv_obj_set_pos(obj, 222, 10);
+                            lv_obj_set_pos(obj, 212, 10);
                             lv_obj_set_size(obj, 62, LV_SIZE_CONTENT);
                             lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                             lv_obj_set_style_text_color(obj, lv_color_hex(0xe8eaed), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -1944,8 +1944,8 @@ void create_screen_maischen() {
                             // mash_row_4_ph
                             lv_obj_t *obj = lv_label_create(parent_obj);
                             objects.mash_row_4_ph = obj;
-                            lv_obj_set_pos(obj, 290, 10);
-                            lv_obj_set_size(obj, 60, LV_SIZE_CONTENT);
+                            lv_obj_set_pos(obj, 280, 10);
+                            lv_obj_set_size(obj, 70, LV_SIZE_CONTENT);
                             lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                             lv_obj_set_style_text_color(obj, lv_color_hex(0xe8eaed), LV_PART_MAIN | LV_STATE_DEFAULT);
                             lv_obj_set_style_text_font(obj, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
