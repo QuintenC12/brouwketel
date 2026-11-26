@@ -9,16 +9,17 @@
  * Het scherm controleert het recept zelf nog eens en antwoordt met
  * brouw/meld recept_ok of recept_fout.
  *
- * mout: de vergistbare ingrediënten (mout, suiker, ...) gaan mee als tekst,
- * bv. "4,2 kg Pale Ale". Het scherm toont ze bij "Mout toevoegen".
- * De naam van de lijst in de webapp is nog niet vastgelegd: we zoeken
- * "fermentables", "malts", "grains" en "ingredients", elk met "name" en
- * "amount_kg" of "amount_g" (of "amount" + "unit"). Hoogstens 5.
- * Suikers horen niet in de maisch maar in de kook: die laten we weg
- * (op het veld "type" als dat er is, anders op de naam, zie is_suiker()).
+ * mout: wat bij het begin van het maischen in de ketel gaat, als tekst,
+ * bv. "4,2 kg Pale Ale". Het scherm toont het bij "Mout toevoegen". Uit het
+ * recept van de webapp (Brouwerij-UCLL/web-back-end, GET /api/recipes/{id}):
+ *   - "ingredients": de vergistbare ingrediënten, met "name" en "amount_g".
+ *     Suikers gaan in de kook, niet in de maisch: die laten we weg (op naam,
+ *     de webapp heeft geen soort, zie is_suiker()).
+ *   - "extras" met "add_moment":"beslag", met "name", "amount" en "unit".
+ * Samen hoogstens 5 regels.
  *
- * kooktijd: die staat niet in het recept van de webapp. We nemen de langste
- * hoptijd, met een minimum van STANDAARD_KOOKTIJD minuten.
+ * kooktijd: "boil_time":{"duration":90} uit het recept. Ontbreekt die, dan
+ * de langste hoptijd, met een minimum van STANDAARD_KOOKTIJD minuten.
  */
 #include "recept.h"
 
@@ -92,27 +93,23 @@ static bool bevat(const char *tekst, const char *const woorden[])
     return false;
 }
 
-/* Suiker gaat in de kook, niet in de maisch. De webapp heeft (nog) geen vast
- * veld daarvoor, dus kijken we naar "type"/"category" en anders naar de naam. */
+/* Suiker gaat in de kook, niet in de maisch. De ingrediënten in de webapp
+ * hebben geen soort, dus kijken we naar de naam. */
 static bool is_suiker(const cJSON *m)
 {
     static const char *const suiker[] = { "suiker", "sugar", "kandij", "candi", "honing", "honey",
                                           "dextrose", "glucose", "sucrose", "lactose", "stroop", "syrup", NULL };
-    const char *type = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(m, "type"));
-    if (!type) type = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(m, "category"));
-    if (type) return bevat(type, suiker);
     return bevat(cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(m, "name")), suiker);
 }
 
-/* De lijst met mout in het recept van de webapp (naam nog niet vast) */
-static const cJSON *mout_lijst(const cJSON *data)
+/* Eén regel voor de pop-up: "4,2 kg Pale Ale" */
+static void mout_regel(char *uit, const cJSON *m)
 {
-    const char *namen[] = { "fermentables", "malts", "grains", "ingredients" };
-    for (size_t i = 0; i < sizeof namen / sizeof namen[0]; i++) {
-        const cJSON *l = cJSON_GetObjectItemCaseSensitive(data, namen[i]);
-        if (cJSON_IsArray(l)) return l;
-    }
-    return NULL;
+    const char *mnaam = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(m, "name"));
+    char hv[24], tekst[96];
+    hoeveelheid(hv, sizeof hv, m);
+    snprintf(tekst, sizeof tekst, "%s%s%s", hv, hv[0] ? " " : "", mnaam ? mnaam : "Mout");
+    kort_in(uit, tekst, MOUT_NAAM_MAX);
 }
 
 const char *recept_omzetten(const cJSON *data, char **uit)
@@ -172,14 +169,24 @@ const char *recept_omzetten(const cJSON *data, char **uit)
     char mout[MAX_MOUT][MOUT_NAAM_MAX];
     int n_mout = 0;
     const cJSON *m;
-    cJSON_ArrayForEach(m, mout_lijst(data)) {
+    cJSON_ArrayForEach(m, cJSON_GetObjectItemCaseSensitive(data, "ingredients")) {
         if (n_mout >= MAX_MOUT) break;   // de rest past niet op het scherm
         if (is_suiker(m)) continue;      // gaat pas in de kook
-        const char *mnaam = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(m, "name"));
-        char hv[24], tekst[96];
-        hoeveelheid(hv, sizeof hv, m);
-        snprintf(tekst, sizeof tekst, "%s%s%s", hv, hv[0] ? " " : "", mnaam ? mnaam : "Mout");
-        kort_in(mout[n_mout++], tekst, MOUT_NAAM_MAX);
+        mout_regel(mout[n_mout++], m);
+    }
+    cJSON_ArrayForEach(m, cJSON_GetObjectItemCaseSensitive(data, "extras")) {
+        if (n_mout >= MAX_MOUT) break;
+        const char *moment = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(m, "add_moment"));
+        if (moment && !strcmp(moment, "beslag")) mout_regel(mout[n_mout++], m);
+    }
+
+    // Kooktijd uit het recept, als die er is
+    const cJSON *kook = cJSON_GetObjectItemCaseSensitive(data, "boil_time");
+    int duur = getal(kook, "duration", -1);
+    if (duur > 0) {
+        for (i = 0; i < n_hops; i++)
+            if (hp[i].min > duur) return "hop kookt langer dan de kooktijd";
+        kooktijd = duur;
     }
 
     // Bericht voor het scherm opbouwen
