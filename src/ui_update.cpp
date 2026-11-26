@@ -586,7 +586,12 @@ void ui_init_extra() {
         hop_balk[i] = balk[i];
         hop_streepje[i] = mark[i];
     }
-    // Lijst met hop en extra's: verticaal scrollen, scrollbalk alleen tijdens het scrollen
+    // Lijst met hop en extra's: verticaal scrollen. De scrollbalk staat er altijd
+    // als er meer giften zijn dan er passen (5), zodat je ziet dat er meer is.
     lv_obj_set_scroll_dir(objects.boil_hop_list, LV_DIR_VER);
-    lv_obj_set_scrollbar_mode(objects.boil_hop_list, LV_SCROLLBAR_MODE_ACTIVE);
+    lv_obj_set_scrollbar_mode(objects.boil_hop_list, LV_SCROLLBAR_MODE_AUTO);
+    lv_obj_set_style_width(objects.boil_hop_list, 4, LV_PART_SCROLLBAR);
+    lv_obj_set_style_pad_right(objects.boil_hop_list, 0, LV_PART_SCROLLBAR);
+    lv_obj_set_style_bg_color(objects.boil_hop_list, lv_color_hex(KLEUR_TXT_GRIJS), LV_PART_SCROLLBAR);
+    lv_obj_set_style_bg_opa(objects.boil_hop_list, LV_OPA_COVER, LV_PART_SCROLLBAR);
 }
