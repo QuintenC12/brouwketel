@@ -17492,7 +17492,7 @@
                         }
                       },
                       "groupIndex": 0,
-                      "text": "VOLGENDE HOPGIFT",
+                      "text": "VOLGENDE TOEVOEGING",
                       "textType": "literal",
                       "longMode": "WRAP",
                       "recolor": false,
@@ -18927,7 +18927,8 @@
                       "textType": "literal",
                       "longMode": "WRAP",
                       "recolor": false,
-                      "useStaticText": true
+                      "useStaticText": false,
+                      "identifier": "boil_alarm_title"
                     },
                     {
                       "objID": "7da01123-ad9a-4658-9a55-f177d6f8caf0",

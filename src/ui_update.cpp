@@ -351,6 +351,14 @@ static HopRij hop_rij(int i) {
 static lv_obj_t *hop_balk[MAX_HOPS];      // voortgangsbalkje onderaan elke hoprij (boil_hop_N_bar)
 static lv_obj_t *hop_streepje[MAX_HOPS];  // markering op de totale kookbalk (boil_hop_mark_N)
 
+/* "Hop 2" of "Extra": hopgiften tellen apart, extra's hebben geen nummer */
+static void gift_soort(char *buf, int n, int i) {
+    if (brouw.hops[i].extra) { snprintf(buf, n, "Extra"); return; }
+    int nr = 1;
+    for (int k = 0; k < i; k++) if (!brouw.hops[k].extra) nr++;
+    snprintf(buf, n, "Hop %d", nr);
+}
+
 /* Moment (seconden sinds start koken) waarop hop i toegevoegd moet worden */
 static int32_t hop_moment(int i) {
     return (int32_t)brouw.kooktijd_min * 60 - brouw.hops[i].minuten * 60;
@@ -385,15 +393,19 @@ void ui_toon_koken() {
     // Kaart "volgende hopgift"
     int v = brouw.hop_volgende;
     if (v < brouw.aantal_hops) {
-        if (brouw.hops[v].naam[0]) lv_label_set_text_fmt(objects.boil_next_hop, "Hop %d - %s", v + 1, brouw.hops[v].naam);
-        else                       lv_label_set_text_fmt(objects.boil_next_hop, "Hop %d", v + 1);
+        char soort[16];
+        gift_soort(soort, sizeof soort, v);
+        if (brouw.hops[v].naam[0]) lv_label_set_text_fmt(objects.boil_next_hop, "%s - %s", soort, brouw.hops[v].naam);
+        else                       lv_label_set_text(objects.boil_next_hop, soort);
         int32_t tot = (int32_t)brouw.resterend_s - brouw.hops[v].minuten * 60;
         if (tot < 0) tot = 0;
         tijd_tekst(t, sizeof t, tot);
         lv_label_set_text(objects.boil_next_time, brouw.hop_alarm_actief ? "NU" : t);
         lv_label_set_text(objects.boil_next_info, brouw.hop_alarm_actief ? "toevoegen" : "tot toevoegen");
     } else {
-        lv_label_set_text(objects.boil_next_hop, brouw.aantal_hops ? "Alle hop toegevoegd" : "Geen hopschema");
+        bool extras = false;
+        for (int i = 0; i < brouw.aantal_hops; i++) extras |= brouw.hops[i].extra;
+        lv_label_set_text(objects.boil_next_hop, !brouw.aantal_hops ? "Geen hopschema" : extras ? "Alles toegevoegd" : "Alle hop toegevoegd");
         lv_label_set_text(objects.boil_next_time, "");
         lv_label_set_text(objects.boil_next_info, "");
     }
@@ -406,7 +418,9 @@ void ui_toon_koken() {
         toon(hop_balk[i], zichtbaar && i == v);
         if (!zichtbaar) continue;
 
-        lv_label_set_text_fmt(r.naam, "Hop %d - %d min kooktijd", i + 1, brouw.hops[i].minuten);
+        char soort[16];
+        gift_soort(soort, sizeof soort, i);
+        lv_label_set_text_fmt(r.naam, "%s - %d min kooktijd", soort, brouw.hops[i].minuten);
         if (i < v) lv_label_set_text(r.tijd, "toegevoegd");
         else       lv_label_set_text_fmt(r.tijd, "bij nog %d:00", brouw.hops[i].minuten);
 
@@ -454,9 +468,11 @@ void ui_toon_sensorfout(float laatste) {
 void ui_toon_hop_alarm(bool zichtbaar) {
     if (zichtbaar && brouw.hop_volgende < brouw.aantal_hops) {
         HopGift &h = brouw.hops[brouw.hop_volgende];
-        char tekst[48], info[64];
-        if (h.naam[0]) snprintf(tekst, sizeof tekst, "Hop %d - %s", brouw.hop_volgende + 1, h.naam);
-        else           snprintf(tekst, sizeof tekst, "Hop %d", brouw.hop_volgende + 1);
+        char tekst[48], info[64], soort[16];
+        gift_soort(soort, sizeof soort, brouw.hop_volgende);
+        if (h.naam[0]) snprintf(tekst, sizeof tekst, "%s - %s", soort, h.naam);
+        else           snprintf(tekst, sizeof tekst, "%s", soort);
+        lv_label_set_text(objects.boil_alarm_title, h.extra ? "Extra toevoegen!" : "Hop toevoegen!");
         snprintf(info, sizeof info, "Nog %d:00 kooktijd - timer loopt door", h.minuten);
         lv_label_set_text(objects.boil_alarm_text, tekst);
         lv_label_set_text(objects.boil_alarm_sub, info);

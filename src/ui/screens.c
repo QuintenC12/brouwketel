@@ -4710,7 +4710,7 @@ void create_screen_koken() {
                             lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                             lv_obj_set_style_text_color(obj, lv_color_hex(0xf6c46e), LV_PART_MAIN | LV_STATE_DEFAULT);
                             lv_obj_set_style_text_font(obj, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
-                            lv_label_set_text_static(obj, "VOLGENDE HOPGIFT");
+                            lv_label_set_text_static(obj, "VOLGENDE TOEVOEGING");
                         }
                         {
                             // boil_next_hop
@@ -5097,14 +5097,15 @@ void create_screen_koken() {
                     {
                         lv_obj_t *parent_obj = obj;
                         {
+                            // boil_alarm_title
                             lv_obj_t *obj = lv_label_create(parent_obj);
-                            objects.obj85 = obj;
+                            objects.boil_alarm_title = obj;
                             lv_obj_set_pos(obj, 26, 24);
                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                             lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW);
                             lv_obj_set_style_text_color(obj, lv_color_hex(0x15181c), LV_PART_MAIN | LV_STATE_DEFAULT);
                             lv_obj_set_style_text_font(obj, &lv_font_montserrat_30, LV_PART_MAIN | LV_STATE_DEFAULT);
-                            lv_label_set_text_static(obj, "Hop toevoegen!");
+                            lv_label_set_text(obj, "Hop toevoegen!");
                         }
                         {
                             // boil_alarm_text

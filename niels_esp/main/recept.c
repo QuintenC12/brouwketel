@@ -18,6 +18,10 @@
  *   - "extras" met "add_moment":"beslag", met "name", "amount" en "unit".
  * Samen hoogstens 5 regels.
  *
+ * hops: de hopgiften, plus de extra's met "add_moment":"koken" (op
+ * "boil_time_min") en de suikers uit "ingredients" (bij de start van het
+ * koken), elk met "extra":true. Het scherm geeft voor elk een alarm.
+ *
  * kooktijd: "boil_time":{"duration":90} uit het recept. Ontbreekt die, dan
  * de langste hoptijd, met een minimum van STANDAARD_KOOKTIJD minuten.
  */
@@ -59,7 +63,7 @@ static int getal(const cJSON *o, const char *naam, int standaard)
 }
 
 typedef struct { int nr, temp, min; } stap_t;
-typedef struct { char naam[HOP_NAAM_MAX]; int min; } hop_t;
+typedef struct { char naam[HOP_NAAM_MAX]; int min; bool extra; } hop_t;   // extra = geen hop
 
 /* Hoeveelheid als tekst: "4,2 kg", "500 g" of "1 zak" */
 static void hoeveelheid(char *uit, size_t n, const cJSON *m)
@@ -102,6 +106,16 @@ static bool is_suiker(const cJSON *m)
     return bevat(cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(m, "name")), suiker);
 }
 
+/* Naam van een extra tijdens het koken: "Kandijsuiker (Wit) - 500 g" */
+static void extra_regel(char *uit, size_t n, const cJSON *m)
+{
+    const char *naam = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(m, "name"));
+    char hv[24], tekst[96];
+    hoeveelheid(hv, sizeof hv, m);
+    snprintf(tekst, sizeof tekst, "%s%s%s", naam ? naam : "Extra", hv[0] ? " - " : "", hv);
+    kort_in(uit, tekst, n);
+}
+
 /* Eén regel voor de pop-up: "4,2 kg Pale Ale" */
 static void mout_regel(char *uit, const cJSON *m)
 {
@@ -138,15 +152,15 @@ const char *recept_omzetten(const cJSON *data, char **uit)
             stap_t t = stappen[b]; stappen[b] = stappen[b - 1]; stappen[b - 1] = t;
         }
 
-    // Hopgiften, langste kooktijd eerst (zoals het scherm ze afwerkt)
-    const cJSON *hops = cJSON_GetObjectItemCaseSensitive(data, "hops");
-    int n_hops = cJSON_GetArraySize(hops);
-    if (n_hops > MAX_HOPS) return "te veel hopgiften (het scherm kan er 5)";
+    // Giften tijdens het koken: hop, extra's met add_moment "koken" en de
+    // suikers uit "ingredients" (die gaan bij de start van het koken in).
+    // Samen hoogstens MAX_HOPS; langste kooktijd eerst (zoals het scherm ze afwerkt).
     hop_t hp[MAX_HOPS];
+    int n_hops = 0;
     int kooktijd = STANDAARD_KOOKTIJD;
-    i = 0;
     const cJSON *h;
-    cJSON_ArrayForEach(h, hops) {
+    cJSON_ArrayForEach(h, cJSON_GetObjectItemCaseSensitive(data, "hops")) {
+        if (n_hops >= MAX_HOPS) return "te veel hopgiften en extra's (het scherm kan er 5)";
         const char *naam = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(h, "name"));
         const cJSON *g = cJSON_GetObjectItemCaseSensitive(h, "amount_g");
         char tekst[96];
@@ -154,12 +168,43 @@ const char *recept_omzetten(const cJSON *data, char **uit)
             snprintf(tekst, sizeof tekst, "%s - %g g", naam ? naam : "Hop", g->valuedouble);
         else
             snprintf(tekst, sizeof tekst, "%s", naam ? naam : "Hop");
-        kort_in(hp[i].naam, tekst, sizeof hp[i].naam);
-        hp[i].min = getal(h, "boil_time_min", -1);
-        if (hp[i].min < 0) return "hopgift zonder kooktijd";
-        if (hp[i].min > kooktijd) kooktijd = hp[i].min;
-        i++;
+        kort_in(hp[n_hops].naam, tekst, sizeof hp[n_hops].naam);
+        hp[n_hops].extra = false;
+        hp[n_hops].min = getal(h, "boil_time_min", -1);
+        if (hp[n_hops].min < 0) return "hopgift zonder kooktijd";
+        n_hops++;
     }
+    const cJSON *m;
+    cJSON_ArrayForEach(m, cJSON_GetObjectItemCaseSensitive(data, "extras")) {
+        const char *moment = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(m, "add_moment"));
+        if (!moment || strcmp(moment, "koken")) continue;
+        if (n_hops >= MAX_HOPS) return "te veel hopgiften en extra's (het scherm kan er 5)";
+        extra_regel(hp[n_hops].naam, sizeof hp[n_hops].naam, m);
+        hp[n_hops].extra = true;
+        hp[n_hops].min = getal(m, "boil_time_min", -1);   // ontbreekt: bij de start van het koken
+        n_hops++;
+    }
+    cJSON_ArrayForEach(m, cJSON_GetObjectItemCaseSensitive(data, "ingredients")) {
+        if (!is_suiker(m)) continue;
+        if (n_hops >= MAX_HOPS) return "te veel hopgiften en extra's (het scherm kan er 5)";
+        extra_regel(hp[n_hops].naam, sizeof hp[n_hops].naam, m);
+        hp[n_hops].extra = true;
+        hp[n_hops].min = -1;                              // bij de start van het koken
+        n_hops++;
+    }
+    for (i = 0; i < n_hops; i++)
+        if (hp[i].min > kooktijd) kooktijd = hp[i].min;
+
+    // Kooktijd uit het recept, als die er is
+    const cJSON *kook = cJSON_GetObjectItemCaseSensitive(data, "boil_time");
+    int duur = getal(kook, "duration", -1);
+    if (duur > 0) {
+        for (i = 0; i < n_hops; i++)
+            if (hp[i].min > duur) return "hop of extra kookt langer dan de kooktijd";
+        kooktijd = duur;
+    }
+    for (i = 0; i < n_hops; i++)
+        if (hp[i].min < 0) hp[i].min = kooktijd;
     for (int a = 1; a < n_hops; a++)
         for (int b = a; b > 0 && hp[b].min > hp[b - 1].min; b--) {
             hop_t t = hp[b]; hp[b] = hp[b - 1]; hp[b - 1] = t;
@@ -168,25 +213,15 @@ const char *recept_omzetten(const cJSON *data, char **uit)
     // Mout: "4,2 kg Pale Ale" (ontbreekt de lijst, dan toont het scherm een algemene tekst)
     char mout[MAX_MOUT][MOUT_NAAM_MAX];
     int n_mout = 0;
-    const cJSON *m;
     cJSON_ArrayForEach(m, cJSON_GetObjectItemCaseSensitive(data, "ingredients")) {
         if (n_mout >= MAX_MOUT) break;   // de rest past niet op het scherm
-        if (is_suiker(m)) continue;      // gaat pas in de kook
+        if (is_suiker(m)) continue;      // gaat pas in de kook (zie hierboven)
         mout_regel(mout[n_mout++], m);
     }
     cJSON_ArrayForEach(m, cJSON_GetObjectItemCaseSensitive(data, "extras")) {
         if (n_mout >= MAX_MOUT) break;
         const char *moment = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(m, "add_moment"));
         if (moment && !strcmp(moment, "beslag")) mout_regel(mout[n_mout++], m);
-    }
-
-    // Kooktijd uit het recept, als die er is
-    const cJSON *kook = cJSON_GetObjectItemCaseSensitive(data, "boil_time");
-    int duur = getal(kook, "duration", -1);
-    if (duur > 0) {
-        for (i = 0; i < n_hops; i++)
-            if (hp[i].min > duur) return "hop kookt langer dan de kooktijd";
-        kooktijd = duur;
     }
 
     // Bericht voor het scherm opbouwen
@@ -209,6 +244,7 @@ const char *recept_omzetten(const cJSON *data, char **uit)
         cJSON *x = cJSON_CreateObject();
         cJSON_AddStringToObject(x, "naam", hp[i].naam);
         cJSON_AddNumberToObject(x, "min", hp[i].min);
+        if (hp[i].extra) cJSON_AddTrueToObject(x, "extra");
         cJSON_AddItemToArray(hj, x);
     }
     if (n_mout > 0) {

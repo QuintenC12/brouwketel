@@ -392,7 +392,7 @@ typedef struct _objects_t {
     lv_obj_t *obj84;
     lv_obj_t *boil_hop_alarm;
     lv_obj_t *boil_alarm_card;
-    lv_obj_t *obj85;
+    lv_obj_t *boil_alarm_title;
     lv_obj_t *boil_alarm_text;
     lv_obj_t *boil_alarm_sub;
     lv_obj_t *obj86;

@@ -74,10 +74,11 @@ static void demo_recept() {
     brouw.stappen[2] = { 72, 1, 0 };
     brouw.stappen[3] = { 78, 1, 0 };
     brouw.kooktijd_min = 40;
-    brouw.aantal_hops = 3;
+    brouw.aantal_hops = 4;
     brouw.hops[0] = { "Magnum - 25 g", 30 };
     brouw.hops[1] = { "Cascade - 30 g", 20 };
     brouw.hops[2] = { "Saaz - 20 g", 10 };
+    brouw.hops[3] = { "Koriander - 10 g", 5, true };
     brouw.aantal_mouten = 3;
     strcpy(brouw.mouten[0], "5,5 kg Pilsmout");
     strcpy(brouw.mouten[1], "0,5 kg Carapils");

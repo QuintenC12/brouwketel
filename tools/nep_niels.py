@@ -50,7 +50,8 @@ VOORBEELD_RECEPT = {
     "naam": "Test Blond - 20 L",
     "kooktijd": 60,
     "stappen": [{"temp": 52, "min": 10}, {"temp": 65, "min": 45}, {"temp": 78, "min": 5}],
-    "hops": [{"naam": "Magnum - 20 g", "min": 60}, {"naam": "Saaz - 30 g", "min": 10}],
+    "hops": [{"naam": "Magnum - 20 g", "min": 60}, {"naam": "Saaz - 30 g", "min": 10},
+             {"naam": "Koriander - 10 g", "min": 5, "extra": True}],
     "mout": ["4,2 kg Pale Ale", "0,5 kg Cara"],
 }
 

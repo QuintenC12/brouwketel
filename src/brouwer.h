@@ -34,6 +34,7 @@ struct MaischStap {
 struct HopGift {
     char naam[32]; // bijv. "Cascade - 30 g"
     int minuten;   // toevoegen wanneer er nog zoveel minuten kooktijd over zijn
+    bool extra;    // geen hop maar een extra (kruiden, suiker, ...): zelfde alarm, andere tekst
 };
 
 /* Een recept zoals het binnenkomt, nog niet gecontroleerd */

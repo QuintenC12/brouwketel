@@ -264,6 +264,7 @@ static const char *recept_overnemen(JsonDocument &doc) {
         HopGift &hop = r.hops[r.aantal_hops++];
         strlcpy(hop.naam, h["naam"] | "", sizeof hop.naam);
         hop.minuten = h["min"] | -1;
+        hop.extra = h["extra"] | false;
     }
     return brouwer_recept_overnemen(r);
 }
@@ -505,8 +506,10 @@ void net_meld(const char *gebeurtenis) {
         doc["stap"] = brouw.actieve_stap + 1;
     } else if (strcmp(gebeurtenis, "hop_alarm") == 0 && brouw.hop_volgende < brouw.aantal_hops) {
         doc["hop"] = brouw.hops[brouw.hop_volgende].naam;
+        if (brouw.hops[brouw.hop_volgende].extra) doc["extra"] = true;
     } else if (strcmp(gebeurtenis, "hop_toegevoegd") == 0 && brouw.hop_volgende > 0) {
         doc["hop"] = brouw.hops[brouw.hop_volgende - 1].naam;   // hop_volgende is al opgeschoven
+        if (brouw.hops[brouw.hop_volgende - 1].extra) doc["extra"] = true;
     }
     stuur_melding(doc);
 }
