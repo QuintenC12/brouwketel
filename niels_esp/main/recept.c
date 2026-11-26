@@ -2,7 +2,7 @@
  * recept.c - recept van de webapp omzetten voor het scherm (zie recept.h)
  *
  * Grenzen van het scherm (brouwer.h, brouwproces.cpp):
- *   - 1 tot 4 maischstappen, hoogstens 5 hopgiften
+ *   - 1 tot 4 maischstappen, hoogstens 10 hopgiften en extra's samen
  *   - receptnaam < 48 bytes, hopnaam < 32 bytes
  *   - temperatuur en minuten als geheel getal
  *   - de hele regel "recept {...}" hoogstens NIELS_MAX_REGEL tekens
@@ -37,7 +37,7 @@
 #include "niels_uart.h"
 
 #define MAX_STAPPEN        4
-#define MAX_HOPS           5
+#define MAX_HOPS           10   // hop + extra's tijdens het koken
 #define RECEPT_NAAM_MAX    48
 #define HOP_NAAM_MAX       32
 #define MAX_MOUT           5
@@ -160,7 +160,7 @@ const char *recept_omzetten(const cJSON *data, char **uit)
     int kooktijd = STANDAARD_KOOKTIJD;
     const cJSON *h;
     cJSON_ArrayForEach(h, cJSON_GetObjectItemCaseSensitive(data, "hops")) {
-        if (n_hops >= MAX_HOPS) return "te veel hopgiften en extra's (het scherm kan er 5)";
+        if (n_hops >= MAX_HOPS) return "te veel hopgiften en extra's (het scherm kan er 10)";
         const char *naam = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(h, "name"));
         const cJSON *g = cJSON_GetObjectItemCaseSensitive(h, "amount_g");
         char tekst[96];
@@ -178,7 +178,7 @@ const char *recept_omzetten(const cJSON *data, char **uit)
     cJSON_ArrayForEach(m, cJSON_GetObjectItemCaseSensitive(data, "extras")) {
         const char *moment = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(m, "add_moment"));
         if (!moment || strcmp(moment, "koken")) continue;
-        if (n_hops >= MAX_HOPS) return "te veel hopgiften en extra's (het scherm kan er 5)";
+        if (n_hops >= MAX_HOPS) return "te veel hopgiften en extra's (het scherm kan er 10)";
         extra_regel(hp[n_hops].naam, sizeof hp[n_hops].naam, m);
         hp[n_hops].extra = true;
         hp[n_hops].min = getal(m, "boil_time_min", -1);   // ontbreekt: bij de start van het koken
@@ -186,7 +186,7 @@ const char *recept_omzetten(const cJSON *data, char **uit)
     }
     cJSON_ArrayForEach(m, cJSON_GetObjectItemCaseSensitive(data, "ingredients")) {
         if (!is_suiker(m)) continue;
-        if (n_hops >= MAX_HOPS) return "te veel hopgiften en extra's (het scherm kan er 5)";
+        if (n_hops >= MAX_HOPS) return "te veel hopgiften en extra's (het scherm kan er 10)";
         extra_regel(hp[n_hops].naam, sizeof hp[n_hops].naam, m);
         hp[n_hops].extra = true;
         hp[n_hops].min = -1;                              // bij de start van het koken

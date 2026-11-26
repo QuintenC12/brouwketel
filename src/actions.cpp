@@ -460,7 +460,7 @@ void action_kook_hop_plus(lv_event_t *e) {
     ui_toon_kookschema();
 }
 void action_kook_hop_toevoegen(lv_event_t *e) {
-    if (brouw.aantal_hops >= MAX_HOPS) return;
+    if (brouw.aantal_hops >= MAN_MAX_HOPS) return;   // het kookschema heeft 5 rijen
     int n = brouw.aantal_hops;
     int vorige = n > 0 ? brouw.hops[n - 1].minuten : brouw.kooktijd_min + 15;   // eerste hop: 15 min na de start
     brouw.hops[n] = HopGift{};

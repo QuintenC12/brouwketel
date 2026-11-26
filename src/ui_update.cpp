@@ -340,11 +340,16 @@ struct HopRij { lv_obj_t *rij, *naam, *tijd; };
 
 static HopRij hop_rij(int i) {
     switch (i) {
-    case 0:  return { objects.boil_hop_1, objects.boil_hop_1_name, objects.boil_hop_1_time };
-    case 1:  return { objects.boil_hop_2, objects.boil_hop_2_name, objects.boil_hop_2_time };
-    case 2:  return { objects.boil_hop_3, objects.boil_hop_3_name, objects.boil_hop_3_time };
-    case 3:  return { objects.boil_hop_4, objects.boil_hop_4_name, objects.boil_hop_4_time };
-    default: return { objects.boil_hop_5, objects.boil_hop_5_name, objects.boil_hop_5_time };
+    case 0:  return { objects.boil_hop_1,  objects.boil_hop_1_name,  objects.boil_hop_1_time };
+    case 1:  return { objects.boil_hop_2,  objects.boil_hop_2_name,  objects.boil_hop_2_time };
+    case 2:  return { objects.boil_hop_3,  objects.boil_hop_3_name,  objects.boil_hop_3_time };
+    case 3:  return { objects.boil_hop_4,  objects.boil_hop_4_name,  objects.boil_hop_4_time };
+    case 4:  return { objects.boil_hop_5,  objects.boil_hop_5_name,  objects.boil_hop_5_time };
+    case 5:  return { objects.boil_hop_6,  objects.boil_hop_6_name,  objects.boil_hop_6_time };
+    case 6:  return { objects.boil_hop_7,  objects.boil_hop_7_name,  objects.boil_hop_7_time };
+    case 7:  return { objects.boil_hop_8,  objects.boil_hop_8_name,  objects.boil_hop_8_time };
+    case 8:  return { objects.boil_hop_9,  objects.boil_hop_9_name,  objects.boil_hop_9_time };
+    default: return { objects.boil_hop_10, objects.boil_hop_10_name, objects.boil_hop_10_time };
     }
 }
 
@@ -410,6 +415,12 @@ void ui_toon_koken() {
         lv_label_set_text(objects.boil_next_info, "");
     }
 
+    // De volgende gift in beeld scrollen (alleen als die verandert, zodat je zelf kunt scrollen)
+    static int vorige_v = -1;
+    if (v != vorige_v && v < brouw.aantal_hops) lv_obj_scroll_to_view(hop_rij(v).rij, LV_ANIM_ON);
+    if (v != vorige_v && v == 0) lv_obj_scroll_to_y(objects.boil_hop_list, 0, LV_ANIM_OFF);
+    vorige_v = v;
+
     // Hoplijst: toegevoegd = grijs, volgende = oranje met voortgangsbalkje, later = wit
     for (int i = 0; i < MAX_HOPS; i++) {
         HopRij r = hop_rij(i);
@@ -445,14 +456,14 @@ void ui_toon_koken() {
 
 void ui_toon_kookschema() {
     lv_label_set_text_fmt(objects.kook_tijd, "%d min", brouw.kooktijd_min);
-    lv_obj_t *rij[MAX_HOPS]  = { objects.kook_hop_1, objects.kook_hop_2, objects.kook_hop_3, objects.kook_hop_4, objects.kook_hop_5 };
-    lv_obj_t *tijd[MAX_HOPS] = { objects.kook_hop_1_time, objects.kook_hop_2_time, objects.kook_hop_3_time, objects.kook_hop_4_time, objects.kook_hop_5_time };
-    for (int i = 0; i < MAX_HOPS; i++) {
+    lv_obj_t *rij[MAN_MAX_HOPS]  = { objects.kook_hop_1, objects.kook_hop_2, objects.kook_hop_3, objects.kook_hop_4, objects.kook_hop_5 };
+    lv_obj_t *tijd[MAN_MAX_HOPS] = { objects.kook_hop_1_time, objects.kook_hop_2_time, objects.kook_hop_3_time, objects.kook_hop_4_time, objects.kook_hop_5_time };
+    for (int i = 0; i < MAN_MAX_HOPS; i++) {
         toon(rij[i], i < brouw.aantal_hops);
         if (i < brouw.aantal_hops) lv_label_set_text_fmt(tijd[i], "bij nog %d min", brouw.hops[i].minuten);
     }
     toon(objects.kook_leeg, brouw.aantal_hops == 0);
-    toon(objects.kook_add, brouw.aantal_hops < MAX_HOPS);
+    toon(objects.kook_add, brouw.aantal_hops < MAN_MAX_HOPS);
     toon(objects.kook_remove, brouw.aantal_hops > 0);
 }
 
@@ -567,10 +578,15 @@ void ui_init_extra() {
     vstap[1] = { objects.conn_step2_icon, objects.conn_step2_mark, objects.conn_step2_spinner, objects.conn_step2_text };
     vstap[2] = { objects.conn_step3_icon, objects.conn_step3_mark, objects.conn_step3_spinner, objects.conn_step3_text };
 
-    lv_obj_t *balk[MAX_HOPS]  = { objects.boil_hop_1_bar, objects.boil_hop_2_bar, objects.boil_hop_3_bar, objects.boil_hop_4_bar, objects.boil_hop_5_bar };
-    lv_obj_t *mark[MAX_HOPS]  = { objects.boil_hop_mark_1, objects.boil_hop_mark_2, objects.boil_hop_mark_3, objects.boil_hop_mark_4, objects.boil_hop_mark_5 };
+    lv_obj_t *balk[MAX_HOPS]  = { objects.boil_hop_1_bar, objects.boil_hop_2_bar, objects.boil_hop_3_bar, objects.boil_hop_4_bar, objects.boil_hop_5_bar,
+                                  objects.boil_hop_6_bar, objects.boil_hop_7_bar, objects.boil_hop_8_bar, objects.boil_hop_9_bar, objects.boil_hop_10_bar };
+    lv_obj_t *mark[MAX_HOPS]  = { objects.boil_hop_mark_1, objects.boil_hop_mark_2, objects.boil_hop_mark_3, objects.boil_hop_mark_4, objects.boil_hop_mark_5,
+                                  objects.boil_hop_mark_6, objects.boil_hop_mark_7, objects.boil_hop_mark_8, objects.boil_hop_mark_9, objects.boil_hop_mark_10 };
     for (int i = 0; i < MAX_HOPS; i++) {
         hop_balk[i] = balk[i];
         hop_streepje[i] = mark[i];
     }
+    // Lijst met hop en extra's: verticaal scrollen, scrollbalk alleen tijdens het scrollen
+    lv_obj_set_scroll_dir(objects.boil_hop_list, LV_DIR_VER);
+    lv_obj_set_scrollbar_mode(objects.boil_hop_list, LV_SCROLLBAR_MODE_ACTIVE);
 }

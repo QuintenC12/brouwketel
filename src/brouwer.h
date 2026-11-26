@@ -16,7 +16,8 @@
 #include "ui/ui.h"
 
 #define MAX_STAPPEN 4
-#define MAX_HOPS    5
+#define MAX_HOPS    10   // hop + extra's tijdens het koken (scrollbare lijst op het kookscherm)
+#define MAN_MAX_HOPS 5   // manueel kookschema: 5 rijen
 #define MAX_MOUT    5    // regels mout op de pop-up "Mout toevoegen"
 #define MOUT_NAAM   32   // "4,2 kg Pale Ale"
 
@@ -61,7 +62,7 @@ struct BrouwStatus {
     char recept[48];                    // "Demo Tripel - 20 L"
     MaischStap stappen[MAX_STAPPEN];    // tot 4 maischstappen
     int aantal_stappen;
-    HopGift hops[MAX_HOPS];         // tot 5 hopgiften
+    HopGift hops[MAX_HOPS];         // tot 10 hopgiften en extra's
     int aantal_hops;
     int kooktijd_min;
     char mouten[MAX_MOUT][MOUT_NAAM];     // mout om toe te voegen bij stap 1 (leeg = niet bekend)

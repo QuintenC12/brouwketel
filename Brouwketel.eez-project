@@ -17428,6 +17428,261 @@
                   "groupIndex": 0
                 },
                 {
+                  "objID": "46c0a1e1-bbff-4a66-85b6-1c24ebec51a9",
+                  "type": "LVGLPanelWidget",
+                  "left": 16,
+                  "top": 80,
+                  "width": 3,
+                  "height": 16,
+                  "customInputs": [],
+                  "customOutputs": [],
+                  "style": {
+                    "objID": "76f3ebea-70a5-4ce5-b4b9-61525759c262",
+                    "useStyle": "default",
+                    "conditionalStyles": [],
+                    "childStyles": []
+                  },
+                  "timeline": [],
+                  "eventHandlers": [],
+                  "identifier": "boil_hop_mark_6",
+                  "leftUnit": "px",
+                  "topUnit": "px",
+                  "widthUnit": "px",
+                  "heightUnit": "px",
+                  "children": [],
+                  "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                  "hiddenFlag": true,
+                  "hiddenFlagType": "literal",
+                  "clickableFlag": false,
+                  "clickableFlagType": "literal",
+                  "checkedStateType": "literal",
+                  "disabledStateType": "literal",
+                  "states": "",
+                  "localStyles": {
+                    "objID": "6c1af823-cabe-4bb4-baf3-161e9681eccc",
+                    "definition": {
+                      "MAIN": {
+                        "DEFAULT": {
+                          "bg_color": "#e8eaed",
+                          "bg_opa": 255,
+                          "radius": 1,
+                          "border_width": 0,
+                          "pad_top": 0,
+                          "pad_bottom": 0,
+                          "pad_left": 0,
+                          "pad_right": 0,
+                          "shadow_width": 0
+                        }
+                      }
+                    }
+                  },
+                  "groupIndex": 0
+                },
+                {
+                  "objID": "4f055a3f-19e7-4555-9b18-21cad0a38137",
+                  "type": "LVGLPanelWidget",
+                  "left": 16,
+                  "top": 80,
+                  "width": 3,
+                  "height": 16,
+                  "customInputs": [],
+                  "customOutputs": [],
+                  "style": {
+                    "objID": "bbda3d94-93d1-4917-bf26-2963e1a34228",
+                    "useStyle": "default",
+                    "conditionalStyles": [],
+                    "childStyles": []
+                  },
+                  "timeline": [],
+                  "eventHandlers": [],
+                  "identifier": "boil_hop_mark_7",
+                  "leftUnit": "px",
+                  "topUnit": "px",
+                  "widthUnit": "px",
+                  "heightUnit": "px",
+                  "children": [],
+                  "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                  "hiddenFlag": true,
+                  "hiddenFlagType": "literal",
+                  "clickableFlag": false,
+                  "clickableFlagType": "literal",
+                  "checkedStateType": "literal",
+                  "disabledStateType": "literal",
+                  "states": "",
+                  "localStyles": {
+                    "objID": "31377677-6cf6-48f6-90df-451fd838d75f",
+                    "definition": {
+                      "MAIN": {
+                        "DEFAULT": {
+                          "bg_color": "#e8eaed",
+                          "bg_opa": 255,
+                          "radius": 1,
+                          "border_width": 0,
+                          "pad_top": 0,
+                          "pad_bottom": 0,
+                          "pad_left": 0,
+                          "pad_right": 0,
+                          "shadow_width": 0
+                        }
+                      }
+                    }
+                  },
+                  "groupIndex": 0
+                },
+                {
+                  "objID": "d29805c5-624c-4047-b4da-522f166563f5",
+                  "type": "LVGLPanelWidget",
+                  "left": 16,
+                  "top": 80,
+                  "width": 3,
+                  "height": 16,
+                  "customInputs": [],
+                  "customOutputs": [],
+                  "style": {
+                    "objID": "104cbe39-5043-42c0-9fcd-2a703d6fdaf6",
+                    "useStyle": "default",
+                    "conditionalStyles": [],
+                    "childStyles": []
+                  },
+                  "timeline": [],
+                  "eventHandlers": [],
+                  "identifier": "boil_hop_mark_8",
+                  "leftUnit": "px",
+                  "topUnit": "px",
+                  "widthUnit": "px",
+                  "heightUnit": "px",
+                  "children": [],
+                  "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                  "hiddenFlag": true,
+                  "hiddenFlagType": "literal",
+                  "clickableFlag": false,
+                  "clickableFlagType": "literal",
+                  "checkedStateType": "literal",
+                  "disabledStateType": "literal",
+                  "states": "",
+                  "localStyles": {
+                    "objID": "348d533d-0ca2-4ebb-a168-9e17d92e36a1",
+                    "definition": {
+                      "MAIN": {
+                        "DEFAULT": {
+                          "bg_color": "#e8eaed",
+                          "bg_opa": 255,
+                          "radius": 1,
+                          "border_width": 0,
+                          "pad_top": 0,
+                          "pad_bottom": 0,
+                          "pad_left": 0,
+                          "pad_right": 0,
+                          "shadow_width": 0
+                        }
+                      }
+                    }
+                  },
+                  "groupIndex": 0
+                },
+                {
+                  "objID": "be0fee67-ab5d-485e-b376-d144ca90c686",
+                  "type": "LVGLPanelWidget",
+                  "left": 16,
+                  "top": 80,
+                  "width": 3,
+                  "height": 16,
+                  "customInputs": [],
+                  "customOutputs": [],
+                  "style": {
+                    "objID": "253739c9-05dc-4396-981d-22b97b0fd8c3",
+                    "useStyle": "default",
+                    "conditionalStyles": [],
+                    "childStyles": []
+                  },
+                  "timeline": [],
+                  "eventHandlers": [],
+                  "identifier": "boil_hop_mark_9",
+                  "leftUnit": "px",
+                  "topUnit": "px",
+                  "widthUnit": "px",
+                  "heightUnit": "px",
+                  "children": [],
+                  "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                  "hiddenFlag": true,
+                  "hiddenFlagType": "literal",
+                  "clickableFlag": false,
+                  "clickableFlagType": "literal",
+                  "checkedStateType": "literal",
+                  "disabledStateType": "literal",
+                  "states": "",
+                  "localStyles": {
+                    "objID": "f18db619-30f8-4276-b8f5-7162ba895263",
+                    "definition": {
+                      "MAIN": {
+                        "DEFAULT": {
+                          "bg_color": "#e8eaed",
+                          "bg_opa": 255,
+                          "radius": 1,
+                          "border_width": 0,
+                          "pad_top": 0,
+                          "pad_bottom": 0,
+                          "pad_left": 0,
+                          "pad_right": 0,
+                          "shadow_width": 0
+                        }
+                      }
+                    }
+                  },
+                  "groupIndex": 0
+                },
+                {
+                  "objID": "48b0b499-50a9-4c3c-abe8-4610e71f8937",
+                  "type": "LVGLPanelWidget",
+                  "left": 16,
+                  "top": 80,
+                  "width": 3,
+                  "height": 16,
+                  "customInputs": [],
+                  "customOutputs": [],
+                  "style": {
+                    "objID": "dcd059fa-666d-4fea-8eb1-e1ea188de004",
+                    "useStyle": "default",
+                    "conditionalStyles": [],
+                    "childStyles": []
+                  },
+                  "timeline": [],
+                  "eventHandlers": [],
+                  "identifier": "boil_hop_mark_10",
+                  "leftUnit": "px",
+                  "topUnit": "px",
+                  "widthUnit": "px",
+                  "heightUnit": "px",
+                  "children": [],
+                  "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                  "hiddenFlag": true,
+                  "hiddenFlagType": "literal",
+                  "clickableFlag": false,
+                  "clickableFlagType": "literal",
+                  "checkedStateType": "literal",
+                  "disabledStateType": "literal",
+                  "states": "",
+                  "localStyles": {
+                    "objID": "ef89d9ed-5a00-4034-80dc-651d86f85880",
+                    "definition": {
+                      "MAIN": {
+                        "DEFAULT": {
+                          "bg_color": "#e8eaed",
+                          "bg_opa": 255,
+                          "radius": 1,
+                          "border_width": 0,
+                          "pad_top": 0,
+                          "pad_bottom": 0,
+                          "pad_left": 0,
+                          "pad_right": 0,
+                          "shadow_width": 0
+                        }
+                      }
+                    }
+                  },
+                  "groupIndex": 0
+                },
+                {
                   "objID": "a78b2267-f307-464a-89ec-26ff2005f2f2",
                   "type": "LVGLPanelWidget",
                   "left": 16,
@@ -17676,16 +17931,16 @@
                   "groupIndex": 0
                 },
                 {
-                  "objID": "ed735277-72ae-4999-b930-65d70ed01ee5",
+                  "objID": "bdeceeec-aaef-42f4-92e9-367caa658286",
                   "type": "LVGLPanelWidget",
                   "left": 12,
                   "top": 186,
                   "width": 510,
-                  "height": 38,
+                  "height": 258,
                   "customInputs": [],
                   "customOutputs": [],
                   "style": {
-                    "objID": "f19daf8f-6ea2-4192-a4ff-033079b59527",
+                    "objID": "2ac0e2ab-5d4a-4f6a-a88e-89bdd02e51fb",
                     "useStyle": "default",
                     "conditionalStyles": [],
                     "childStyles": []
@@ -17693,23 +17948,23 @@
                   "hiddenInEditor": false,
                   "timeline": [],
                   "eventHandlers": [],
-                  "identifier": "boil_hop_1",
+                  "identifier": "boil_hop_list",
                   "leftUnit": "px",
                   "topUnit": "px",
                   "widthUnit": "px",
                   "heightUnit": "px",
                   "children": [
                     {
-                      "objID": "dd25a09b-8e0d-4a9d-b47a-0a805400b7d3",
-                      "type": "LVGLLabelWidget",
-                      "left": 14,
-                      "top": 10,
-                      "width": 186,
-                      "height": 18,
+                      "objID": "ed735277-72ae-4999-b930-65d70ed01ee5",
+                      "type": "LVGLPanelWidget",
+                      "left": 0,
+                      "top": 0,
+                      "width": 510,
+                      "height": 38,
                       "customInputs": [],
                       "customOutputs": [],
                       "style": {
-                        "objID": "9952cc83-1f4e-44ef-a5f7-c0ccee65b6c0",
+                        "objID": "f19daf8f-6ea2-4192-a4ff-033079b59527",
                         "useStyle": "default",
                         "conditionalStyles": [],
                         "childStyles": []
@@ -17717,111 +17972,824 @@
                       "hiddenInEditor": false,
                       "timeline": [],
                       "eventHandlers": [],
-                      "identifier": "boil_hop_1_name",
-                      "leftUnit": "px",
-                      "topUnit": "px",
-                      "widthUnit": "content",
-                      "heightUnit": "content",
-                      "children": [],
-                      "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
-                      "hiddenFlagType": "literal",
-                      "clickableFlag": false,
-                      "clickableFlagType": "literal",
-                      "checkedStateType": "literal",
-                      "disabledStateType": "literal",
-                      "states": "",
-                      "localStyles": {
-                        "objID": "c774724e-ee8b-4857-99fc-894c52e4e910",
-                        "definition": {
-                          "MAIN": {
-                            "DEFAULT": {
-                              "text_color": "#7d868f",
-                              "text_font": "MONTSERRAT_16"
-                            }
-                          }
-                        }
-                      },
-                      "groupIndex": 0,
-                      "text": "Hop 1 - 60 min kooktijd",
-                      "textType": "literal",
-                      "longMode": "WRAP",
-                      "recolor": false,
-                      "useStaticText": false
-                    },
-                    {
-                      "objID": "c334be58-e15c-4f55-8d3f-c47c690cb08e",
-                      "type": "LVGLLabelWidget",
-                      "left": 330,
-                      "top": 10,
-                      "width": 166,
-                      "height": 18,
-                      "customInputs": [],
-                      "customOutputs": [],
-                      "style": {
-                        "objID": "ee7361e4-7ca5-41fe-8228-d21b38256bb8",
-                        "useStyle": "default",
-                        "conditionalStyles": [],
-                        "childStyles": []
-                      },
-                      "hiddenInEditor": false,
-                      "timeline": [],
-                      "eventHandlers": [],
-                      "identifier": "boil_hop_1_time",
-                      "leftUnit": "px",
-                      "topUnit": "px",
-                      "widthUnit": "px",
-                      "heightUnit": "content",
-                      "children": [],
-                      "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
-                      "hiddenFlagType": "literal",
-                      "clickableFlag": false,
-                      "clickableFlagType": "literal",
-                      "checkedStateType": "literal",
-                      "disabledStateType": "literal",
-                      "states": "",
-                      "localStyles": {
-                        "objID": "d25c2050-4525-4b0e-8728-a71c8e7ffa14",
-                        "definition": {
-                          "MAIN": {
-                            "DEFAULT": {
-                              "text_color": "#7d868f",
-                              "text_font": "MONTSERRAT_16",
-                              "text_align": "RIGHT"
-                            }
-                          }
-                        }
-                      },
-                      "groupIndex": 0,
-                      "text": "bij nog 60:00",
-                      "textType": "literal",
-                      "longMode": "WRAP",
-                      "recolor": false,
-                      "useStaticText": false
-                    },
-                    {
-                      "objID": "3591ec88-213c-474f-afe9-541780d690f7",
-                      "type": "LVGLBarWidget",
-                      "left": 14,
-                      "top": 32,
-                      "width": 482,
-                      "height": 3,
-                      "customInputs": [],
-                      "customOutputs": [],
-                      "style": {
-                        "objID": "e78c08cf-fae4-4302-8e71-5eaec946b39b",
-                        "useStyle": "default",
-                        "conditionalStyles": [],
-                        "childStyles": []
-                      },
-                      "hiddenInEditor": false,
-                      "timeline": [],
-                      "eventHandlers": [],
-                      "identifier": "boil_hop_1_bar",
+                      "identifier": "boil_hop_1",
                       "leftUnit": "px",
                       "topUnit": "px",
                       "widthUnit": "px",
                       "heightUnit": "px",
-                      "children": [],
+                      "children": [
+                        {
+                          "objID": "dd25a09b-8e0d-4a9d-b47a-0a805400b7d3",
+                          "type": "LVGLLabelWidget",
+                          "left": 14,
+                          "top": 10,
+                          "width": 186,
+                          "height": 18,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "9952cc83-1f4e-44ef-a5f7-c0ccee65b6c0",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_1_name",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "content",
+                          "heightUnit": "content",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "c774724e-ee8b-4857-99fc-894c52e4e910",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "text_color": "#7d868f",
+                                  "text_font": "MONTSERRAT_16"
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "text": "Hop 1 - 60 min kooktijd",
+                          "textType": "literal",
+                          "longMode": "WRAP",
+                          "recolor": false,
+                          "useStaticText": false
+                        },
+                        {
+                          "objID": "c334be58-e15c-4f55-8d3f-c47c690cb08e",
+                          "type": "LVGLLabelWidget",
+                          "left": 330,
+                          "top": 10,
+                          "width": 166,
+                          "height": 18,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "ee7361e4-7ca5-41fe-8228-d21b38256bb8",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_1_time",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "content",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "d25c2050-4525-4b0e-8728-a71c8e7ffa14",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "text_color": "#7d868f",
+                                  "text_font": "MONTSERRAT_16",
+                                  "text_align": "RIGHT"
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "text": "bij nog 60:00",
+                          "textType": "literal",
+                          "longMode": "WRAP",
+                          "recolor": false,
+                          "useStaticText": false
+                        },
+                        {
+                          "objID": "3591ec88-213c-474f-afe9-541780d690f7",
+                          "type": "LVGLBarWidget",
+                          "left": 14,
+                          "top": 32,
+                          "width": 482,
+                          "height": 3,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "e78c08cf-fae4-4302-8e71-5eaec946b39b",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_1_bar",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "px",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlag": true,
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "e3bdd61c-7595-48a0-918b-424bf2c3634f",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "bg_color": "#2c333b",
+                                  "bg_opa": 51,
+                                  "radius": 2
+                                }
+                              },
+                              "INDICATOR": {
+                                "DEFAULT": {
+                                  "bg_color": "#f0a030",
+                                  "bg_opa": 255,
+                                  "radius": 2
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "min": 0,
+                          "minType": "literal",
+                          "max": 100,
+                          "maxType": "literal",
+                          "mode": "NORMAL",
+                          "value": 0,
+                          "valueType": "literal",
+                          "previewValue": "0",
+                          "valueStart": 0,
+                          "valueStartType": "literal",
+                          "previewValueStart": "0",
+                          "enableAnimation": false
+                        }
+                      ],
+                      "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                      "hiddenFlagType": "literal",
+                      "clickableFlag": false,
+                      "clickableFlagType": "literal",
+                      "checkedStateType": "literal",
+                      "disabledStateType": "literal",
+                      "states": "",
+                      "localStyles": {
+                        "objID": "a30cfac4-434f-4292-9ec1-a4a0be3fd80b",
+                        "definition": {
+                          "MAIN": {
+                            "DEFAULT": {
+                              "bg_color": "#1f242a",
+                              "bg_opa": 255,
+                              "radius": 8,
+                              "border_width": 0,
+                              "pad_top": 0,
+                              "pad_bottom": 0,
+                              "pad_left": 0,
+                              "pad_right": 0,
+                              "shadow_width": 0
+                            }
+                          }
+                        }
+                      },
+                      "groupIndex": 0
+                    },
+                    {
+                      "objID": "e1f0b693-a194-4637-b9ea-b68f0f3727e0",
+                      "type": "LVGLPanelWidget",
+                      "left": 0,
+                      "top": 42,
+                      "width": 510,
+                      "height": 38,
+                      "customInputs": [],
+                      "customOutputs": [],
+                      "style": {
+                        "objID": "ee55344a-4977-4447-828e-856b419b3282",
+                        "useStyle": "default",
+                        "conditionalStyles": [],
+                        "childStyles": []
+                      },
+                      "hiddenInEditor": false,
+                      "timeline": [],
+                      "eventHandlers": [],
+                      "identifier": "boil_hop_2",
+                      "leftUnit": "px",
+                      "topUnit": "px",
+                      "widthUnit": "px",
+                      "heightUnit": "px",
+                      "children": [
+                        {
+                          "objID": "2df3acfe-251e-4876-b36a-4ff6401dc927",
+                          "type": "LVGLLabelWidget",
+                          "left": 14,
+                          "top": 10,
+                          "width": 188,
+                          "height": 18,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "5542e566-8445-44d3-ba9d-3d66552f120e",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_2_name",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "content",
+                          "heightUnit": "content",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "3a4d3660-1f7d-4f17-a766-3ea38c14e063",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "text_color": "#f6c46e",
+                                  "text_font": "MONTSERRAT_16"
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "text": "Hop 2 - 30 min kooktijd",
+                          "textType": "literal",
+                          "longMode": "WRAP",
+                          "recolor": false,
+                          "useStaticText": false
+                        },
+                        {
+                          "objID": "2a2ae445-1d1c-46d7-809d-02bf43160945",
+                          "type": "LVGLLabelWidget",
+                          "left": 330,
+                          "top": 10,
+                          "width": 166,
+                          "height": 18,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "35acbdc2-5051-42b0-acd0-aa98ea702f86",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_2_time",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "content",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "a086eadc-bb9a-4c32-9092-f155f0417d53",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "text_color": "#f6c46e",
+                                  "text_font": "MONTSERRAT_16",
+                                  "text_align": "RIGHT"
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "text": "bij nog 30:00",
+                          "textType": "literal",
+                          "longMode": "WRAP",
+                          "recolor": false,
+                          "useStaticText": false
+                        },
+                        {
+                          "objID": "8e2eea73-53c5-484e-993e-cced3eb0ad67",
+                          "type": "LVGLBarWidget",
+                          "left": 14,
+                          "top": 32,
+                          "width": 482,
+                          "height": 3,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "d7061655-983c-4f48-aa41-4f7023bf2763",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_2_bar",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "px",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "a8298e19-9da8-4b55-b90e-15161383d0c8",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "bg_color": "#2c333b",
+                                  "bg_opa": 51,
+                                  "radius": 2
+                                }
+                              },
+                              "INDICATOR": {
+                                "DEFAULT": {
+                                  "bg_color": "#f0a030",
+                                  "bg_opa": 255,
+                                  "radius": 2
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "min": 0,
+                          "minType": "literal",
+                          "max": 100,
+                          "maxType": "literal",
+                          "mode": "NORMAL",
+                          "value": 60,
+                          "valueType": "literal",
+                          "previewValue": "60",
+                          "valueStart": 0,
+                          "valueStartType": "literal",
+                          "previewValueStart": "0",
+                          "enableAnimation": false
+                        }
+                      ],
+                      "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                      "hiddenFlagType": "literal",
+                      "clickableFlag": false,
+                      "clickableFlagType": "literal",
+                      "checkedStateType": "literal",
+                      "disabledStateType": "literal",
+                      "states": "",
+                      "localStyles": {
+                        "objID": "17f5be66-196b-4269-b56c-2e5267bf0755",
+                        "definition": {
+                          "MAIN": {
+                            "DEFAULT": {
+                              "bg_color": "#3a2e17",
+                              "bg_opa": 255,
+                              "radius": 8,
+                              "border_width": 0,
+                              "pad_top": 0,
+                              "pad_bottom": 0,
+                              "pad_left": 0,
+                              "pad_right": 0,
+                              "shadow_width": 0
+                            }
+                          }
+                        }
+                      },
+                      "groupIndex": 0
+                    },
+                    {
+                      "objID": "b1b19867-debd-452d-9df7-5d6a3d828720",
+                      "type": "LVGLPanelWidget",
+                      "left": 0,
+                      "top": 84,
+                      "width": 510,
+                      "height": 38,
+                      "customInputs": [],
+                      "customOutputs": [],
+                      "style": {
+                        "objID": "0335e092-b8f8-48e9-830e-842611616209",
+                        "useStyle": "default",
+                        "conditionalStyles": [],
+                        "childStyles": []
+                      },
+                      "hiddenInEditor": false,
+                      "timeline": [],
+                      "eventHandlers": [],
+                      "identifier": "boil_hop_3",
+                      "leftUnit": "px",
+                      "topUnit": "px",
+                      "widthUnit": "px",
+                      "heightUnit": "px",
+                      "children": [
+                        {
+                          "objID": "92125daa-ec19-4e34-a9af-304e4ee082ac",
+                          "type": "LVGLLabelWidget",
+                          "left": 14,
+                          "top": 10,
+                          "width": 177,
+                          "height": 18,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "c79ce437-728d-4cd9-8667-39fa14f6401b",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_3_name",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "content",
+                          "heightUnit": "content",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "94e73a25-7b7b-4eaf-9d40-3ea5bb9bfa46",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "text_color": "#e8eaed",
+                                  "text_font": "MONTSERRAT_16"
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "text": "Hop 3 - 5 min kooktijd",
+                          "textType": "literal",
+                          "longMode": "WRAP",
+                          "recolor": false,
+                          "useStaticText": false
+                        },
+                        {
+                          "objID": "5b54c449-4246-4eba-89bb-dff65a8b3eb0",
+                          "type": "LVGLLabelWidget",
+                          "left": 330,
+                          "top": 10,
+                          "width": 166,
+                          "height": 18,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "7f1690bc-a5d5-4c9a-b081-bc1cb9551c4b",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_3_time",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "content",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "d57a4c08-115a-4418-b38f-87acc55268b7",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "text_color": "#e8eaed",
+                                  "text_font": "MONTSERRAT_16",
+                                  "text_align": "RIGHT"
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "text": "bij nog 5:00",
+                          "textType": "literal",
+                          "longMode": "WRAP",
+                          "recolor": false,
+                          "useStaticText": false
+                        },
+                        {
+                          "objID": "727771c5-80fe-406f-ae15-59b0a3fd1675",
+                          "type": "LVGLBarWidget",
+                          "left": 14,
+                          "top": 32,
+                          "width": 482,
+                          "height": 3,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "9a568e7f-cddb-410c-b878-ea7c073d62df",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_3_bar",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "px",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlag": true,
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "fe042653-bfb1-4704-9da4-8c7cf67cd635",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "bg_color": "#2c333b",
+                                  "bg_opa": 51,
+                                  "radius": 2
+                                }
+                              },
+                              "INDICATOR": {
+                                "DEFAULT": {
+                                  "bg_color": "#f0a030",
+                                  "bg_opa": 255,
+                                  "radius": 2
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "min": 0,
+                          "minType": "literal",
+                          "max": 100,
+                          "maxType": "literal",
+                          "mode": "NORMAL",
+                          "value": 0,
+                          "valueType": "literal",
+                          "previewValue": "0",
+                          "valueStart": 0,
+                          "valueStartType": "literal",
+                          "previewValueStart": "0",
+                          "enableAnimation": false
+                        }
+                      ],
+                      "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                      "hiddenFlagType": "literal",
+                      "clickableFlag": false,
+                      "clickableFlagType": "literal",
+                      "checkedStateType": "literal",
+                      "disabledStateType": "literal",
+                      "states": "",
+                      "localStyles": {
+                        "objID": "6abc42ef-5f22-4cc1-af12-e487b571b164",
+                        "definition": {
+                          "MAIN": {
+                            "DEFAULT": {
+                              "bg_color": "#1f242a",
+                              "bg_opa": 255,
+                              "radius": 8,
+                              "border_width": 0,
+                              "pad_top": 0,
+                              "pad_bottom": 0,
+                              "pad_left": 0,
+                              "pad_right": 0,
+                              "shadow_width": 0
+                            }
+                          }
+                        }
+                      },
+                      "groupIndex": 0
+                    },
+                    {
+                      "objID": "27a67f83-f1d0-4965-a492-d6b636465f5d",
+                      "type": "LVGLPanelWidget",
+                      "left": 0,
+                      "top": 126,
+                      "width": 510,
+                      "height": 38,
+                      "customInputs": [],
+                      "customOutputs": [],
+                      "style": {
+                        "objID": "453e5322-c4d6-425c-873b-31dc386bc993",
+                        "useStyle": "default",
+                        "conditionalStyles": [],
+                        "childStyles": []
+                      },
+                      "hiddenInEditor": true,
+                      "timeline": [],
+                      "eventHandlers": [],
+                      "identifier": "boil_hop_4",
+                      "leftUnit": "px",
+                      "topUnit": "px",
+                      "widthUnit": "px",
+                      "heightUnit": "px",
+                      "children": [
+                        {
+                          "objID": "b182bf82-1e14-42ec-a380-57e618157132",
+                          "type": "LVGLLabelWidget",
+                          "left": 14,
+                          "top": 10,
+                          "width": 49,
+                          "height": 18,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "b8290052-b703-4bb5-bb67-0262807a9bd1",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_4_name",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "content",
+                          "heightUnit": "content",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "e65b0db0-9bf5-4191-9585-167b7323c46e",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "text_color": "#e8eaed",
+                                  "text_font": "MONTSERRAT_16"
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "text": "Hop 4",
+                          "textType": "literal",
+                          "longMode": "WRAP",
+                          "recolor": false,
+                          "useStaticText": false
+                        },
+                        {
+                          "objID": "42b51e49-f403-4b32-9766-e741d1baab48",
+                          "type": "LVGLLabelWidget",
+                          "left": 330,
+                          "top": 10,
+                          "width": 166,
+                          "height": 18,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "b4423542-4c48-4a55-a411-5c14cdaa2e58",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_4_time",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "content",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "5c2daa97-a717-4c81-bd5d-4ec401bbea48",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "text_color": "#e8eaed",
+                                  "text_font": "MONTSERRAT_16",
+                                  "text_align": "RIGHT"
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "text": "-",
+                          "textType": "literal",
+                          "longMode": "WRAP",
+                          "recolor": false,
+                          "useStaticText": false
+                        },
+                        {
+                          "objID": "3ebee81c-0d1b-45ab-8399-56e2d3fa7c75",
+                          "type": "LVGLBarWidget",
+                          "left": 14,
+                          "top": 32,
+                          "width": 482,
+                          "height": 3,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "da34031b-f1b5-4555-bdba-19e7093db887",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_4_bar",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "px",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlag": true,
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "0510bf5c-5392-4bcb-b468-3b7e5cad92a6",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "bg_color": "#2c333b",
+                                  "bg_opa": 51,
+                                  "radius": 2
+                                }
+                              },
+                              "INDICATOR": {
+                                "DEFAULT": {
+                                  "bg_color": "#f0a030",
+                                  "bg_opa": 255,
+                                  "radius": 2
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "min": 0,
+                          "minType": "literal",
+                          "max": 100,
+                          "maxType": "literal",
+                          "mode": "NORMAL",
+                          "value": 0,
+                          "valueType": "literal",
+                          "previewValue": "0",
+                          "valueStart": 0,
+                          "valueStartType": "literal",
+                          "previewValueStart": "0",
+                          "enableAnimation": false
+                        }
+                      ],
                       "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
                       "hiddenFlag": true,
                       "hiddenFlagType": "literal",
@@ -17831,428 +18799,214 @@
                       "disabledStateType": "literal",
                       "states": "",
                       "localStyles": {
-                        "objID": "e3bdd61c-7595-48a0-918b-424bf2c3634f",
+                        "objID": "122a03e7-cd4c-4b80-bcf7-48d68674f661",
                         "definition": {
                           "MAIN": {
                             "DEFAULT": {
-                              "bg_color": "#2c333b",
-                              "bg_opa": 51,
-                              "radius": 2
-                            }
-                          },
-                          "INDICATOR": {
-                            "DEFAULT": {
-                              "bg_color": "#f0a030",
+                              "bg_color": "#1f242a",
                               "bg_opa": 255,
-                              "radius": 2
+                              "radius": 8,
+                              "border_width": 0,
+                              "pad_top": 0,
+                              "pad_bottom": 0,
+                              "pad_left": 0,
+                              "pad_right": 0,
+                              "shadow_width": 0
                             }
                           }
                         }
                       },
-                      "groupIndex": 0,
-                      "min": 0,
-                      "minType": "literal",
-                      "max": 100,
-                      "maxType": "literal",
-                      "mode": "NORMAL",
-                      "value": 0,
-                      "valueType": "literal",
-                      "previewValue": "0",
-                      "valueStart": 0,
-                      "valueStartType": "literal",
-                      "previewValueStart": "0",
-                      "enableAnimation": false
-                    }
-                  ],
-                  "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
-                  "hiddenFlagType": "literal",
-                  "clickableFlag": false,
-                  "clickableFlagType": "literal",
-                  "checkedStateType": "literal",
-                  "disabledStateType": "literal",
-                  "states": "",
-                  "localStyles": {
-                    "objID": "a30cfac4-434f-4292-9ec1-a4a0be3fd80b",
-                    "definition": {
-                      "MAIN": {
-                        "DEFAULT": {
-                          "bg_color": "#1f242a",
-                          "bg_opa": 255,
-                          "radius": 8,
-                          "border_width": 0,
-                          "pad_top": 0,
-                          "pad_bottom": 0,
-                          "pad_left": 0,
-                          "pad_right": 0,
-                          "shadow_width": 0
-                        }
-                      }
-                    }
-                  },
-                  "groupIndex": 0
-                },
-                {
-                  "objID": "e1f0b693-a194-4637-b9ea-b68f0f3727e0",
-                  "type": "LVGLPanelWidget",
-                  "left": 12,
-                  "top": 228,
-                  "width": 510,
-                  "height": 38,
-                  "customInputs": [],
-                  "customOutputs": [],
-                  "style": {
-                    "objID": "ee55344a-4977-4447-828e-856b419b3282",
-                    "useStyle": "default",
-                    "conditionalStyles": [],
-                    "childStyles": []
-                  },
-                  "hiddenInEditor": false,
-                  "timeline": [],
-                  "eventHandlers": [],
-                  "identifier": "boil_hop_2",
-                  "leftUnit": "px",
-                  "topUnit": "px",
-                  "widthUnit": "px",
-                  "heightUnit": "px",
-                  "children": [
-                    {
-                      "objID": "2df3acfe-251e-4876-b36a-4ff6401dc927",
-                      "type": "LVGLLabelWidget",
-                      "left": 14,
-                      "top": 10,
-                      "width": 188,
-                      "height": 18,
-                      "customInputs": [],
-                      "customOutputs": [],
-                      "style": {
-                        "objID": "5542e566-8445-44d3-ba9d-3d66552f120e",
-                        "useStyle": "default",
-                        "conditionalStyles": [],
-                        "childStyles": []
-                      },
-                      "hiddenInEditor": false,
-                      "timeline": [],
-                      "eventHandlers": [],
-                      "identifier": "boil_hop_2_name",
-                      "leftUnit": "px",
-                      "topUnit": "px",
-                      "widthUnit": "content",
-                      "heightUnit": "content",
-                      "children": [],
-                      "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
-                      "hiddenFlagType": "literal",
-                      "clickableFlag": false,
-                      "clickableFlagType": "literal",
-                      "checkedStateType": "literal",
-                      "disabledStateType": "literal",
-                      "states": "",
-                      "localStyles": {
-                        "objID": "3a4d3660-1f7d-4f17-a766-3ea38c14e063",
-                        "definition": {
-                          "MAIN": {
-                            "DEFAULT": {
-                              "text_color": "#f6c46e",
-                              "text_font": "MONTSERRAT_16"
-                            }
-                          }
-                        }
-                      },
-                      "groupIndex": 0,
-                      "text": "Hop 2 - 30 min kooktijd",
-                      "textType": "literal",
-                      "longMode": "WRAP",
-                      "recolor": false,
-                      "useStaticText": false
+                      "groupIndex": 0
                     },
                     {
-                      "objID": "2a2ae445-1d1c-46d7-809d-02bf43160945",
-                      "type": "LVGLLabelWidget",
-                      "left": 330,
-                      "top": 10,
-                      "width": 166,
-                      "height": 18,
+                      "objID": "d100e129-540b-4dc6-9595-533b1b3c9a29",
+                      "type": "LVGLPanelWidget",
+                      "left": 0,
+                      "top": 168,
+                      "width": 510,
+                      "height": 38,
                       "customInputs": [],
                       "customOutputs": [],
                       "style": {
-                        "objID": "35acbdc2-5051-42b0-acd0-aa98ea702f86",
+                        "objID": "04916e58-2713-420b-a6d1-4f34fa7a935e",
                         "useStyle": "default",
                         "conditionalStyles": [],
                         "childStyles": []
                       },
-                      "hiddenInEditor": false,
+                      "hiddenInEditor": true,
                       "timeline": [],
                       "eventHandlers": [],
-                      "identifier": "boil_hop_2_time",
-                      "leftUnit": "px",
-                      "topUnit": "px",
-                      "widthUnit": "px",
-                      "heightUnit": "content",
-                      "children": [],
-                      "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
-                      "hiddenFlagType": "literal",
-                      "clickableFlag": false,
-                      "clickableFlagType": "literal",
-                      "checkedStateType": "literal",
-                      "disabledStateType": "literal",
-                      "states": "",
-                      "localStyles": {
-                        "objID": "a086eadc-bb9a-4c32-9092-f155f0417d53",
-                        "definition": {
-                          "MAIN": {
-                            "DEFAULT": {
-                              "text_color": "#f6c46e",
-                              "text_font": "MONTSERRAT_16",
-                              "text_align": "RIGHT"
-                            }
-                          }
-                        }
-                      },
-                      "groupIndex": 0,
-                      "text": "bij nog 30:00",
-                      "textType": "literal",
-                      "longMode": "WRAP",
-                      "recolor": false,
-                      "useStaticText": false
-                    },
-                    {
-                      "objID": "8e2eea73-53c5-484e-993e-cced3eb0ad67",
-                      "type": "LVGLBarWidget",
-                      "left": 14,
-                      "top": 32,
-                      "width": 482,
-                      "height": 3,
-                      "customInputs": [],
-                      "customOutputs": [],
-                      "style": {
-                        "objID": "d7061655-983c-4f48-aa41-4f7023bf2763",
-                        "useStyle": "default",
-                        "conditionalStyles": [],
-                        "childStyles": []
-                      },
-                      "hiddenInEditor": false,
-                      "timeline": [],
-                      "eventHandlers": [],
-                      "identifier": "boil_hop_2_bar",
+                      "identifier": "boil_hop_5",
                       "leftUnit": "px",
                       "topUnit": "px",
                       "widthUnit": "px",
                       "heightUnit": "px",
-                      "children": [],
-                      "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
-                      "hiddenFlagType": "literal",
-                      "clickableFlag": false,
-                      "clickableFlagType": "literal",
-                      "checkedStateType": "literal",
-                      "disabledStateType": "literal",
-                      "states": "",
-                      "localStyles": {
-                        "objID": "a8298e19-9da8-4b55-b90e-15161383d0c8",
-                        "definition": {
-                          "MAIN": {
-                            "DEFAULT": {
-                              "bg_color": "#2c333b",
-                              "bg_opa": 51,
-                              "radius": 2
+                      "children": [
+                        {
+                          "objID": "4fa750f7-f400-424c-be5b-cdbffc371d19",
+                          "type": "LVGLLabelWidget",
+                          "left": 14,
+                          "top": 10,
+                          "width": 47,
+                          "height": 18,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "627b2bab-c26e-4475-9c20-d6a393d86f8f",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_5_name",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "content",
+                          "heightUnit": "content",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "2181beee-ee62-484d-8189-7210c9964cac",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "text_color": "#e8eaed",
+                                  "text_font": "MONTSERRAT_16"
+                                }
+                              }
                             }
                           },
-                          "INDICATOR": {
-                            "DEFAULT": {
-                              "bg_color": "#f0a030",
-                              "bg_opa": 255,
-                              "radius": 2
+                          "groupIndex": 0,
+                          "text": "Hop 5",
+                          "textType": "literal",
+                          "longMode": "WRAP",
+                          "recolor": false,
+                          "useStaticText": false
+                        },
+                        {
+                          "objID": "ea679c34-f74a-48d3-a301-245052351a39",
+                          "type": "LVGLLabelWidget",
+                          "left": 330,
+                          "top": 10,
+                          "width": 166,
+                          "height": 18,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "3075a566-e1db-4590-9a1f-2e9d60e0d4b1",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_5_time",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "content",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "08b10b01-70ba-46b0-b3a4-9669278bcd14",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "text_color": "#e8eaed",
+                                  "text_font": "MONTSERRAT_16",
+                                  "text_align": "RIGHT"
+                                }
+                              }
                             }
-                          }
-                        }
-                      },
-                      "groupIndex": 0,
-                      "min": 0,
-                      "minType": "literal",
-                      "max": 100,
-                      "maxType": "literal",
-                      "mode": "NORMAL",
-                      "value": 60,
-                      "valueType": "literal",
-                      "previewValue": "60",
-                      "valueStart": 0,
-                      "valueStartType": "literal",
-                      "previewValueStart": "0",
-                      "enableAnimation": false
-                    }
-                  ],
-                  "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
-                  "hiddenFlagType": "literal",
-                  "clickableFlag": false,
-                  "clickableFlagType": "literal",
-                  "checkedStateType": "literal",
-                  "disabledStateType": "literal",
-                  "states": "",
-                  "localStyles": {
-                    "objID": "17f5be66-196b-4269-b56c-2e5267bf0755",
-                    "definition": {
-                      "MAIN": {
-                        "DEFAULT": {
-                          "bg_color": "#3a2e17",
-                          "bg_opa": 255,
-                          "radius": 8,
-                          "border_width": 0,
-                          "pad_top": 0,
-                          "pad_bottom": 0,
-                          "pad_left": 0,
-                          "pad_right": 0,
-                          "shadow_width": 0
-                        }
-                      }
-                    }
-                  },
-                  "groupIndex": 0
-                },
-                {
-                  "objID": "b1b19867-debd-452d-9df7-5d6a3d828720",
-                  "type": "LVGLPanelWidget",
-                  "left": 12,
-                  "top": 270,
-                  "width": 510,
-                  "height": 38,
-                  "customInputs": [],
-                  "customOutputs": [],
-                  "style": {
-                    "objID": "0335e092-b8f8-48e9-830e-842611616209",
-                    "useStyle": "default",
-                    "conditionalStyles": [],
-                    "childStyles": []
-                  },
-                  "hiddenInEditor": false,
-                  "timeline": [],
-                  "eventHandlers": [],
-                  "identifier": "boil_hop_3",
-                  "leftUnit": "px",
-                  "topUnit": "px",
-                  "widthUnit": "px",
-                  "heightUnit": "px",
-                  "children": [
-                    {
-                      "objID": "92125daa-ec19-4e34-a9af-304e4ee082ac",
-                      "type": "LVGLLabelWidget",
-                      "left": 14,
-                      "top": 10,
-                      "width": 177,
-                      "height": 18,
-                      "customInputs": [],
-                      "customOutputs": [],
-                      "style": {
-                        "objID": "c79ce437-728d-4cd9-8667-39fa14f6401b",
-                        "useStyle": "default",
-                        "conditionalStyles": [],
-                        "childStyles": []
-                      },
-                      "hiddenInEditor": false,
-                      "timeline": [],
-                      "eventHandlers": [],
-                      "identifier": "boil_hop_3_name",
-                      "leftUnit": "px",
-                      "topUnit": "px",
-                      "widthUnit": "content",
-                      "heightUnit": "content",
-                      "children": [],
-                      "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
-                      "hiddenFlagType": "literal",
-                      "clickableFlag": false,
-                      "clickableFlagType": "literal",
-                      "checkedStateType": "literal",
-                      "disabledStateType": "literal",
-                      "states": "",
-                      "localStyles": {
-                        "objID": "94e73a25-7b7b-4eaf-9d40-3ea5bb9bfa46",
-                        "definition": {
-                          "MAIN": {
-                            "DEFAULT": {
-                              "text_color": "#e8eaed",
-                              "text_font": "MONTSERRAT_16"
+                          },
+                          "groupIndex": 0,
+                          "text": "-",
+                          "textType": "literal",
+                          "longMode": "WRAP",
+                          "recolor": false,
+                          "useStaticText": false
+                        },
+                        {
+                          "objID": "db47bc82-dc4f-4976-93bd-b2468214f461",
+                          "type": "LVGLBarWidget",
+                          "left": 14,
+                          "top": 32,
+                          "width": 482,
+                          "height": 3,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "ed9a4d54-92d4-464c-acac-1229ed4508fc",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_5_bar",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "px",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlag": true,
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "6d3ac114-c0f1-4772-8c6e-11e80fcbbe87",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "bg_color": "#2c333b",
+                                  "bg_opa": 51,
+                                  "radius": 2
+                                }
+                              },
+                              "INDICATOR": {
+                                "DEFAULT": {
+                                  "bg_color": "#f0a030",
+                                  "bg_opa": 255,
+                                  "radius": 2
+                                }
+                              }
                             }
-                          }
+                          },
+                          "groupIndex": 0,
+                          "min": 0,
+                          "minType": "literal",
+                          "max": 100,
+                          "maxType": "literal",
+                          "mode": "NORMAL",
+                          "value": 0,
+                          "valueType": "literal",
+                          "previewValue": "0",
+                          "valueStart": 0,
+                          "valueStartType": "literal",
+                          "previewValueStart": "0",
+                          "enableAnimation": false
                         }
-                      },
-                      "groupIndex": 0,
-                      "text": "Hop 3 - 5 min kooktijd",
-                      "textType": "literal",
-                      "longMode": "WRAP",
-                      "recolor": false,
-                      "useStaticText": false
-                    },
-                    {
-                      "objID": "5b54c449-4246-4eba-89bb-dff65a8b3eb0",
-                      "type": "LVGLLabelWidget",
-                      "left": 330,
-                      "top": 10,
-                      "width": 166,
-                      "height": 18,
-                      "customInputs": [],
-                      "customOutputs": [],
-                      "style": {
-                        "objID": "7f1690bc-a5d5-4c9a-b081-bc1cb9551c4b",
-                        "useStyle": "default",
-                        "conditionalStyles": [],
-                        "childStyles": []
-                      },
-                      "hiddenInEditor": false,
-                      "timeline": [],
-                      "eventHandlers": [],
-                      "identifier": "boil_hop_3_time",
-                      "leftUnit": "px",
-                      "topUnit": "px",
-                      "widthUnit": "px",
-                      "heightUnit": "content",
-                      "children": [],
-                      "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
-                      "hiddenFlagType": "literal",
-                      "clickableFlag": false,
-                      "clickableFlagType": "literal",
-                      "checkedStateType": "literal",
-                      "disabledStateType": "literal",
-                      "states": "",
-                      "localStyles": {
-                        "objID": "d57a4c08-115a-4418-b38f-87acc55268b7",
-                        "definition": {
-                          "MAIN": {
-                            "DEFAULT": {
-                              "text_color": "#e8eaed",
-                              "text_font": "MONTSERRAT_16",
-                              "text_align": "RIGHT"
-                            }
-                          }
-                        }
-                      },
-                      "groupIndex": 0,
-                      "text": "bij nog 5:00",
-                      "textType": "literal",
-                      "longMode": "WRAP",
-                      "recolor": false,
-                      "useStaticText": false
-                    },
-                    {
-                      "objID": "727771c5-80fe-406f-ae15-59b0a3fd1675",
-                      "type": "LVGLBarWidget",
-                      "left": 14,
-                      "top": 32,
-                      "width": 482,
-                      "height": 3,
-                      "customInputs": [],
-                      "customOutputs": [],
-                      "style": {
-                        "objID": "9a568e7f-cddb-410c-b878-ea7c073d62df",
-                        "useStyle": "default",
-                        "conditionalStyles": [],
-                        "childStyles": []
-                      },
-                      "hiddenInEditor": false,
-                      "timeline": [],
-                      "eventHandlers": [],
-                      "identifier": "boil_hop_3_bar",
-                      "leftUnit": "px",
-                      "topUnit": "px",
-                      "widthUnit": "px",
-                      "heightUnit": "px",
-                      "children": [],
+                      ],
                       "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
                       "hiddenFlag": true,
                       "hiddenFlagType": "literal",
@@ -18262,213 +19016,214 @@
                       "disabledStateType": "literal",
                       "states": "",
                       "localStyles": {
-                        "objID": "fe042653-bfb1-4704-9da4-8c7cf67cd635",
+                        "objID": "d75809d1-7946-4ba5-add5-e15079a3e1d9",
                         "definition": {
                           "MAIN": {
                             "DEFAULT": {
-                              "bg_color": "#2c333b",
-                              "bg_opa": 51,
-                              "radius": 2
-                            }
-                          },
-                          "INDICATOR": {
-                            "DEFAULT": {
-                              "bg_color": "#f0a030",
+                              "bg_color": "#1f242a",
                               "bg_opa": 255,
-                              "radius": 2
+                              "radius": 8,
+                              "border_width": 0,
+                              "pad_top": 0,
+                              "pad_bottom": 0,
+                              "pad_left": 0,
+                              "pad_right": 0,
+                              "shadow_width": 0
                             }
                           }
                         }
                       },
-                      "groupIndex": 0,
-                      "min": 0,
-                      "minType": "literal",
-                      "max": 100,
-                      "maxType": "literal",
-                      "mode": "NORMAL",
-                      "value": 0,
-                      "valueType": "literal",
-                      "previewValue": "0",
-                      "valueStart": 0,
-                      "valueStartType": "literal",
-                      "previewValueStart": "0",
-                      "enableAnimation": false
-                    }
-                  ],
-                  "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
-                  "hiddenFlagType": "literal",
-                  "clickableFlag": false,
-                  "clickableFlagType": "literal",
-                  "checkedStateType": "literal",
-                  "disabledStateType": "literal",
-                  "states": "",
-                  "localStyles": {
-                    "objID": "6abc42ef-5f22-4cc1-af12-e487b571b164",
-                    "definition": {
-                      "MAIN": {
-                        "DEFAULT": {
-                          "bg_color": "#1f242a",
-                          "bg_opa": 255,
-                          "radius": 8,
-                          "border_width": 0,
-                          "pad_top": 0,
-                          "pad_bottom": 0,
-                          "pad_left": 0,
-                          "pad_right": 0,
-                          "shadow_width": 0
-                        }
-                      }
-                    }
-                  },
-                  "groupIndex": 0
-                },
-                {
-                  "objID": "27a67f83-f1d0-4965-a492-d6b636465f5d",
-                  "type": "LVGLPanelWidget",
-                  "left": 12,
-                  "top": 312,
-                  "width": 510,
-                  "height": 38,
-                  "customInputs": [],
-                  "customOutputs": [],
-                  "style": {
-                    "objID": "453e5322-c4d6-425c-873b-31dc386bc993",
-                    "useStyle": "default",
-                    "conditionalStyles": [],
-                    "childStyles": []
-                  },
-                  "hiddenInEditor": true,
-                  "timeline": [],
-                  "eventHandlers": [],
-                  "identifier": "boil_hop_4",
-                  "leftUnit": "px",
-                  "topUnit": "px",
-                  "widthUnit": "px",
-                  "heightUnit": "px",
-                  "children": [
-                    {
-                      "objID": "b182bf82-1e14-42ec-a380-57e618157132",
-                      "type": "LVGLLabelWidget",
-                      "left": 14,
-                      "top": 10,
-                      "width": 49,
-                      "height": 18,
-                      "customInputs": [],
-                      "customOutputs": [],
-                      "style": {
-                        "objID": "b8290052-b703-4bb5-bb67-0262807a9bd1",
-                        "useStyle": "default",
-                        "conditionalStyles": [],
-                        "childStyles": []
-                      },
-                      "hiddenInEditor": false,
-                      "timeline": [],
-                      "eventHandlers": [],
-                      "identifier": "boil_hop_4_name",
-                      "leftUnit": "px",
-                      "topUnit": "px",
-                      "widthUnit": "content",
-                      "heightUnit": "content",
-                      "children": [],
-                      "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
-                      "hiddenFlagType": "literal",
-                      "clickableFlag": false,
-                      "clickableFlagType": "literal",
-                      "checkedStateType": "literal",
-                      "disabledStateType": "literal",
-                      "states": "",
-                      "localStyles": {
-                        "objID": "e65b0db0-9bf5-4191-9585-167b7323c46e",
-                        "definition": {
-                          "MAIN": {
-                            "DEFAULT": {
-                              "text_color": "#e8eaed",
-                              "text_font": "MONTSERRAT_16"
-                            }
-                          }
-                        }
-                      },
-                      "groupIndex": 0,
-                      "text": "Hop 4",
-                      "textType": "literal",
-                      "longMode": "WRAP",
-                      "recolor": false,
-                      "useStaticText": false
+                      "groupIndex": 0
                     },
                     {
-                      "objID": "42b51e49-f403-4b32-9766-e741d1baab48",
-                      "type": "LVGLLabelWidget",
-                      "left": 330,
-                      "top": 10,
-                      "width": 166,
-                      "height": 18,
+                      "objID": "790fd828-b933-4d8c-b3aa-e24c440a67ca",
+                      "type": "LVGLPanelWidget",
+                      "left": 0,
+                      "top": 210,
+                      "width": 510,
+                      "height": 38,
                       "customInputs": [],
                       "customOutputs": [],
                       "style": {
-                        "objID": "b4423542-4c48-4a55-a411-5c14cdaa2e58",
+                        "objID": "29124441-8541-4f82-bf80-80af78f4733c",
                         "useStyle": "default",
                         "conditionalStyles": [],
                         "childStyles": []
                       },
-                      "hiddenInEditor": false,
+                      "hiddenInEditor": true,
                       "timeline": [],
                       "eventHandlers": [],
-                      "identifier": "boil_hop_4_time",
-                      "leftUnit": "px",
-                      "topUnit": "px",
-                      "widthUnit": "px",
-                      "heightUnit": "content",
-                      "children": [],
-                      "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
-                      "hiddenFlagType": "literal",
-                      "clickableFlag": false,
-                      "clickableFlagType": "literal",
-                      "checkedStateType": "literal",
-                      "disabledStateType": "literal",
-                      "states": "",
-                      "localStyles": {
-                        "objID": "5c2daa97-a717-4c81-bd5d-4ec401bbea48",
-                        "definition": {
-                          "MAIN": {
-                            "DEFAULT": {
-                              "text_color": "#e8eaed",
-                              "text_font": "MONTSERRAT_16",
-                              "text_align": "RIGHT"
-                            }
-                          }
-                        }
-                      },
-                      "groupIndex": 0,
-                      "text": "-",
-                      "textType": "literal",
-                      "longMode": "WRAP",
-                      "recolor": false,
-                      "useStaticText": false
-                    },
-                    {
-                      "objID": "3ebee81c-0d1b-45ab-8399-56e2d3fa7c75",
-                      "type": "LVGLBarWidget",
-                      "left": 14,
-                      "top": 32,
-                      "width": 482,
-                      "height": 3,
-                      "customInputs": [],
-                      "customOutputs": [],
-                      "style": {
-                        "objID": "da34031b-f1b5-4555-bdba-19e7093db887",
-                        "useStyle": "default",
-                        "conditionalStyles": [],
-                        "childStyles": []
-                      },
-                      "hiddenInEditor": false,
-                      "timeline": [],
-                      "eventHandlers": [],
-                      "identifier": "boil_hop_4_bar",
+                      "identifier": "boil_hop_6",
                       "leftUnit": "px",
                       "topUnit": "px",
                       "widthUnit": "px",
                       "heightUnit": "px",
-                      "children": [],
+                      "children": [
+                        {
+                          "objID": "3946e98c-1eca-41bf-a3d4-62bc93210807",
+                          "type": "LVGLLabelWidget",
+                          "left": 14,
+                          "top": 10,
+                          "width": 47,
+                          "height": 18,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "6add0af7-4dc2-490b-bfdc-b2e1cf77287b",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_6_name",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "content",
+                          "heightUnit": "content",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "84da57e8-3530-44ba-9190-7b945bbcd3b5",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "text_color": "#e8eaed",
+                                  "text_font": "MONTSERRAT_16"
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "text": "Hop 6",
+                          "textType": "literal",
+                          "longMode": "WRAP",
+                          "recolor": false,
+                          "useStaticText": false
+                        },
+                        {
+                          "objID": "b5d102da-8b4d-447d-9ae3-9d9b0ff222ed",
+                          "type": "LVGLLabelWidget",
+                          "left": 330,
+                          "top": 10,
+                          "width": 166,
+                          "height": 18,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "8b16302f-6f17-4bb8-9e66-cc79d50a6edd",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_6_time",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "content",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "adf0a11c-5293-4e58-8ee9-78bcebda560c",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "text_color": "#e8eaed",
+                                  "text_font": "MONTSERRAT_16",
+                                  "text_align": "RIGHT"
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "text": "-",
+                          "textType": "literal",
+                          "longMode": "WRAP",
+                          "recolor": false,
+                          "useStaticText": false
+                        },
+                        {
+                          "objID": "56f713fc-9530-436b-83b0-964b429f2f6d",
+                          "type": "LVGLBarWidget",
+                          "left": 14,
+                          "top": 32,
+                          "width": 482,
+                          "height": 3,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "78cf39c3-bd0a-4618-8083-e88c5e777c91",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_6_bar",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "px",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlag": true,
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "902bd208-d0f5-4ecc-ab9d-d820aa242b1b",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "bg_color": "#2c333b",
+                                  "bg_opa": 51,
+                                  "radius": 2
+                                }
+                              },
+                              "INDICATOR": {
+                                "DEFAULT": {
+                                  "bg_color": "#f0a030",
+                                  "bg_opa": 255,
+                                  "radius": 2
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "min": 0,
+                          "minType": "literal",
+                          "max": 100,
+                          "maxType": "literal",
+                          "mode": "NORMAL",
+                          "value": 0,
+                          "valueType": "literal",
+                          "previewValue": "0",
+                          "valueStart": 0,
+                          "valueStartType": "literal",
+                          "previewValueStart": "0",
+                          "enableAnimation": false
+                        }
+                      ],
                       "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
                       "hiddenFlag": true,
                       "hiddenFlagType": "literal",
@@ -18478,214 +19233,214 @@
                       "disabledStateType": "literal",
                       "states": "",
                       "localStyles": {
-                        "objID": "0510bf5c-5392-4bcb-b468-3b7e5cad92a6",
+                        "objID": "f6bfaa93-6d9c-40b7-9f7f-b299ffe46021",
                         "definition": {
                           "MAIN": {
                             "DEFAULT": {
-                              "bg_color": "#2c333b",
-                              "bg_opa": 51,
-                              "radius": 2
-                            }
-                          },
-                          "INDICATOR": {
-                            "DEFAULT": {
-                              "bg_color": "#f0a030",
+                              "bg_color": "#1f242a",
                               "bg_opa": 255,
-                              "radius": 2
+                              "radius": 8,
+                              "border_width": 0,
+                              "pad_top": 0,
+                              "pad_bottom": 0,
+                              "pad_left": 0,
+                              "pad_right": 0,
+                              "shadow_width": 0
                             }
                           }
                         }
                       },
-                      "groupIndex": 0,
-                      "min": 0,
-                      "minType": "literal",
-                      "max": 100,
-                      "maxType": "literal",
-                      "mode": "NORMAL",
-                      "value": 0,
-                      "valueType": "literal",
-                      "previewValue": "0",
-                      "valueStart": 0,
-                      "valueStartType": "literal",
-                      "previewValueStart": "0",
-                      "enableAnimation": false
-                    }
-                  ],
-                  "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
-                  "hiddenFlag": true,
-                  "hiddenFlagType": "literal",
-                  "clickableFlag": false,
-                  "clickableFlagType": "literal",
-                  "checkedStateType": "literal",
-                  "disabledStateType": "literal",
-                  "states": "",
-                  "localStyles": {
-                    "objID": "122a03e7-cd4c-4b80-bcf7-48d68674f661",
-                    "definition": {
-                      "MAIN": {
-                        "DEFAULT": {
-                          "bg_color": "#1f242a",
-                          "bg_opa": 255,
-                          "radius": 8,
-                          "border_width": 0,
-                          "pad_top": 0,
-                          "pad_bottom": 0,
-                          "pad_left": 0,
-                          "pad_right": 0,
-                          "shadow_width": 0
-                        }
-                      }
-                    }
-                  },
-                  "groupIndex": 0
-                },
-                {
-                  "objID": "d100e129-540b-4dc6-9595-533b1b3c9a29",
-                  "type": "LVGLPanelWidget",
-                  "left": 12,
-                  "top": 354,
-                  "width": 510,
-                  "height": 38,
-                  "customInputs": [],
-                  "customOutputs": [],
-                  "style": {
-                    "objID": "04916e58-2713-420b-a6d1-4f34fa7a935e",
-                    "useStyle": "default",
-                    "conditionalStyles": [],
-                    "childStyles": []
-                  },
-                  "hiddenInEditor": true,
-                  "timeline": [],
-                  "eventHandlers": [],
-                  "identifier": "boil_hop_5",
-                  "leftUnit": "px",
-                  "topUnit": "px",
-                  "widthUnit": "px",
-                  "heightUnit": "px",
-                  "children": [
-                    {
-                      "objID": "4fa750f7-f400-424c-be5b-cdbffc371d19",
-                      "type": "LVGLLabelWidget",
-                      "left": 14,
-                      "top": 10,
-                      "width": 47,
-                      "height": 18,
-                      "customInputs": [],
-                      "customOutputs": [],
-                      "style": {
-                        "objID": "627b2bab-c26e-4475-9c20-d6a393d86f8f",
-                        "useStyle": "default",
-                        "conditionalStyles": [],
-                        "childStyles": []
-                      },
-                      "hiddenInEditor": false,
-                      "timeline": [],
-                      "eventHandlers": [],
-                      "identifier": "boil_hop_5_name",
-                      "leftUnit": "px",
-                      "topUnit": "px",
-                      "widthUnit": "content",
-                      "heightUnit": "content",
-                      "children": [],
-                      "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
-                      "hiddenFlagType": "literal",
-                      "clickableFlag": false,
-                      "clickableFlagType": "literal",
-                      "checkedStateType": "literal",
-                      "disabledStateType": "literal",
-                      "states": "",
-                      "localStyles": {
-                        "objID": "2181beee-ee62-484d-8189-7210c9964cac",
-                        "definition": {
-                          "MAIN": {
-                            "DEFAULT": {
-                              "text_color": "#e8eaed",
-                              "text_font": "MONTSERRAT_16"
-                            }
-                          }
-                        }
-                      },
-                      "groupIndex": 0,
-                      "text": "Hop 5",
-                      "textType": "literal",
-                      "longMode": "WRAP",
-                      "recolor": false,
-                      "useStaticText": false
+                      "groupIndex": 0
                     },
                     {
-                      "objID": "ea679c34-f74a-48d3-a301-245052351a39",
-                      "type": "LVGLLabelWidget",
-                      "left": 330,
-                      "top": 10,
-                      "width": 166,
-                      "height": 18,
+                      "objID": "5cbf5665-e9fc-4217-b5be-bd2cbf8b5c5a",
+                      "type": "LVGLPanelWidget",
+                      "left": 0,
+                      "top": 252,
+                      "width": 510,
+                      "height": 38,
                       "customInputs": [],
                       "customOutputs": [],
                       "style": {
-                        "objID": "3075a566-e1db-4590-9a1f-2e9d60e0d4b1",
+                        "objID": "33cc4d5e-75d3-4e47-9e24-0f435a5a74d8",
                         "useStyle": "default",
                         "conditionalStyles": [],
                         "childStyles": []
                       },
-                      "hiddenInEditor": false,
+                      "hiddenInEditor": true,
                       "timeline": [],
                       "eventHandlers": [],
-                      "identifier": "boil_hop_5_time",
-                      "leftUnit": "px",
-                      "topUnit": "px",
-                      "widthUnit": "px",
-                      "heightUnit": "content",
-                      "children": [],
-                      "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
-                      "hiddenFlagType": "literal",
-                      "clickableFlag": false,
-                      "clickableFlagType": "literal",
-                      "checkedStateType": "literal",
-                      "disabledStateType": "literal",
-                      "states": "",
-                      "localStyles": {
-                        "objID": "08b10b01-70ba-46b0-b3a4-9669278bcd14",
-                        "definition": {
-                          "MAIN": {
-                            "DEFAULT": {
-                              "text_color": "#e8eaed",
-                              "text_font": "MONTSERRAT_16",
-                              "text_align": "RIGHT"
-                            }
-                          }
-                        }
-                      },
-                      "groupIndex": 0,
-                      "text": "-",
-                      "textType": "literal",
-                      "longMode": "WRAP",
-                      "recolor": false,
-                      "useStaticText": false
-                    },
-                    {
-                      "objID": "db47bc82-dc4f-4976-93bd-b2468214f461",
-                      "type": "LVGLBarWidget",
-                      "left": 14,
-                      "top": 32,
-                      "width": 482,
-                      "height": 3,
-                      "customInputs": [],
-                      "customOutputs": [],
-                      "style": {
-                        "objID": "ed9a4d54-92d4-464c-acac-1229ed4508fc",
-                        "useStyle": "default",
-                        "conditionalStyles": [],
-                        "childStyles": []
-                      },
-                      "hiddenInEditor": false,
-                      "timeline": [],
-                      "eventHandlers": [],
-                      "identifier": "boil_hop_5_bar",
+                      "identifier": "boil_hop_7",
                       "leftUnit": "px",
                       "topUnit": "px",
                       "widthUnit": "px",
                       "heightUnit": "px",
-                      "children": [],
+                      "children": [
+                        {
+                          "objID": "73df6d54-d976-47ff-a4b6-accaefd8e5d3",
+                          "type": "LVGLLabelWidget",
+                          "left": 14,
+                          "top": 10,
+                          "width": 47,
+                          "height": 18,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "03b6291b-4864-4863-9809-bdd9396fb5cf",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_7_name",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "content",
+                          "heightUnit": "content",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "a1dca15a-e98f-435e-8893-d4d09a747cdb",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "text_color": "#e8eaed",
+                                  "text_font": "MONTSERRAT_16"
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "text": "Hop 7",
+                          "textType": "literal",
+                          "longMode": "WRAP",
+                          "recolor": false,
+                          "useStaticText": false
+                        },
+                        {
+                          "objID": "9b1a1076-9a4f-451b-889a-72c9cc0f312d",
+                          "type": "LVGLLabelWidget",
+                          "left": 330,
+                          "top": 10,
+                          "width": 166,
+                          "height": 18,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "0518d330-275c-45bd-85a7-5ace26c7586c",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_7_time",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "content",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "81dd8e9d-586d-4131-8660-03e3fffc51c3",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "text_color": "#e8eaed",
+                                  "text_font": "MONTSERRAT_16",
+                                  "text_align": "RIGHT"
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "text": "-",
+                          "textType": "literal",
+                          "longMode": "WRAP",
+                          "recolor": false,
+                          "useStaticText": false
+                        },
+                        {
+                          "objID": "07be7f90-8b2d-42c1-a7ab-36534dff5e18",
+                          "type": "LVGLBarWidget",
+                          "left": 14,
+                          "top": 32,
+                          "width": 482,
+                          "height": 3,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "c73d1fa5-b736-4498-95b2-9012839d4cc6",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_7_bar",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "px",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlag": true,
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "1d9c2263-2d65-4b86-96b3-f2604eae93ab",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "bg_color": "#2c333b",
+                                  "bg_opa": 51,
+                                  "radius": 2
+                                }
+                              },
+                              "INDICATOR": {
+                                "DEFAULT": {
+                                  "bg_color": "#f0a030",
+                                  "bg_opa": 255,
+                                  "radius": 2
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "min": 0,
+                          "minType": "literal",
+                          "max": 100,
+                          "maxType": "literal",
+                          "mode": "NORMAL",
+                          "value": 0,
+                          "valueType": "literal",
+                          "previewValue": "0",
+                          "valueStart": 0,
+                          "valueStartType": "literal",
+                          "previewValueStart": "0",
+                          "enableAnimation": false
+                        }
+                      ],
                       "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
                       "hiddenFlag": true,
                       "hiddenFlagType": "literal",
@@ -18695,55 +19450,691 @@
                       "disabledStateType": "literal",
                       "states": "",
                       "localStyles": {
-                        "objID": "6d3ac114-c0f1-4772-8c6e-11e80fcbbe87",
+                        "objID": "bcc9cc53-996f-4d25-b030-ba0485135920",
                         "definition": {
                           "MAIN": {
                             "DEFAULT": {
-                              "bg_color": "#2c333b",
-                              "bg_opa": 51,
-                              "radius": 2
-                            }
-                          },
-                          "INDICATOR": {
-                            "DEFAULT": {
-                              "bg_color": "#f0a030",
+                              "bg_color": "#1f242a",
                               "bg_opa": 255,
-                              "radius": 2
+                              "radius": 8,
+                              "border_width": 0,
+                              "pad_top": 0,
+                              "pad_bottom": 0,
+                              "pad_left": 0,
+                              "pad_right": 0,
+                              "shadow_width": 0
                             }
                           }
                         }
                       },
-                      "groupIndex": 0,
-                      "min": 0,
-                      "minType": "literal",
-                      "max": 100,
-                      "maxType": "literal",
-                      "mode": "NORMAL",
-                      "value": 0,
-                      "valueType": "literal",
-                      "previewValue": "0",
-                      "valueStart": 0,
-                      "valueStartType": "literal",
-                      "previewValueStart": "0",
-                      "enableAnimation": false
+                      "groupIndex": 0
+                    },
+                    {
+                      "objID": "08be640e-48a0-4414-9d9f-9de39d82e3e4",
+                      "type": "LVGLPanelWidget",
+                      "left": 0,
+                      "top": 294,
+                      "width": 510,
+                      "height": 38,
+                      "customInputs": [],
+                      "customOutputs": [],
+                      "style": {
+                        "objID": "a6b23916-bd69-44e3-a3c9-79fed415d810",
+                        "useStyle": "default",
+                        "conditionalStyles": [],
+                        "childStyles": []
+                      },
+                      "hiddenInEditor": true,
+                      "timeline": [],
+                      "eventHandlers": [],
+                      "identifier": "boil_hop_8",
+                      "leftUnit": "px",
+                      "topUnit": "px",
+                      "widthUnit": "px",
+                      "heightUnit": "px",
+                      "children": [
+                        {
+                          "objID": "21fa4945-930e-4b7f-9fb6-e31d73552247",
+                          "type": "LVGLLabelWidget",
+                          "left": 14,
+                          "top": 10,
+                          "width": 47,
+                          "height": 18,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "e923526f-89fd-4133-aa7b-4e5fcf41504b",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_8_name",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "content",
+                          "heightUnit": "content",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "6204a7a0-a947-49a2-9f36-59066a0d6453",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "text_color": "#e8eaed",
+                                  "text_font": "MONTSERRAT_16"
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "text": "Hop 8",
+                          "textType": "literal",
+                          "longMode": "WRAP",
+                          "recolor": false,
+                          "useStaticText": false
+                        },
+                        {
+                          "objID": "ca48ebf8-e49a-4fed-a752-f379f1aa8256",
+                          "type": "LVGLLabelWidget",
+                          "left": 330,
+                          "top": 10,
+                          "width": 166,
+                          "height": 18,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "102612c9-a467-4065-80d5-56695e724799",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_8_time",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "content",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "ddc7d4e8-3c67-48de-a51a-6cd835f9db48",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "text_color": "#e8eaed",
+                                  "text_font": "MONTSERRAT_16",
+                                  "text_align": "RIGHT"
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "text": "-",
+                          "textType": "literal",
+                          "longMode": "WRAP",
+                          "recolor": false,
+                          "useStaticText": false
+                        },
+                        {
+                          "objID": "bd6f0410-45bf-4789-b476-650d22b8b599",
+                          "type": "LVGLBarWidget",
+                          "left": 14,
+                          "top": 32,
+                          "width": 482,
+                          "height": 3,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "d199d5bf-ed4f-472a-9c29-771c8b6cd5ee",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_8_bar",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "px",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlag": true,
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "2e19a2b1-b560-4576-a0a7-1737108b14b4",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "bg_color": "#2c333b",
+                                  "bg_opa": 51,
+                                  "radius": 2
+                                }
+                              },
+                              "INDICATOR": {
+                                "DEFAULT": {
+                                  "bg_color": "#f0a030",
+                                  "bg_opa": 255,
+                                  "radius": 2
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "min": 0,
+                          "minType": "literal",
+                          "max": 100,
+                          "maxType": "literal",
+                          "mode": "NORMAL",
+                          "value": 0,
+                          "valueType": "literal",
+                          "previewValue": "0",
+                          "valueStart": 0,
+                          "valueStartType": "literal",
+                          "previewValueStart": "0",
+                          "enableAnimation": false
+                        }
+                      ],
+                      "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                      "hiddenFlag": true,
+                      "hiddenFlagType": "literal",
+                      "clickableFlag": false,
+                      "clickableFlagType": "literal",
+                      "checkedStateType": "literal",
+                      "disabledStateType": "literal",
+                      "states": "",
+                      "localStyles": {
+                        "objID": "b366ae10-e91b-4968-9b26-1c5896b9f872",
+                        "definition": {
+                          "MAIN": {
+                            "DEFAULT": {
+                              "bg_color": "#1f242a",
+                              "bg_opa": 255,
+                              "radius": 8,
+                              "border_width": 0,
+                              "pad_top": 0,
+                              "pad_bottom": 0,
+                              "pad_left": 0,
+                              "pad_right": 0,
+                              "shadow_width": 0
+                            }
+                          }
+                        }
+                      },
+                      "groupIndex": 0
+                    },
+                    {
+                      "objID": "9792d5c5-5948-4e17-8fd4-ef88b042862a",
+                      "type": "LVGLPanelWidget",
+                      "left": 0,
+                      "top": 336,
+                      "width": 510,
+                      "height": 38,
+                      "customInputs": [],
+                      "customOutputs": [],
+                      "style": {
+                        "objID": "28dc34bc-37bb-4d32-b0da-268dc842d309",
+                        "useStyle": "default",
+                        "conditionalStyles": [],
+                        "childStyles": []
+                      },
+                      "hiddenInEditor": true,
+                      "timeline": [],
+                      "eventHandlers": [],
+                      "identifier": "boil_hop_9",
+                      "leftUnit": "px",
+                      "topUnit": "px",
+                      "widthUnit": "px",
+                      "heightUnit": "px",
+                      "children": [
+                        {
+                          "objID": "a5f288d1-84ce-4cd3-b153-b6d512584e9b",
+                          "type": "LVGLLabelWidget",
+                          "left": 14,
+                          "top": 10,
+                          "width": 47,
+                          "height": 18,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "46306ab2-1948-482e-8b7a-c58522701375",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_9_name",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "content",
+                          "heightUnit": "content",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "4277f72a-5c2c-4ad1-8a7a-a97fea8f8d0f",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "text_color": "#e8eaed",
+                                  "text_font": "MONTSERRAT_16"
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "text": "Hop 9",
+                          "textType": "literal",
+                          "longMode": "WRAP",
+                          "recolor": false,
+                          "useStaticText": false
+                        },
+                        {
+                          "objID": "bd767f82-5831-46f6-88b8-fa093320768b",
+                          "type": "LVGLLabelWidget",
+                          "left": 330,
+                          "top": 10,
+                          "width": 166,
+                          "height": 18,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "0fedcade-fba5-4356-87ca-c52dff77a5d0",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_9_time",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "content",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "cbeea2c7-2b5f-4e35-bcf2-332b31f5515d",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "text_color": "#e8eaed",
+                                  "text_font": "MONTSERRAT_16",
+                                  "text_align": "RIGHT"
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "text": "-",
+                          "textType": "literal",
+                          "longMode": "WRAP",
+                          "recolor": false,
+                          "useStaticText": false
+                        },
+                        {
+                          "objID": "e0d41eba-611c-4d59-acaa-bc8c9a5c45de",
+                          "type": "LVGLBarWidget",
+                          "left": 14,
+                          "top": 32,
+                          "width": 482,
+                          "height": 3,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "5962300d-65d7-4146-a0c1-8ba4da8dde71",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_9_bar",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "px",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlag": true,
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "db1c09da-107f-4607-82fd-873672b3db0d",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "bg_color": "#2c333b",
+                                  "bg_opa": 51,
+                                  "radius": 2
+                                }
+                              },
+                              "INDICATOR": {
+                                "DEFAULT": {
+                                  "bg_color": "#f0a030",
+                                  "bg_opa": 255,
+                                  "radius": 2
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "min": 0,
+                          "minType": "literal",
+                          "max": 100,
+                          "maxType": "literal",
+                          "mode": "NORMAL",
+                          "value": 0,
+                          "valueType": "literal",
+                          "previewValue": "0",
+                          "valueStart": 0,
+                          "valueStartType": "literal",
+                          "previewValueStart": "0",
+                          "enableAnimation": false
+                        }
+                      ],
+                      "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                      "hiddenFlag": true,
+                      "hiddenFlagType": "literal",
+                      "clickableFlag": false,
+                      "clickableFlagType": "literal",
+                      "checkedStateType": "literal",
+                      "disabledStateType": "literal",
+                      "states": "",
+                      "localStyles": {
+                        "objID": "3c7d1206-a4f7-45ce-8bc6-a31bb0e4d9d6",
+                        "definition": {
+                          "MAIN": {
+                            "DEFAULT": {
+                              "bg_color": "#1f242a",
+                              "bg_opa": 255,
+                              "radius": 8,
+                              "border_width": 0,
+                              "pad_top": 0,
+                              "pad_bottom": 0,
+                              "pad_left": 0,
+                              "pad_right": 0,
+                              "shadow_width": 0
+                            }
+                          }
+                        }
+                      },
+                      "groupIndex": 0
+                    },
+                    {
+                      "objID": "42d8ec8b-fc31-4fa9-b906-8e9db8634883",
+                      "type": "LVGLPanelWidget",
+                      "left": 0,
+                      "top": 378,
+                      "width": 510,
+                      "height": 38,
+                      "customInputs": [],
+                      "customOutputs": [],
+                      "style": {
+                        "objID": "9760b6fb-c383-486f-8d2a-c33e25665447",
+                        "useStyle": "default",
+                        "conditionalStyles": [],
+                        "childStyles": []
+                      },
+                      "hiddenInEditor": true,
+                      "timeline": [],
+                      "eventHandlers": [],
+                      "identifier": "boil_hop_10",
+                      "leftUnit": "px",
+                      "topUnit": "px",
+                      "widthUnit": "px",
+                      "heightUnit": "px",
+                      "children": [
+                        {
+                          "objID": "50bcede7-8c30-4037-a543-8810bf8193b6",
+                          "type": "LVGLLabelWidget",
+                          "left": 14,
+                          "top": 10,
+                          "width": 47,
+                          "height": 18,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "dea6ff70-248e-4e9e-861d-388441e9d5aa",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_10_name",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "content",
+                          "heightUnit": "content",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "eb2e30fd-ff36-4435-bea4-11e1960c6ba3",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "text_color": "#e8eaed",
+                                  "text_font": "MONTSERRAT_16"
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "text": "Hop 10",
+                          "textType": "literal",
+                          "longMode": "WRAP",
+                          "recolor": false,
+                          "useStaticText": false
+                        },
+                        {
+                          "objID": "1dd13cbe-c2d8-4f30-9871-d5c8789b0421",
+                          "type": "LVGLLabelWidget",
+                          "left": 330,
+                          "top": 10,
+                          "width": 166,
+                          "height": 18,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "a1dc22a9-3285-4ae6-81d1-47581088ea2a",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_10_time",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "content",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "edf2e86c-a5e9-4c87-b98a-46450c75325e",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "text_color": "#e8eaed",
+                                  "text_font": "MONTSERRAT_16",
+                                  "text_align": "RIGHT"
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "text": "-",
+                          "textType": "literal",
+                          "longMode": "WRAP",
+                          "recolor": false,
+                          "useStaticText": false
+                        },
+                        {
+                          "objID": "32b72d71-9451-4aec-9dcd-e65a128ea233",
+                          "type": "LVGLBarWidget",
+                          "left": 14,
+                          "top": 32,
+                          "width": 482,
+                          "height": 3,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "f757ef2a-ec9f-4274-89bc-b014d0c6ae7b",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "boil_hop_10_bar",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "px",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlag": true,
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "b6d74b95-ec11-4189-a1fb-7df7706c2a09",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "bg_color": "#2c333b",
+                                  "bg_opa": 51,
+                                  "radius": 2
+                                }
+                              },
+                              "INDICATOR": {
+                                "DEFAULT": {
+                                  "bg_color": "#f0a030",
+                                  "bg_opa": 255,
+                                  "radius": 2
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "min": 0,
+                          "minType": "literal",
+                          "max": 100,
+                          "maxType": "literal",
+                          "mode": "NORMAL",
+                          "value": 0,
+                          "valueType": "literal",
+                          "previewValue": "0",
+                          "valueStart": 0,
+                          "valueStartType": "literal",
+                          "previewValueStart": "0",
+                          "enableAnimation": false
+                        }
+                      ],
+                      "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                      "hiddenFlag": true,
+                      "hiddenFlagType": "literal",
+                      "clickableFlag": false,
+                      "clickableFlagType": "literal",
+                      "checkedStateType": "literal",
+                      "disabledStateType": "literal",
+                      "states": "",
+                      "localStyles": {
+                        "objID": "e766add9-2b61-4a91-bb66-ada00e26f872",
+                        "definition": {
+                          "MAIN": {
+                            "DEFAULT": {
+                              "bg_color": "#1f242a",
+                              "bg_opa": 255,
+                              "radius": 8,
+                              "border_width": 0,
+                              "pad_top": 0,
+                              "pad_bottom": 0,
+                              "pad_left": 0,
+                              "pad_right": 0,
+                              "shadow_width": 0
+                            }
+                          }
+                        }
+                      },
+                      "groupIndex": 0
                     }
                   ],
-                  "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
-                  "hiddenFlag": true,
+                  "widgetFlags": "CLICKABLE|CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_ELASTIC|SCROLL_MOMENTUM|SNAPPABLE",
                   "hiddenFlagType": "literal",
-                  "clickableFlag": false,
+                  "clickableFlag": true,
                   "clickableFlagType": "literal",
                   "checkedStateType": "literal",
                   "disabledStateType": "literal",
                   "states": "",
                   "localStyles": {
-                    "objID": "d75809d1-7946-4ba5-add5-e15079a3e1d9",
+                    "objID": "888aab72-ca76-46d5-ab20-273f26cbe27d",
                     "definition": {
                       "MAIN": {
                         "DEFAULT": {
-                          "bg_color": "#1f242a",
-                          "bg_opa": 255,
-                          "radius": 8,
+                          "bg_opa": 0,
+                          "radius": 0,
                           "border_width": 0,
                           "pad_top": 0,
                           "pad_bottom": 0,
