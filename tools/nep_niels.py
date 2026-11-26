@@ -27,6 +27,7 @@ Typen:
     stil / praat            ketel/temp stoppen / weer sturen (contact kwijt)
     stuur aan / stuur uit   brouw/stuur en brouw/status ook tonen
     recept                  voorbeeldrecept sturen (eerst Automatisch drukken)
+    recept lang             recept met 8 kookgiften (scrollen in de kooklijst testen)
     ok / fout               net/status verbonden / fout
     wifi aan / wifi uit     wifi in net/toestand
     mqtt aan / mqtt uit     MQTT in net/toestand
@@ -53,6 +54,21 @@ VOORBEELD_RECEPT = {
     "hops": [{"naam": "Magnum - 20 g", "min": 60}, {"naam": "Saaz - 30 g", "min": 10},
              {"naam": "Koriander - 10 g", "min": 5, "extra": True}],
     "mout": ["4,2 kg Pale Ale", "0,5 kg Cara"],
+}
+
+LANG_RECEPT = {
+    "naam": "Test Hoppy IPA - 20 L",
+    "kooktijd": 60,
+    "stappen": [{"temp": 52, "min": 10}, {"temp": 65, "min": 45}, {"temp": 78, "min": 5}],
+    "hops": [{"naam": "Magnum - 20 g", "min": 60},
+             {"naam": "Dextrose - 250 g", "min": 60, "extra": True},
+             {"naam": "Columbus - 15 g", "min": 45},
+             {"naam": "Cascade - 20 g", "min": 30},
+             {"naam": "Ierse mos - 5 g", "min": 15, "extra": True},
+             {"naam": "Centennial - 25 g", "min": 10},
+             {"naam": "Koriander - 10 g", "min": 5, "extra": True},
+             {"naam": "Citra - 40 g", "min": 0}],
+    "mout": ["5,0 kg Pale Ale", "0,4 kg Cara", "0,3 kg Tarwemout"],
 }
 
 toestand = {"temp": 20.0, "ok": True, "praat": True, "stuur_tonen": False, "doel": 0, "zoemer": "uit",
@@ -152,6 +168,8 @@ def main():
             toestand["praat"] = invoer == "praat"
         elif invoer in ("stuur aan", "stuur uit"):
             toestand["stuur_tonen"] = invoer == "stuur aan"
+        elif invoer == "recept lang":
+            stuur(poort, "recept " + json.dumps(LANG_RECEPT))
         elif invoer == "recept":
             stuur(poort, "recept " + json.dumps(VOORBEELD_RECEPT))
         elif invoer in ("ok", "fout"):
