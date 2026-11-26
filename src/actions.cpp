@@ -486,6 +486,11 @@ void action_kook_start(lv_event_t *e) {
     ui_ga_naar(SCREEN_ID_KOKEN);
 }
 
+/* Pop-up op het maischscherm: "Mout toegevoegd", daarna "Start maischen" */
+void action_mout_bevestigen(lv_event_t *e) {
+    brouwer_mout_bevestigen();
+}
+
 void action_hop_toegevoegd(lv_event_t *e) {
     brouw.hop_alarm_actief = false;
     verslag_hop(brouw.hop_volgende);

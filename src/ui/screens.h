@@ -182,6 +182,13 @@ typedef struct _objects_t {
     lv_obj_t *mash_ph_label;
     lv_obj_t *obj32;
     lv_obj_t *mash_next;
+    lv_obj_t *mash_mout_popup;
+    lv_obj_t *mash_mout_card;
+    lv_obj_t *mash_mout_title;
+    lv_obj_t *mash_mout_text;
+    lv_obj_t *mash_mout_sub;
+    lv_obj_t *mash_mout_btn;
+    lv_obj_t *mash_mout_btn_label;
     lv_obj_t *mpause_sidebar;
     lv_obj_t *mpause_mode;
     lv_obj_t *mpause_conn_dot;

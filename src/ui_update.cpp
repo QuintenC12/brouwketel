@@ -265,14 +265,17 @@ void ui_toon_maischen() {
     MaischStap &s = brouw.stappen[a];
 
     // Fase en timer
+    bool wacht_mout = brouw.mout == MOUT_TOEVOEGEN || brouw.mout == MOUT_SLUITEN;
     if (brouw.gepauzeerd)    lv_label_set_text(objects.mash_phase, "Gepauzeerd");
+    else if (wacht_mout)     lv_label_set_text(objects.mash_phase, "Wacht op de mout");
     else if (brouw.op_temp)  lv_label_set_text_fmt(objects.mash_phase, "Stabiel op %d °C", s.temp);
     else                     lv_label_set_text_fmt(objects.mash_phase, "Opwarmen naar %d °C", s.temp);
 
     char t[16];
     tijd_tekst(t, sizeof t, brouw.resterend_s);
     lv_label_set_text(objects.mash_timer, t);
-    if (brouw.op_temp) lv_label_set_text(objects.mash_timer_info_1, "resterend");
+    if (brouw.op_temp)  lv_label_set_text(objects.mash_timer_info_1, "resterend");
+    else if (wacht_mout) lv_label_set_text(objects.mash_timer_info_1, "wacht op mout");
     else               lv_label_set_text_fmt(objects.mash_timer_info_1, "start bij %d °C", s.temp);
 
     // Rijen: klaar = grijs + doorstreept, bezig = oranje balk, nog te doen = wit
@@ -460,6 +463,30 @@ void ui_toon_hop_alarm(bool zichtbaar) {
         lv_obj_move_foreground(objects.boil_hop_alarm);   // boven de scheidingslijn
     }
     toon(objects.boil_hop_alarm, zichtbaar);
+}
+
+/* Pop-up op het maischscherm bij het begin van stap 1 (zie MoutStap in brouwer.h) */
+void ui_toon_mout() {
+    bool zichtbaar = brouw.fase == FASE_MAISCHEN &&
+                     (brouw.mout == MOUT_TOEVOEGEN || brouw.mout == MOUT_SLUITEN);
+    if (zichtbaar && brouw.aantal_stappen > 0) {
+        int temp = brouw.stappen[0].temp;
+        if (brouw.mout == MOUT_TOEVOEGEN) {
+            lv_label_set_text(objects.mash_mout_title, "Mout toevoegen");
+            lv_label_set_text_fmt(objects.mash_mout_text, "Ketel staat op %d °C (stap 1)", temp);
+            lv_label_set_text(objects.mash_mout_sub, "Voeg de mout toe volgens het recept en roer goed. "
+                                                     "De timer van stap 1 loopt nog niet.");
+            lv_label_set_text(objects.mash_mout_btn_label, "Mout toegevoegd");
+        } else {
+            lv_label_set_text(objects.mash_mout_title, "Ketel sluiten");
+            lv_label_set_text(objects.mash_mout_text, "Sluit de ketel en sluit de pomp aan");
+            lv_label_set_text_fmt(objects.mash_mout_sub, "Breng de retour van de pomp aan. Met Start maischen "
+                                  "gaat de pomp aan en loopt de timer van stap 1 (%d min).", brouw.stappen[0].minuten);
+            lv_label_set_text(objects.mash_mout_btn_label, "Start maischen");
+        }
+        lv_obj_move_foreground(objects.mash_mout_popup);
+    }
+    toon(objects.mash_mout_popup, zichtbaar);
 }
 
 /* ======================================================================

@@ -498,6 +498,9 @@ static void stuur_event(const cJSON *doc, const char *naam)
     else if (!strcmp(naam, "pauze"))            snprintf(tekst, sizeof tekst, "Gepauzeerd");
     else if (!strcmp(naam, "hervat"))           snprintf(tekst, sizeof tekst, "Hervat");
     else if (!strcmp(naam, "stop"))             snprintf(tekst, sizeof tekst, "Brouwen gestopt");
+    else if (!strcmp(naam, "mout_toevoegen"))   snprintf(tekst, sizeof tekst, "Op temperatuur: mout toevoegen");
+    else if (!strcmp(naam, "mout_toegevoegd"))  snprintf(tekst, sizeof tekst, "Mout toegevoegd");
+    else if (!strcmp(naam, "start_maischen"))   snprintf(tekst, sizeof tekst, "Maischen gestart, timer stap 1 loopt");
     else if (!strcmp(naam, "volgende_stap"))    snprintf(tekst, sizeof tekst, "Maischstap %d gestart", st);
     else if (!strcmp(naam, "maischen_klaar"))   snprintf(tekst, sizeof tekst, "Maischen klaar, spoelen");
     else if (!strcmp(naam, "start_koken"))      snprintf(tekst, sizeof tekst, "Koken gestart");

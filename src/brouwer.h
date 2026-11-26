@@ -46,6 +46,11 @@ struct Recept {
 
 enum Fase { FASE_GEEN, FASE_MAISCHEN, FASE_SPOELEN, FASE_KOKEN };
 
+/* Begin van het maischen (opgave, wizard stap 4): eerst opwarmen tot stap 1,
+ * dan mout toevoegen, dan ketel sluiten en pomp aansluiten. Pas na
+ * "Start maischen" loopt de timer van stap 1 en draait de pomp. */
+enum MoutStap { MOUT_OPWARMEN, MOUT_TOEVOEGEN, MOUT_SLUITEN, MOUT_KLAAR };
+
 struct BrouwStatus {
     // Recept
     char recept[48];                    // "Demo Tripel - 20 L"
@@ -61,6 +66,7 @@ struct BrouwStatus {
     bool automatisch;      // true = schema van server, false = manueel (zelf ingesteld)
     bool gepauzeerd;       // timer staat stil
     bool op_temp;          // doeltemperatuur bereikt: de timer loopt
+    MoutStap mout;         // begin van het maischen: wachten op mout en "Start maischen"
     bool pomp_aan;
     int  actieve_stap;     // index in stappen[] 0 = stap 1
     uint32_t resterend_s;  // resterende tijd van de actieve stap / het koken
@@ -90,6 +96,7 @@ void brouwer_init();
 void  brouwer_seconde(float temp, int vermogen_pct);
 float brouwer_doel_temp();          // doeltemperatuur voor de verwarmingsregeling (0 = uit)
 void  brouwer_start_fase(Fase f);   // door de acties gebruikt, nieuwe fase beginnen
+void  brouwer_mout_bevestigen();     // knop op de pop-up: mout toegevoegd, daarna start maischen
 const char *brouwer_recept_overnemen(const Recept &r);  // nullptr = ok, anders de reden; brouw verandert alleen als alles klopt
 
 /* ---- Navigatie ---- */
@@ -114,6 +121,7 @@ void ui_toon_koken();                                   // timer, volgende hop, 
 void ui_toon_kookschema();                              // manueel: kooktijd + hopgiften instellen
 void ui_toon_sensorfout(float laatste_meting);
 void ui_toon_hop_alarm(bool zichtbaar);
+void ui_toon_mout();                                    // pop-up "Mout toevoegen" / "Ketel sluiten" op het maischscherm
 
 /* Verbindingsscherm: elke stap (1..3) toont een bolletje, spinner, vinkje of kruisje */
 enum VerbindToestand { VS_WACHT, VS_BEZIG, VS_KLAAR, VS_FOUT };

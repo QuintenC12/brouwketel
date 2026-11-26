@@ -25,6 +25,7 @@ extern void action_stop_annuleren(lv_event_t * e);
 extern void action_stop_bevestigen(lv_event_t * e);
 extern void action_start_koken(lv_event_t * e);
 extern void action_hop_toegevoegd(lv_event_t * e);
+extern void action_mout_bevestigen(lv_event_t * e);
 extern void action_alarm_stil(lv_event_t * e);
 extern void action_sensor_opnieuw(lv_event_t * e);
 extern void action_instellingen_terug(lv_event_t * e);

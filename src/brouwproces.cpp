@@ -6,6 +6,8 @@
  * gaat naar de volgende maischstap, geeft hopalarmen en werkt het scherm bij.
  *
  * De timer van een stap start pas als de doeltemperatuur bereikt is.
+ * Bij stap 1 wacht hij daarna ook nog op de mout: eerst "Mout toegevoegd",
+ * dan "Start maischen" (ketel dicht, retour van de pomp aangesloten).
  *
  * Hier staat ook de gedeelde toestand (brouw) en brouwer_init().
  */
@@ -64,9 +66,11 @@ void brouwer_start_fase(Fase f) {
     case FASE_MAISCHEN:
         brouw.actieve_stap = 0;
         brouw.resterend_s = brouw.stappen[0].minuten * 60;
-        brouw.pomp_aan = true;      // tijdens het maischen moet de pomp draaien
-        hw_pomp(true);              // naar Niels ESP sturen
-        ui_toon_pomp();             // de pompknop in de zijbalk groen maken
+        brouw.mout = MOUT_OPWARMEN;
+        brouw.pomp_aan = false;     // pomp pas aan na "Start maischen": de retour is nog niet aangesloten
+        hw_pomp(false);             // naar Niels ESP sturen
+        ui_toon_pomp();
+        ui_toon_mout();             // pop-up verbergen
         ui_toon_schema();
         break;
     case FASE_KOKEN:
@@ -87,6 +91,29 @@ void brouwer_start_fase(Fase f) {
         hw_verwarming_uit();
         break;
     }
+    if (f != FASE_MAISCHEN && brouw.mout != MOUT_KLAAR) {   // sessie gestopt tijdens het wachten op de mout
+        brouw.mout = MOUT_KLAAR;
+        ui_toon_mout();
+    }
+}
+
+/* Knop op de pop-up: eerst "Mout toegevoegd", daarna "Start maischen" */
+void brouwer_mout_bevestigen() {
+    if (brouw.fase != FASE_MAISCHEN) return;
+    if (brouw.mout == MOUT_TOEVOEGEN) {
+        brouw.mout = MOUT_SLUITEN;
+        hw_zoemer(ZOEMER_UIT);
+        net_meld("mout_toegevoegd");
+    } else if (brouw.mout == MOUT_SLUITEN) {
+        brouw.mout = MOUT_KLAAR;
+        brouw.op_temp = true;       // vanaf nu loopt de timer van stap 1
+        brouw.pomp_aan = true;      // tijdens het maischen moet de pomp draaien
+        hw_pomp(true);
+        ui_toon_pomp();
+        net_meld("start_maischen");
+    }
+    ui_toon_mout();
+    ui_toon_maischen();
 }
 
 static void koken_klaar() {
@@ -145,7 +172,19 @@ void brouwer_seconde(float temp, int vermogen) {
 
     // Doeltemperatuur bereikt? Dan begint de timer van deze stap te lopen.
     float drempel = brouw.fase == FASE_KOKEN ? KOOKPUNT : doel - MARGE_MAISCHEN;
-    if (!brouw.op_temp && temp >= drempel) brouw.op_temp = true;
+    if (!brouw.op_temp && temp >= drempel) {
+        if (brouw.fase == FASE_MAISCHEN && brouw.mout != MOUT_KLAAR) {
+            // Stap 1 op temperatuur: eerst de mout. De timer wacht op "Start maischen".
+            if (brouw.mout == MOUT_OPWARMEN) {
+                brouw.mout = MOUT_TOEVOEGEN;
+                hw_zoemer(ZOEMER_MELDING);
+                net_meld("mout_toevoegen");
+                ui_toon_mout();
+            }
+        } else {
+            brouw.op_temp = true;
+        }
+    }
 
     if (brouw.op_temp && !brouw.gepauzeerd && brouw.resterend_s > 0) brouw.resterend_s--;
 
