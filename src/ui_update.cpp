@@ -14,6 +14,9 @@
 #define KLEUR_ORANJE      0xf0a030
 #define KLEUR_ORANJE_TXT  0xf6c46e
 #define KLEUR_ORANJE_BG   0x3a2e17
+#define KLEUR_EXTRA       0x2bb5a0   // extra's tijdens het koken (hop = oranje/wit)
+#define KLEUR_EXTRA_TXT   0x6fd8c6
+#define KLEUR_EXTRA_BG    0x173a35
 #define KLEUR_GROEN       0x1f8a57
 #define KLEUR_ROOD        0xc62f2f
 #define KLEUR_RIJ_BG      0x1f242a
@@ -392,11 +395,16 @@ void ui_toon_koken() {
         toon(hop_streepje[i], zichtbaar);
         if (!zichtbaar) continue;
         lv_obj_set_x(hop_streepje[i], bx + hop_moment(i) * bw / totaal - 1);
-        bg(hop_streepje[i], i < brouw.hop_volgende ? KLEUR_TXT_GRIJS : KLEUR_TXT);
+        bg(hop_streepje[i], i < brouw.hop_volgende ? KLEUR_TXT_GRIJS : brouw.hops[i].extra ? KLEUR_EXTRA : KLEUR_TXT);
     }
 
-    // Kaart "volgende hopgift"
+    // Kaart "volgende toevoeging": oranje voor hop, groenblauw voor een extra
     int v = brouw.hop_volgende;
+    bool v_extra = v < brouw.aantal_hops && brouw.hops[v].extra;
+    lv_obj_t *kaart = lv_obj_get_parent(objects.boil_next_hop);
+    bg(kaart, v_extra ? KLEUR_EXTRA_BG : KLEUR_ORANJE_BG);
+    for (uint32_t k = 0; k < lv_obj_get_child_count(kaart); k++)   // alle teksten op de kaart
+        txt(lv_obj_get_child(kaart, k), v_extra ? KLEUR_EXTRA_TXT : KLEUR_ORANJE_TXT);
     if (v < brouw.aantal_hops) {
         char soort[16];
         gift_soort(soort, sizeof soort, v);
@@ -431,16 +439,22 @@ void ui_toon_koken() {
 
         char soort[16];
         gift_soort(soort, sizeof soort, i);
-        lv_label_set_text_fmt(r.naam, "%s - %d min kooktijd", soort, brouw.hops[i].minuten);
+        if (brouw.hops[i].extra && brouw.hops[i].naam[0])   // extra: de naam zelf, bv. "Koriander - 10 g"
+            lv_label_set_text_fmt(r.naam, "Extra: %s", brouw.hops[i].naam);
+        else
+            lv_label_set_text_fmt(r.naam, "%s - %d min kooktijd", soort, brouw.hops[i].minuten);
         if (i < v) lv_label_set_text(r.tijd, "toegevoegd");
         else       lv_label_set_text_fmt(r.tijd, "bij nog %d:00", brouw.hops[i].minuten);
 
-        uint32_t achter = KLEUR_RIJ_BG, voor = KLEUR_TXT;
+        // hop: wit, volgende oranje; extra: groenblauw, volgende donker groenblauw
+        bool ex = brouw.hops[i].extra;
+        uint32_t achter = KLEUR_RIJ_BG, voor = ex ? KLEUR_EXTRA_TXT : KLEUR_TXT;
         if (i < v)       voor = KLEUR_TXT_GRIJS;
-        else if (i == v) { achter = KLEUR_ORANJE_BG; voor = KLEUR_ORANJE_TXT; }
+        else if (i == v) { achter = ex ? KLEUR_EXTRA_BG : KLEUR_ORANJE_BG; voor = ex ? KLEUR_EXTRA_TXT : KLEUR_ORANJE_TXT; }
         bg(r.rij, achter);
         txt(r.naam, voor); txt(r.tijd, voor);
 
+        lv_obj_set_style_bg_color(hop_balk[i], lv_color_hex(ex ? KLEUR_EXTRA : KLEUR_ORANJE), LV_PART_INDICATOR);
         if (i == v) {   // balkje: van vorige hop (of start) tot deze hop
             int32_t van = i > 0 ? hop_moment(i - 1) : 0, tot = hop_moment(i);
             int pct = tot > van ? (verlopen - van) * 100 / (tot - van) : 100;
@@ -484,6 +498,7 @@ void ui_toon_hop_alarm(bool zichtbaar) {
         if (h.naam[0]) snprintf(tekst, sizeof tekst, "%s - %s", soort, h.naam);
         else           snprintf(tekst, sizeof tekst, "%s", soort);
         lv_label_set_text(objects.boil_alarm_title, h.extra ? "Extra toevoegen!" : "Hop toevoegen!");
+        bg(objects.boil_alarm_card, h.extra ? KLEUR_EXTRA : KLEUR_ORANJE);
         snprintf(info, sizeof info, "Nog %d:00 kooktijd - timer loopt door", h.minuten);
         lv_label_set_text(objects.boil_alarm_text, tekst);
         lv_label_set_text(objects.boil_alarm_sub, info);
