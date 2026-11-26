@@ -5,6 +5,7 @@
  * Kleuren zijn overgenomen uit het EEZ-ontwerp.
  */
 #include <stdio.h>
+#include <ctype.h>
 #include <string.h>
 #include "ui/screens.h"
 #include "brouwer.h"
@@ -548,18 +549,36 @@ void ui_toon_sensorfout(float laatste) {
     ui_ga_naar(SCREEN_ID_SENSOR_FOUT);
 }
 
+/* Kleur van een melding (donkere kaart): rand, icoon, bovenschrift en knop.
+ * De knop van de hopmelding heeft geen naam in EEZ: obj86 (knop) en obj87 (tekst). */
+static void melding_kleur(lv_obj_t *kaart, lv_obj_t *icoon, lv_obj_t *icoon_tekst,
+                          lv_obj_t *bovenschrift, lv_obj_t *knop, uint32_t kleur) {
+    lv_obj_set_style_border_color(kaart, lv_color_hex(kleur), 0);
+    lv_obj_set_style_bg_color(icoon, lv_color_hex(kleur), 0);
+    lv_obj_set_style_border_color(icoon, lv_color_hex(kleur), 0);
+    lv_obj_set_style_text_color(icoon_tekst, lv_color_hex(kleur), 0);
+    lv_obj_set_style_text_color(bovenschrift, lv_color_hex(kleur), 0);
+    lv_obj_set_style_bg_color(knop, lv_color_hex(kleur), 0);
+}
+
 void ui_toon_hop_alarm(bool zichtbaar) {
     if (zichtbaar && brouw.hop_volgende < brouw.aantal_hops) {
         HopGift &h = brouw.hops[brouw.hop_volgende];
-        char tekst[48], info[64], soort[16];
-        gift_soort(soort, sizeof soort, brouw.hop_volgende);
-        if (h.naam[0]) snprintf(tekst, sizeof tekst, "%s - %s", soort, h.naam);
-        else           snprintf(tekst, sizeof tekst, "%s", soort);
-        lv_label_set_text(objects.boil_alarm_title, h.extra ? "Extra toevoegen!" : "Hop toevoegen!");
-        bg(objects.boil_alarm_card, h.extra ? KLEUR_EXTRA : KLEUR_ORANJE);
+        char soort[16], bovenschrift[32], info[64];
+        gift_soort(soort, sizeof soort, brouw.hop_volgende);          // "Hop 4" of "Extra"
+        snprintf(bovenschrift, sizeof bovenschrift, "KOKEN - %s", soort);
+        for (char *c = bovenschrift; *c; c++) *c = toupper((unsigned char)*c);
+        lv_label_set_text(objects.boil_alarm_kicker, bovenschrift);
+        lv_label_set_text(objects.boil_alarm_title, h.extra ? "Extra toevoegen" : "Hop toevoegen");
+        lv_label_set_text(objects.boil_alarm_text, h.naam[0] ? h.naam : soort);
         snprintf(info, sizeof info, "Nog %d:00 kooktijd - timer loopt door", h.minuten);
-        lv_label_set_text(objects.boil_alarm_text, tekst);
         lv_label_set_text(objects.boil_alarm_sub, info);
+        melding_kleur(objects.boil_alarm_card, objects.boil_alarm_icon, objects.boil_alarm_icon_label,
+                      objects.boil_alarm_kicker, objects.obj86, h.extra ? KLEUR_EXTRA : KLEUR_ORANJE);
+        // Lange naam over twee regels: de onderregel schuift mee
+        lv_obj_update_layout(objects.boil_alarm_text);
+        lv_obj_set_y(objects.boil_alarm_sub, lv_obj_get_y(objects.boil_alarm_text) +
+                                             lv_obj_get_height(objects.boil_alarm_text) + 8);
         lv_obj_move_foreground(objects.boil_hop_alarm);   // boven de scheidingslijn
     }
     toon(objects.boil_hop_alarm, zichtbaar);
@@ -572,13 +591,13 @@ void ui_toon_mout() {
     if (zichtbaar && brouw.aantal_stappen > 0) {
         int temp = brouw.stappen[0].temp;
         if (brouw.mout == MOUT_TOEVOEGEN) {
+            lv_label_set_text_fmt(objects.mash_mout_kicker, "MAISCHEN - STAP 1 OP %d °C", temp);
             lv_label_set_text(objects.mash_mout_title, "Mout toevoegen");
             if (brouw.aantal_mouten > 0) {   // de mout uit het recept, één per regel
-                lv_label_set_text_fmt(objects.mash_mout_text, "Ketel op %d °C - voeg toe en roer goed:", temp);
+                lv_label_set_text(objects.mash_mout_text, "Voeg toe en roer goed:");
                 char lijst[MAX_MOUT * (MOUT_NAAM + 4)] = "";
                 for (int i = 0; i < brouw.aantal_mouten; i++) {
                     if (i) strcat(lijst, "\n");
-                    strcat(lijst, "- ");
                     strcat(lijst, brouw.mouten[i]);
                 }
                 lv_label_set_text(objects.mash_mout_sub, lijst);
@@ -589,6 +608,7 @@ void ui_toon_mout() {
             }
             lv_label_set_text(objects.mash_mout_btn_label, "Mout toegevoegd");
         } else {
+            lv_label_set_text(objects.mash_mout_kicker, "MAISCHEN - STAP 1");
             lv_label_set_text(objects.mash_mout_title, "Ketel sluiten");
             lv_label_set_text(objects.mash_mout_text, "Sluit de ketel en sluit de pomp aan");
             lv_label_set_text_fmt(objects.mash_mout_sub, "Breng de retour van de pomp aan. Met Start maischen "
