@@ -7887,9 +7887,9 @@
                   "objID": "00810706-616a-498a-a57e-566056004f7c",
                   "type": "LVGLPanelWidget",
                   "left": 140,
-                  "top": 100,
+                  "top": 40,
                   "width": 520,
-                  "height": 300,
+                  "height": 400,
                   "customInputs": [],
                   "customOutputs": [],
                   "style": {
@@ -8011,7 +8011,7 @@
                       "left": 26,
                       "top": 118,
                       "width": 468,
-                      "height": 48,
+                      "height": 120,
                       "customInputs": [],
                       "customOutputs": [],
                       "style": {
@@ -8042,7 +8042,7 @@
                           "MAIN": {
                             "DEFAULT": {
                               "text_color": "#15181c",
-                              "text_font": "MONTSERRAT_16"
+                              "text_font": "MONTSERRAT_20"
                             }
                           }
                         }
@@ -8058,7 +8058,7 @@
                       "objID": "95a5d4f0-ea95-49a9-9120-899dfbea63f1",
                       "type": "LVGLButtonWidget",
                       "left": 26,
-                      "top": 206,
+                      "top": 306,
                       "width": 468,
                       "height": 68,
                       "customInputs": [],

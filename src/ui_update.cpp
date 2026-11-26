@@ -473,9 +473,20 @@ void ui_toon_mout() {
         int temp = brouw.stappen[0].temp;
         if (brouw.mout == MOUT_TOEVOEGEN) {
             lv_label_set_text(objects.mash_mout_title, "Mout toevoegen");
-            lv_label_set_text_fmt(objects.mash_mout_text, "Ketel staat op %d °C (stap 1)", temp);
-            lv_label_set_text(objects.mash_mout_sub, "Voeg de mout toe volgens het recept en roer goed. "
-                                                     "De timer van stap 1 loopt nog niet.");
+            if (brouw.aantal_mouten > 0) {   // de mout uit het recept, één per regel
+                lv_label_set_text_fmt(objects.mash_mout_text, "Ketel op %d °C - voeg toe en roer goed:", temp);
+                char lijst[MAX_MOUT * (MOUT_NAAM + 4)] = "";
+                for (int i = 0; i < brouw.aantal_mouten; i++) {
+                    if (i) strcat(lijst, "\n");
+                    strcat(lijst, "- ");
+                    strcat(lijst, brouw.mouten[i]);
+                }
+                lv_label_set_text(objects.mash_mout_sub, lijst);
+            } else {
+                lv_label_set_text_fmt(objects.mash_mout_text, "Ketel staat op %d °C (stap 1)", temp);
+                lv_label_set_text(objects.mash_mout_sub, "Voeg de mout toe volgens het recept en roer goed. "
+                                                         "De timer van stap 1 loopt nog niet.");
+            }
             lv_label_set_text(objects.mash_mout_btn_label, "Mout toegevoegd");
         } else {
             lv_label_set_text(objects.mash_mout_title, "Ketel sluiten");

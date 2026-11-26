@@ -254,6 +254,11 @@ static const char *recept_overnemen(JsonDocument &doc) {
     r.aantal_stappen = 0;
     for (JsonObjectConst s : stappen)
         r.stappen[r.aantal_stappen++] = { s["temp"] | 0, s["min"] | 0, 0 };
+    r.aantal_mouten = 0;
+    for (JsonVariantConst m : doc["mout"].as<JsonArrayConst>()) {
+        if (r.aantal_mouten >= MAX_MOUT) break;   // de rest past niet op de pop-up
+        strlcpy(r.mouten[r.aantal_mouten++], m | "", MOUT_NAAM);
+    }
     r.aantal_hops = 0;
     for (JsonObjectConst h : hops) {
         HopGift &hop = r.hops[r.aantal_hops++];

@@ -9,6 +9,12 @@
  * Het scherm controleert het recept zelf nog eens en antwoordt met
  * brouw/meld recept_ok of recept_fout.
  *
+ * mout: de vergistbare ingrediënten (mout, suiker, ...) gaan mee als tekst,
+ * bv. "4,2 kg Pale Ale". Het scherm toont ze bij "Mout toevoegen".
+ * De naam van de lijst in de webapp is nog niet vastgelegd: we zoeken
+ * "fermentables", "malts", "grains" en "ingredients", elk met "name" en
+ * "amount_kg" of "amount_g" (of "amount" + "unit"). Hoogstens 5.
+ *
  * kooktijd: die staat niet in het recept van de webapp. We nemen de langste
  * hoptijd, met een minimum van STANDAARD_KOOKTIJD minuten.
  */
@@ -25,6 +31,8 @@
 #define MAX_HOPS           5
 #define RECEPT_NAAM_MAX    48
 #define HOP_NAAM_MAX       32
+#define MAX_MOUT           5
+#define MOUT_NAAM_MAX      32
 #define STANDAARD_KOOKTIJD 60
 
 /* Tekst inkorten tot hoogstens max-1 bytes, zonder een UTF-8-teken te breken */
@@ -47,6 +55,36 @@ static int getal(const cJSON *o, const char *naam, int standaard)
 
 typedef struct { int nr, temp, min; } stap_t;
 typedef struct { char naam[HOP_NAAM_MAX]; int min; } hop_t;
+
+/* Hoeveelheid als tekst: "4,2 kg", "500 g" of "1 zak" */
+static void hoeveelheid(char *uit, size_t n, const cJSON *m)
+{
+    const cJSON *kg = cJSON_GetObjectItemCaseSensitive(m, "amount_kg");
+    const cJSON *g = cJSON_GetObjectItemCaseSensitive(m, "amount_g");
+    const cJSON *a = cJSON_GetObjectItemCaseSensitive(m, "amount");
+    const char *eenheid = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(m, "unit"));
+    double w; const char *e;
+    if (cJSON_IsNumber(kg))     { w = kg->valuedouble; e = "kg"; }
+    else if (cJSON_IsNumber(g)) { w = g->valuedouble;  e = "g"; }
+    else if (cJSON_IsNumber(a)) { w = a->valuedouble;  e = eenheid ? eenheid : ""; }
+    else { uit[0] = 0; return; }
+    if (!strcmp(e, "g") && w >= 1000) { w /= 1000; e = "kg"; }
+    snprintf(uit, n, "%g %s", round(w * 100) / 100, e);
+    for (char *p = uit; *p; p++) if (*p == '.') *p = ',';   // 4,2 kg
+    size_t l = strlen(uit);
+    if (l && uit[l - 1] == ' ') uit[l - 1] = 0;
+}
+
+/* De lijst met mout in het recept van de webapp (naam nog niet vast) */
+static const cJSON *mout_lijst(const cJSON *data)
+{
+    const char *namen[] = { "fermentables", "malts", "grains", "ingredients" };
+    for (size_t i = 0; i < sizeof namen / sizeof namen[0]; i++) {
+        const cJSON *l = cJSON_GetObjectItemCaseSensitive(data, namen[i]);
+        if (cJSON_IsArray(l)) return l;
+    }
+    return NULL;
+}
 
 const char *recept_omzetten(const cJSON *data, char **uit)
 {
@@ -101,6 +139,19 @@ const char *recept_omzetten(const cJSON *data, char **uit)
             hop_t t = hp[b]; hp[b] = hp[b - 1]; hp[b - 1] = t;
         }
 
+    // Mout: "4,2 kg Pale Ale" (ontbreekt de lijst, dan toont het scherm een algemene tekst)
+    char mout[MAX_MOUT][MOUT_NAAM_MAX];
+    int n_mout = 0;
+    const cJSON *m;
+    cJSON_ArrayForEach(m, mout_lijst(data)) {
+        if (n_mout >= MAX_MOUT) break;   // de rest past niet op het scherm
+        const char *mnaam = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(m, "name"));
+        char hv[24], tekst[96];
+        hoeveelheid(hv, sizeof hv, m);
+        snprintf(tekst, sizeof tekst, "%s%s%s", hv, hv[0] ? " " : "", mnaam ? mnaam : "Mout");
+        kort_in(mout[n_mout++], tekst, MOUT_NAAM_MAX);
+    }
+
     // Bericht voor het scherm opbouwen
     char naam[RECEPT_NAAM_MAX];
     const char *rnaam = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(data, "name"));
@@ -122,6 +173,10 @@ const char *recept_omzetten(const cJSON *data, char **uit)
         cJSON_AddStringToObject(x, "naam", hp[i].naam);
         cJSON_AddNumberToObject(x, "min", hp[i].min);
         cJSON_AddItemToArray(hj, x);
+    }
+    if (n_mout > 0) {
+        cJSON *mj = cJSON_AddArrayToObject(o, "mout");
+        for (i = 0; i < n_mout; i++) cJSON_AddItemToArray(mj, cJSON_CreateString(mout[i]));
     }
     char *json = cJSON_PrintUnformatted(o);
     cJSON_Delete(o);

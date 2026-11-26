@@ -143,6 +143,8 @@ const char *brouwer_recept_overnemen(const Recept &r) {
     memcpy(brouw.hops, r.hops, sizeof(HopGift) * r.aantal_hops);
     brouw.aantal_hops = r.aantal_hops;
     brouw.kooktijd_min = r.kooktijd_min;
+    brouw.aantal_mouten = r.aantal_mouten < 0 ? 0 : r.aantal_mouten > MAX_MOUT ? MAX_MOUT : r.aantal_mouten;
+    memcpy(brouw.mouten, r.mouten, sizeof brouw.mouten[0] * brouw.aantal_mouten);
     verslag_onthoud_recept(r);   // dit is het plan voor het brouwverslag
     return nullptr;
 }

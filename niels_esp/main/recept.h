@@ -9,7 +9,8 @@
  *    "mash_schedule":{"steps":[{"step_nr":1,"temperature_c":65,"duration_min":60}]}, ...}
  * Naar (regelboekje, onderwerp "recept"):
  *   {"naam":"Citra Breeze IPA","kooktijd":60,
- *    "stappen":[{"temp":65,"min":60}],"hops":[{"naam":"Citra - 20 g","min":60}]}
+ *    "stappen":[{"temp":65,"min":60}],"hops":[{"naam":"Citra - 20 g","min":60}],
+ *    "mout":["4,2 kg Pale Ale","0,5 kg Cara"]}   (mout alleen als de webapp ze meestuurt)
  */
 #include "cJSON.h"
 

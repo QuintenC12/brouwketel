@@ -79,6 +79,7 @@ void action_start_manueel(lv_event_t *e) {
         strcpy(brouw.recept, "Manueel");
         brouw.aantal_stappen = 1;
         brouw.stappen[0] = { MAN_STAP_TEMP, MAN_STAP_MIN, 0 };
+        brouw.aantal_mouten = 0;           // manueel: geen moutlijst
     }
     brouw.automatisch = false;
     brouw.kooktijd_min = MAN_KOOKTIJD_MIN;

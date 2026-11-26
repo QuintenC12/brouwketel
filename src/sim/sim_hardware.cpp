@@ -78,6 +78,10 @@ static void demo_recept() {
     brouw.hops[0] = { "Magnum - 25 g", 30 };
     brouw.hops[1] = { "Cascade - 30 g", 20 };
     brouw.hops[2] = { "Saaz - 20 g", 10 };
+    brouw.aantal_mouten = 3;
+    strcpy(brouw.mouten[0], "5,5 kg Pilsmout");
+    strcpy(brouw.mouten[1], "0,5 kg Carapils");
+    strcpy(brouw.mouten[2], "0,3 kg Tarwemout");
     ui_toon_schema();
     ui_selecteer_schema_rij(-1);
     printf("[net] recept ontvangen\n");

@@ -17,6 +17,8 @@
 
 #define MAX_STAPPEN 4
 #define MAX_HOPS    5
+#define MAX_MOUT    5    // regels mout op de pop-up "Mout toevoegen"
+#define MOUT_NAAM   32   // "4,2 kg Pale Ale"
 
 #define TEMP_MIN    10     // grenzen voor de temperatuur van een maischstap (°C)
 #define TEMP_MAX    100
@@ -42,6 +44,8 @@ struct Recept {
     HopGift hops[MAX_HOPS];
     int aantal_hops;
     int kooktijd_min;
+    char mouten[MAX_MOUT][MOUT_NAAM];   // bv. "4,2 kg Pale Ale" (mag leeg zijn)
+    int aantal_mouten;
 };
 
 enum Fase { FASE_GEEN, FASE_MAISCHEN, FASE_SPOELEN, FASE_KOKEN };
@@ -59,6 +63,8 @@ struct BrouwStatus {
     HopGift hops[MAX_HOPS];         // tot 5 hopgiften
     int aantal_hops;
     int kooktijd_min;
+    char mouten[MAX_MOUT][MOUT_NAAM];     // mout om toe te voegen bij stap 1 (leeg = niet bekend)
+    int aantal_mouten;
 
     // Procestoestand
     Fase fase;
