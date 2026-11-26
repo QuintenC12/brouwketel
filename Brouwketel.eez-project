@@ -623,6 +623,26 @@
       "userProperties": [],
       "name": "mout_bevestigen",
       "implementationType": "native"
+    },
+    {
+      "objID": "fde016c3-96e2-49e2-b981-5bef2ce25c47",
+      "components": [],
+      "connectionLines": [],
+      "localVariables": [],
+      "componentGroups": [],
+      "userProperties": [],
+      "name": "kook_overzicht_terug",
+      "implementationType": "native"
+    },
+    {
+      "objID": "6966d1c1-c5d3-487f-a0fe-4325af553b57",
+      "components": [],
+      "connectionLines": [],
+      "localVariables": [],
+      "componentGroups": [],
+      "userProperties": [],
+      "name": "kook_overzicht_start",
+      "implementationType": "native"
     }
   ],
   "userPages": [
@@ -15870,6 +15890,2585 @@
                     }
                   },
                   "groupIndex": 0
+                },
+                {
+                  "objID": "3f801dbf-b4f4-4979-825c-61b7de64ff70",
+                  "type": "LVGLPanelWidget",
+                  "left": 0,
+                  "top": 0,
+                  "width": 534,
+                  "height": 456,
+                  "customInputs": [],
+                  "customOutputs": [],
+                  "style": {
+                    "objID": "59370cf6-07fc-48cb-8c4f-42d93b9a717f",
+                    "useStyle": "default",
+                    "conditionalStyles": [],
+                    "childStyles": []
+                  },
+                  "timeline": [],
+                  "eventHandlers": [],
+                  "leftUnit": "px",
+                  "topUnit": "px",
+                  "widthUnit": "px",
+                  "heightUnit": "px",
+                  "children": [
+                    {
+                      "objID": "d6f4bd4c-d459-4256-afe8-d7f4cff6d7d4",
+                      "type": "LVGLLabelWidget",
+                      "left": 16,
+                      "top": 14,
+                      "width": 238,
+                      "height": 29,
+                      "customInputs": [],
+                      "customOutputs": [],
+                      "style": {
+                        "objID": "bc0ad4b7-69a4-415a-925c-aad2977d0329",
+                        "useStyle": "default",
+                        "conditionalStyles": [],
+                        "childStyles": []
+                      },
+                      "timeline": [],
+                      "eventHandlers": [],
+                      "leftUnit": "px",
+                      "topUnit": "px",
+                      "widthUnit": "content",
+                      "heightUnit": "content",
+                      "children": [],
+                      "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                      "hiddenFlagType": "literal",
+                      "clickableFlag": false,
+                      "clickableFlagType": "literal",
+                      "checkedStateType": "literal",
+                      "disabledStateType": "literal",
+                      "states": "",
+                      "localStyles": {
+                        "objID": "02640ab0-ef19-43fe-b3dc-75ec4ccc4657",
+                        "definition": {
+                          "MAIN": {
+                            "DEFAULT": {
+                              "text_color": "#e8eaed",
+                              "text_font": "MONTSERRAT_26"
+                            }
+                          }
+                        }
+                      },
+                      "groupIndex": 0,
+                      "text": "Koken - 90 min",
+                      "textType": "literal",
+                      "longMode": "WRAP",
+                      "recolor": false,
+                      "useStaticText": false,
+                      "identifier": "rinse_kook_title"
+                    },
+                    {
+                      "objID": "b8c99add-c42d-4794-b4d2-02aeba6f3a18",
+                      "type": "LVGLLabelWidget",
+                      "left": 16,
+                      "top": 50,
+                      "width": 273,
+                      "height": 16,
+                      "customInputs": [],
+                      "customOutputs": [],
+                      "style": {
+                        "objID": "ab64d077-1046-465e-91c3-faa8aeb775aa",
+                        "useStyle": "default",
+                        "conditionalStyles": [],
+                        "childStyles": []
+                      },
+                      "timeline": [],
+                      "eventHandlers": [],
+                      "identifier": "rinse_kook_info",
+                      "leftUnit": "px",
+                      "topUnit": "px",
+                      "widthUnit": "content",
+                      "heightUnit": "content",
+                      "children": [],
+                      "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                      "hiddenFlagType": "literal",
+                      "clickableFlag": false,
+                      "clickableFlagType": "literal",
+                      "checkedStateType": "literal",
+                      "disabledStateType": "literal",
+                      "states": "",
+                      "localStyles": {
+                        "objID": "b278b53c-88e6-48fe-8cbb-f562c59a0012",
+                        "definition": {
+                          "MAIN": {
+                            "DEFAULT": {
+                              "text_color": "#2fa36b",
+                              "text_font": "MONTSERRAT_14"
+                            }
+                          }
+                        }
+                      },
+                      "groupIndex": 0,
+                      "text": "3 hopgiften en 1 extra - controleer en start",
+                      "textType": "literal",
+                      "longMode": "WRAP",
+                      "recolor": false,
+                      "useStaticText": false
+                    },
+                    {
+                      "objID": "51440532-297a-47c4-8f5c-80cd90c98dc0",
+                      "type": "LVGLPanelWidget",
+                      "left": 12,
+                      "top": 100,
+                      "width": 510,
+                      "height": 206,
+                      "customInputs": [],
+                      "customOutputs": [],
+                      "style": {
+                        "objID": "fdc74560-f98a-4bb4-ac75-3b6580b0967b",
+                        "useStyle": "default",
+                        "conditionalStyles": [],
+                        "childStyles": []
+                      },
+                      "hiddenInEditor": false,
+                      "timeline": [],
+                      "eventHandlers": [],
+                      "identifier": "rinse_kook_list",
+                      "leftUnit": "px",
+                      "topUnit": "px",
+                      "widthUnit": "px",
+                      "heightUnit": "px",
+                      "children": [
+                        {
+                          "objID": "d90c6b43-809a-466b-b907-ecf0bf181a21",
+                          "type": "LVGLPanelWidget",
+                          "left": 0,
+                          "top": 0,
+                          "width": 510,
+                          "height": 38,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "1c83ad25-c84f-4887-a521-b73adb05d485",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "rinse_kook_1",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "px",
+                          "children": [
+                            {
+                              "objID": "fee5e397-7d35-4e77-b6d8-a2372ec98416",
+                              "type": "LVGLLabelWidget",
+                              "left": 14,
+                              "top": 10,
+                              "width": 186,
+                              "height": 18,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "dc5db62c-8436-47ff-8c27-57c18881311f",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_1_name",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "content",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "99944b64-31f1-4f90-8977-9125dddf6066",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_color": "#7d868f",
+                                      "text_font": "MONTSERRAT_16"
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "text": "Hop 1 - 60 min kooktijd",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false,
+                              "useStaticText": false
+                            },
+                            {
+                              "objID": "7077a898-3659-4fac-93f7-e62ff85fce0f",
+                              "type": "LVGLLabelWidget",
+                              "left": 330,
+                              "top": 10,
+                              "width": 166,
+                              "height": 18,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "b0a48bd1-99cf-411b-aaf4-1986906a98a2",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_1_time",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "347a94f4-a16a-47b1-a45c-82086574dde1",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_color": "#7d868f",
+                                      "text_font": "MONTSERRAT_16",
+                                      "text_align": "RIGHT"
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "text": "bij nog 60:00",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false,
+                              "useStaticText": false
+                            },
+                            {
+                              "objID": "68cdb981-6efa-4933-ab9e-f33660fb54da",
+                              "type": "LVGLBarWidget",
+                              "left": 14,
+                              "top": 32,
+                              "width": 482,
+                              "height": 3,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "35192e83-7949-4914-bea1-b4003c9e535a",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_1_bar",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlag": true,
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "8cb5c614-b529-4afd-8995-7609fb90eefc",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "bg_color": "#2c333b",
+                                      "bg_opa": 51,
+                                      "radius": 2
+                                    }
+                                  },
+                                  "INDICATOR": {
+                                    "DEFAULT": {
+                                      "bg_color": "#f0a030",
+                                      "bg_opa": 255,
+                                      "radius": 2
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "min": 0,
+                              "minType": "literal",
+                              "max": 100,
+                              "maxType": "literal",
+                              "mode": "NORMAL",
+                              "value": 0,
+                              "valueType": "literal",
+                              "previewValue": "0",
+                              "valueStart": 0,
+                              "valueStartType": "literal",
+                              "previewValueStart": "0",
+                              "enableAnimation": false
+                            }
+                          ],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "8baf74c6-c25f-4f28-bf4d-a022b6036fdf",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "bg_color": "#1f242a",
+                                  "bg_opa": 255,
+                                  "radius": 8,
+                                  "border_width": 0,
+                                  "pad_top": 0,
+                                  "pad_bottom": 0,
+                                  "pad_left": 0,
+                                  "pad_right": 0,
+                                  "shadow_width": 0
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0
+                        },
+                        {
+                          "objID": "9bfad9dd-6ef8-4d6b-9679-6dd25c23a31d",
+                          "type": "LVGLPanelWidget",
+                          "left": 0,
+                          "top": 42,
+                          "width": 510,
+                          "height": 38,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "09ce5a4b-f108-4bd9-a063-f1e64e75fc7b",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "rinse_kook_2",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "px",
+                          "children": [
+                            {
+                              "objID": "796d000e-57f9-4c5c-9813-d35b5c406e19",
+                              "type": "LVGLLabelWidget",
+                              "left": 14,
+                              "top": 10,
+                              "width": 188,
+                              "height": 18,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "1e635f30-cd3c-467b-acab-c8011ce7eb57",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_2_name",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "content",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "559e7cac-cc87-4cd6-adb9-d72916d8db90",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_color": "#f6c46e",
+                                      "text_font": "MONTSERRAT_16"
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "text": "Hop 2 - 30 min kooktijd",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false,
+                              "useStaticText": false
+                            },
+                            {
+                              "objID": "ee45028f-44e4-434f-8ac0-bb4a464f7809",
+                              "type": "LVGLLabelWidget",
+                              "left": 330,
+                              "top": 10,
+                              "width": 166,
+                              "height": 18,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "61960769-6181-4664-9f46-7609d7cb70c1",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_2_time",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "5bbf0fa1-34f1-451b-9c5b-949d8d722be5",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_color": "#f6c46e",
+                                      "text_font": "MONTSERRAT_16",
+                                      "text_align": "RIGHT"
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "text": "bij nog 30:00",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false,
+                              "useStaticText": false
+                            },
+                            {
+                              "objID": "d19c1345-3375-4fca-9772-b15b09dc6825",
+                              "type": "LVGLBarWidget",
+                              "left": 14,
+                              "top": 32,
+                              "width": 482,
+                              "height": 3,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "ae72461c-e7ab-4716-a98e-4b30d76555cb",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_2_bar",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "598463ac-479a-488f-bab1-30b5c7c98746",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "bg_color": "#2c333b",
+                                      "bg_opa": 51,
+                                      "radius": 2
+                                    }
+                                  },
+                                  "INDICATOR": {
+                                    "DEFAULT": {
+                                      "bg_color": "#f0a030",
+                                      "bg_opa": 255,
+                                      "radius": 2
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "min": 0,
+                              "minType": "literal",
+                              "max": 100,
+                              "maxType": "literal",
+                              "mode": "NORMAL",
+                              "value": 60,
+                              "valueType": "literal",
+                              "previewValue": "60",
+                              "valueStart": 0,
+                              "valueStartType": "literal",
+                              "previewValueStart": "0",
+                              "enableAnimation": false
+                            }
+                          ],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "cfc46462-47a5-4ed2-859f-1be48e132450",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "bg_color": "#3a2e17",
+                                  "bg_opa": 255,
+                                  "radius": 8,
+                                  "border_width": 0,
+                                  "pad_top": 0,
+                                  "pad_bottom": 0,
+                                  "pad_left": 0,
+                                  "pad_right": 0,
+                                  "shadow_width": 0
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0
+                        },
+                        {
+                          "objID": "4fdfbf05-6e54-4800-b666-c5114f1a1f68",
+                          "type": "LVGLPanelWidget",
+                          "left": 0,
+                          "top": 84,
+                          "width": 510,
+                          "height": 38,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "921fd841-3001-463f-be97-6c6b5cea58f5",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": false,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "rinse_kook_3",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "px",
+                          "children": [
+                            {
+                              "objID": "810b1855-bd44-456c-85eb-f407fbcf6303",
+                              "type": "LVGLLabelWidget",
+                              "left": 14,
+                              "top": 10,
+                              "width": 177,
+                              "height": 18,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "bc4603ee-e4fc-4f0d-a330-50b672b586bc",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_3_name",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "content",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "ce8efcc5-c04a-46d2-b640-723bc8fc4069",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_color": "#e8eaed",
+                                      "text_font": "MONTSERRAT_16"
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "text": "Hop 3 - 5 min kooktijd",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false,
+                              "useStaticText": false
+                            },
+                            {
+                              "objID": "1472b726-a5f0-497c-88cc-25c20a9dfabb",
+                              "type": "LVGLLabelWidget",
+                              "left": 330,
+                              "top": 10,
+                              "width": 166,
+                              "height": 18,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "e9263a18-0db9-476c-bc61-4893ef217b8f",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_3_time",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "657bc853-96e8-4600-9918-8d7d38f21b67",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_color": "#e8eaed",
+                                      "text_font": "MONTSERRAT_16",
+                                      "text_align": "RIGHT"
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "text": "bij nog 5:00",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false,
+                              "useStaticText": false
+                            },
+                            {
+                              "objID": "32d88505-1877-4533-9daf-7eceb539a321",
+                              "type": "LVGLBarWidget",
+                              "left": 14,
+                              "top": 32,
+                              "width": 482,
+                              "height": 3,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "82fbebd4-33d3-413c-ab78-6f2f8d8c8946",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_3_bar",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlag": true,
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "11299488-580d-403c-837d-b3f2af8cf074",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "bg_color": "#2c333b",
+                                      "bg_opa": 51,
+                                      "radius": 2
+                                    }
+                                  },
+                                  "INDICATOR": {
+                                    "DEFAULT": {
+                                      "bg_color": "#f0a030",
+                                      "bg_opa": 255,
+                                      "radius": 2
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "min": 0,
+                              "minType": "literal",
+                              "max": 100,
+                              "maxType": "literal",
+                              "mode": "NORMAL",
+                              "value": 0,
+                              "valueType": "literal",
+                              "previewValue": "0",
+                              "valueStart": 0,
+                              "valueStartType": "literal",
+                              "previewValueStart": "0",
+                              "enableAnimation": false
+                            }
+                          ],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "8f9ad0a8-6ff9-4fed-9171-d0477dbfdb31",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "bg_color": "#1f242a",
+                                  "bg_opa": 255,
+                                  "radius": 8,
+                                  "border_width": 0,
+                                  "pad_top": 0,
+                                  "pad_bottom": 0,
+                                  "pad_left": 0,
+                                  "pad_right": 0,
+                                  "shadow_width": 0
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0
+                        },
+                        {
+                          "objID": "93493407-84e0-4155-a02f-fa76cb403c19",
+                          "type": "LVGLPanelWidget",
+                          "left": 0,
+                          "top": 126,
+                          "width": 510,
+                          "height": 38,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "fe4e0e32-5d37-46a3-8eb0-a000cb69fe23",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": true,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "rinse_kook_4",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "px",
+                          "children": [
+                            {
+                              "objID": "6ad2dca9-3fe5-47e9-b642-bf3352547ace",
+                              "type": "LVGLLabelWidget",
+                              "left": 14,
+                              "top": 10,
+                              "width": 49,
+                              "height": 18,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "717abce8-ce4c-41ef-ab38-292ac8ec94d5",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_4_name",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "content",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "fd5d4ff4-ea2c-47f5-95c4-058019857616",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_color": "#e8eaed",
+                                      "text_font": "MONTSERRAT_16"
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "text": "Hop 4",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false,
+                              "useStaticText": false
+                            },
+                            {
+                              "objID": "a5c2719a-f7a3-43cd-819a-c5fd959a8c73",
+                              "type": "LVGLLabelWidget",
+                              "left": 330,
+                              "top": 10,
+                              "width": 166,
+                              "height": 18,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "0db808d0-d8a7-49d9-b6cd-9272b8ca6b91",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_4_time",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "6b74d6ea-4d4a-45df-9b77-0b89313bbc4b",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_color": "#e8eaed",
+                                      "text_font": "MONTSERRAT_16",
+                                      "text_align": "RIGHT"
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "text": "-",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false,
+                              "useStaticText": false
+                            },
+                            {
+                              "objID": "4869dcda-3342-48d9-ba4a-e2ad96b18c5b",
+                              "type": "LVGLBarWidget",
+                              "left": 14,
+                              "top": 32,
+                              "width": 482,
+                              "height": 3,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "2be26bc7-30b3-4070-ab10-e342dfbc73ee",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_4_bar",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlag": true,
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "728e7855-7de4-4c87-981c-66e46caf8a3d",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "bg_color": "#2c333b",
+                                      "bg_opa": 51,
+                                      "radius": 2
+                                    }
+                                  },
+                                  "INDICATOR": {
+                                    "DEFAULT": {
+                                      "bg_color": "#f0a030",
+                                      "bg_opa": 255,
+                                      "radius": 2
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "min": 0,
+                              "minType": "literal",
+                              "max": 100,
+                              "maxType": "literal",
+                              "mode": "NORMAL",
+                              "value": 0,
+                              "valueType": "literal",
+                              "previewValue": "0",
+                              "valueStart": 0,
+                              "valueStartType": "literal",
+                              "previewValueStart": "0",
+                              "enableAnimation": false
+                            }
+                          ],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlag": true,
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "681b11c2-117f-4863-8eb5-0f65fedcd374",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "bg_color": "#1f242a",
+                                  "bg_opa": 255,
+                                  "radius": 8,
+                                  "border_width": 0,
+                                  "pad_top": 0,
+                                  "pad_bottom": 0,
+                                  "pad_left": 0,
+                                  "pad_right": 0,
+                                  "shadow_width": 0
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0
+                        },
+                        {
+                          "objID": "016d89b2-57b2-4959-94fb-09a517bac2fd",
+                          "type": "LVGLPanelWidget",
+                          "left": 0,
+                          "top": 168,
+                          "width": 510,
+                          "height": 38,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "329b6be3-3995-4a9a-b75c-66f3d517f3c9",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": true,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "rinse_kook_5",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "px",
+                          "children": [
+                            {
+                              "objID": "5862b526-83b6-486f-a5e7-e8d7a8d0f16b",
+                              "type": "LVGLLabelWidget",
+                              "left": 14,
+                              "top": 10,
+                              "width": 47,
+                              "height": 18,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "3f93582e-3eb0-450c-ab12-d47c9391ef92",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_5_name",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "content",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "60f7d4db-a280-452b-88b4-c12f3b6c6722",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_color": "#e8eaed",
+                                      "text_font": "MONTSERRAT_16"
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "text": "Hop 5",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false,
+                              "useStaticText": false
+                            },
+                            {
+                              "objID": "a18218be-1b3b-4093-82c4-59ff8c6cfcd6",
+                              "type": "LVGLLabelWidget",
+                              "left": 330,
+                              "top": 10,
+                              "width": 166,
+                              "height": 18,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "a417c127-39bc-436d-9c0b-01d38aa8af11",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_5_time",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "d3570944-b672-4a1f-b70b-11ff61f27d19",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_color": "#e8eaed",
+                                      "text_font": "MONTSERRAT_16",
+                                      "text_align": "RIGHT"
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "text": "-",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false,
+                              "useStaticText": false
+                            },
+                            {
+                              "objID": "4cbab942-76a1-4be4-8823-a2a4e38a4c63",
+                              "type": "LVGLBarWidget",
+                              "left": 14,
+                              "top": 32,
+                              "width": 482,
+                              "height": 3,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "6d2e0d54-bd03-4fe2-a279-32221a57d766",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_5_bar",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlag": true,
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "99611a67-4b33-4b63-9c3e-60112374340c",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "bg_color": "#2c333b",
+                                      "bg_opa": 51,
+                                      "radius": 2
+                                    }
+                                  },
+                                  "INDICATOR": {
+                                    "DEFAULT": {
+                                      "bg_color": "#f0a030",
+                                      "bg_opa": 255,
+                                      "radius": 2
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "min": 0,
+                              "minType": "literal",
+                              "max": 100,
+                              "maxType": "literal",
+                              "mode": "NORMAL",
+                              "value": 0,
+                              "valueType": "literal",
+                              "previewValue": "0",
+                              "valueStart": 0,
+                              "valueStartType": "literal",
+                              "previewValueStart": "0",
+                              "enableAnimation": false
+                            }
+                          ],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlag": true,
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "5a2c0c10-5f87-4679-8e5c-513b964358ab",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "bg_color": "#1f242a",
+                                  "bg_opa": 255,
+                                  "radius": 8,
+                                  "border_width": 0,
+                                  "pad_top": 0,
+                                  "pad_bottom": 0,
+                                  "pad_left": 0,
+                                  "pad_right": 0,
+                                  "shadow_width": 0
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0
+                        },
+                        {
+                          "objID": "19e716af-38c3-438d-988f-570fc7a1c668",
+                          "type": "LVGLPanelWidget",
+                          "left": 0,
+                          "top": 210,
+                          "width": 510,
+                          "height": 38,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "3bdd84fb-4ec8-4f24-aaee-2763e535a922",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": true,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "rinse_kook_6",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "px",
+                          "children": [
+                            {
+                              "objID": "e419fec6-b9ec-47c0-939b-c689276c7d40",
+                              "type": "LVGLLabelWidget",
+                              "left": 14,
+                              "top": 10,
+                              "width": 47,
+                              "height": 18,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "1376f06c-0d39-4cc8-bc98-42564dd9f0a4",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_6_name",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "content",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "669d82cf-04ef-4ac3-88c8-b08f0092cf8f",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_color": "#e8eaed",
+                                      "text_font": "MONTSERRAT_16"
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "text": "Hop 6",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false,
+                              "useStaticText": false
+                            },
+                            {
+                              "objID": "d8f01d66-d536-439a-bcc0-086da8d8d0f6",
+                              "type": "LVGLLabelWidget",
+                              "left": 330,
+                              "top": 10,
+                              "width": 166,
+                              "height": 18,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "d589c70b-cb75-43f6-aa01-1c96afabea0e",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_6_time",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "b8e63b8f-ef5d-4aad-bf8b-30eb8a0b4bc1",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_color": "#e8eaed",
+                                      "text_font": "MONTSERRAT_16",
+                                      "text_align": "RIGHT"
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "text": "-",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false,
+                              "useStaticText": false
+                            },
+                            {
+                              "objID": "c3c64d5b-a005-4c86-9ca9-993a385dfd93",
+                              "type": "LVGLBarWidget",
+                              "left": 14,
+                              "top": 32,
+                              "width": 482,
+                              "height": 3,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "f3c12884-3afa-488f-8421-85ba6aeeb393",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_6_bar",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlag": true,
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "7b60c700-8e37-48f8-b9d3-d10f37372a6c",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "bg_color": "#2c333b",
+                                      "bg_opa": 51,
+                                      "radius": 2
+                                    }
+                                  },
+                                  "INDICATOR": {
+                                    "DEFAULT": {
+                                      "bg_color": "#f0a030",
+                                      "bg_opa": 255,
+                                      "radius": 2
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "min": 0,
+                              "minType": "literal",
+                              "max": 100,
+                              "maxType": "literal",
+                              "mode": "NORMAL",
+                              "value": 0,
+                              "valueType": "literal",
+                              "previewValue": "0",
+                              "valueStart": 0,
+                              "valueStartType": "literal",
+                              "previewValueStart": "0",
+                              "enableAnimation": false
+                            }
+                          ],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlag": true,
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "dde234bc-349b-4321-940b-d25e4c49c5a8",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "bg_color": "#1f242a",
+                                  "bg_opa": 255,
+                                  "radius": 8,
+                                  "border_width": 0,
+                                  "pad_top": 0,
+                                  "pad_bottom": 0,
+                                  "pad_left": 0,
+                                  "pad_right": 0,
+                                  "shadow_width": 0
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0
+                        },
+                        {
+                          "objID": "63315f66-77c3-4ac4-bdbc-78212b0514e0",
+                          "type": "LVGLPanelWidget",
+                          "left": 0,
+                          "top": 252,
+                          "width": 510,
+                          "height": 38,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "bcc97179-7738-42c5-b89d-ba6fb9c397b4",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": true,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "rinse_kook_7",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "px",
+                          "children": [
+                            {
+                              "objID": "9d8d48be-5423-46e2-a31b-4abba78a1e3c",
+                              "type": "LVGLLabelWidget",
+                              "left": 14,
+                              "top": 10,
+                              "width": 47,
+                              "height": 18,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "e2f91aa6-d1f7-42c4-8c63-a760ea7725f1",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_7_name",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "content",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "b8603075-a873-4aba-8110-00cefc1ec29d",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_color": "#e8eaed",
+                                      "text_font": "MONTSERRAT_16"
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "text": "Hop 7",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false,
+                              "useStaticText": false
+                            },
+                            {
+                              "objID": "b74ec084-391e-4c74-a314-26bcfc15afac",
+                              "type": "LVGLLabelWidget",
+                              "left": 330,
+                              "top": 10,
+                              "width": 166,
+                              "height": 18,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "2de774a7-62c0-4e06-a10f-95281e0e473e",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_7_time",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "0633a8f5-0ffb-4f5e-8d61-bb69ac3d0f1e",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_color": "#e8eaed",
+                                      "text_font": "MONTSERRAT_16",
+                                      "text_align": "RIGHT"
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "text": "-",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false,
+                              "useStaticText": false
+                            },
+                            {
+                              "objID": "f852662a-bd78-4412-b25a-aac6a6ae5105",
+                              "type": "LVGLBarWidget",
+                              "left": 14,
+                              "top": 32,
+                              "width": 482,
+                              "height": 3,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "1fff15a0-d01d-4849-953a-45969aff5f73",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_7_bar",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlag": true,
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "28159d0f-baca-40db-bad0-5e481dfd6ddb",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "bg_color": "#2c333b",
+                                      "bg_opa": 51,
+                                      "radius": 2
+                                    }
+                                  },
+                                  "INDICATOR": {
+                                    "DEFAULT": {
+                                      "bg_color": "#f0a030",
+                                      "bg_opa": 255,
+                                      "radius": 2
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "min": 0,
+                              "minType": "literal",
+                              "max": 100,
+                              "maxType": "literal",
+                              "mode": "NORMAL",
+                              "value": 0,
+                              "valueType": "literal",
+                              "previewValue": "0",
+                              "valueStart": 0,
+                              "valueStartType": "literal",
+                              "previewValueStart": "0",
+                              "enableAnimation": false
+                            }
+                          ],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlag": true,
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "04345c5b-b2cb-4fca-a58d-528ee4ff4b81",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "bg_color": "#1f242a",
+                                  "bg_opa": 255,
+                                  "radius": 8,
+                                  "border_width": 0,
+                                  "pad_top": 0,
+                                  "pad_bottom": 0,
+                                  "pad_left": 0,
+                                  "pad_right": 0,
+                                  "shadow_width": 0
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0
+                        },
+                        {
+                          "objID": "589352cb-f1bd-4eec-8165-1afcba0e3d7d",
+                          "type": "LVGLPanelWidget",
+                          "left": 0,
+                          "top": 294,
+                          "width": 510,
+                          "height": 38,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "c32b0f74-8d12-47fb-8272-39c6c961a6bf",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": true,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "rinse_kook_8",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "px",
+                          "children": [
+                            {
+                              "objID": "2f1fc65e-93de-4702-8328-47283334c317",
+                              "type": "LVGLLabelWidget",
+                              "left": 14,
+                              "top": 10,
+                              "width": 47,
+                              "height": 18,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "58e726a5-5023-4015-a227-e6094d63c266",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_8_name",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "content",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "d7185a9f-445d-4902-a469-7b44ad457edc",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_color": "#e8eaed",
+                                      "text_font": "MONTSERRAT_16"
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "text": "Hop 8",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false,
+                              "useStaticText": false
+                            },
+                            {
+                              "objID": "7a6cc5db-d584-42e2-8419-435ca1c4fedd",
+                              "type": "LVGLLabelWidget",
+                              "left": 330,
+                              "top": 10,
+                              "width": 166,
+                              "height": 18,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "ed57119a-c14c-43df-acca-bab4ea0fa7ab",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_8_time",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "4ddde5ee-38e1-445e-94e4-f9bf7b3483ff",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_color": "#e8eaed",
+                                      "text_font": "MONTSERRAT_16",
+                                      "text_align": "RIGHT"
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "text": "-",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false,
+                              "useStaticText": false
+                            },
+                            {
+                              "objID": "73dbf727-335e-447f-904c-289a685eb87c",
+                              "type": "LVGLBarWidget",
+                              "left": 14,
+                              "top": 32,
+                              "width": 482,
+                              "height": 3,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "e6baef34-9823-4ca5-8d93-31c9e1b326ef",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_8_bar",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlag": true,
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "edf59565-22d0-4843-94b3-881ebb857041",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "bg_color": "#2c333b",
+                                      "bg_opa": 51,
+                                      "radius": 2
+                                    }
+                                  },
+                                  "INDICATOR": {
+                                    "DEFAULT": {
+                                      "bg_color": "#f0a030",
+                                      "bg_opa": 255,
+                                      "radius": 2
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "min": 0,
+                              "minType": "literal",
+                              "max": 100,
+                              "maxType": "literal",
+                              "mode": "NORMAL",
+                              "value": 0,
+                              "valueType": "literal",
+                              "previewValue": "0",
+                              "valueStart": 0,
+                              "valueStartType": "literal",
+                              "previewValueStart": "0",
+                              "enableAnimation": false
+                            }
+                          ],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlag": true,
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "0568a841-a5ac-42a6-8d19-cc237cf23026",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "bg_color": "#1f242a",
+                                  "bg_opa": 255,
+                                  "radius": 8,
+                                  "border_width": 0,
+                                  "pad_top": 0,
+                                  "pad_bottom": 0,
+                                  "pad_left": 0,
+                                  "pad_right": 0,
+                                  "shadow_width": 0
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0
+                        },
+                        {
+                          "objID": "19b47c5b-e071-4942-8729-81cb7540ac4c",
+                          "type": "LVGLPanelWidget",
+                          "left": 0,
+                          "top": 336,
+                          "width": 510,
+                          "height": 38,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "df58cda9-3d95-4182-b945-b87b64178ad8",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": true,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "rinse_kook_9",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "px",
+                          "children": [
+                            {
+                              "objID": "24adb9fa-3265-470b-8e0b-43ede4c7a879",
+                              "type": "LVGLLabelWidget",
+                              "left": 14,
+                              "top": 10,
+                              "width": 47,
+                              "height": 18,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "b2f75541-5d49-40f9-b121-58e12dfc4cf5",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_9_name",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "content",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "c7b812f0-9161-487f-83ae-0357858f3141",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_color": "#e8eaed",
+                                      "text_font": "MONTSERRAT_16"
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "text": "Hop 9",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false,
+                              "useStaticText": false
+                            },
+                            {
+                              "objID": "c70dd9dd-cdd3-4933-8ae9-6946919f0e1e",
+                              "type": "LVGLLabelWidget",
+                              "left": 330,
+                              "top": 10,
+                              "width": 166,
+                              "height": 18,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "f897c8b9-39eb-4eaa-8a58-d265ffeb560b",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_9_time",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "664d99c1-6da2-4eec-98b2-bb4f25cefde0",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_color": "#e8eaed",
+                                      "text_font": "MONTSERRAT_16",
+                                      "text_align": "RIGHT"
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "text": "-",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false,
+                              "useStaticText": false
+                            },
+                            {
+                              "objID": "3d173370-4727-4b21-8ada-7b5438d73c5a",
+                              "type": "LVGLBarWidget",
+                              "left": 14,
+                              "top": 32,
+                              "width": 482,
+                              "height": 3,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "cfbe5a96-7637-427e-8a8f-fe9a02bb88be",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_9_bar",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlag": true,
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "e0525e9f-3195-4004-b346-d750df71c23d",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "bg_color": "#2c333b",
+                                      "bg_opa": 51,
+                                      "radius": 2
+                                    }
+                                  },
+                                  "INDICATOR": {
+                                    "DEFAULT": {
+                                      "bg_color": "#f0a030",
+                                      "bg_opa": 255,
+                                      "radius": 2
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "min": 0,
+                              "minType": "literal",
+                              "max": 100,
+                              "maxType": "literal",
+                              "mode": "NORMAL",
+                              "value": 0,
+                              "valueType": "literal",
+                              "previewValue": "0",
+                              "valueStart": 0,
+                              "valueStartType": "literal",
+                              "previewValueStart": "0",
+                              "enableAnimation": false
+                            }
+                          ],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlag": true,
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "44576732-8df6-4605-b8cf-e2f916f60fe7",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "bg_color": "#1f242a",
+                                  "bg_opa": 255,
+                                  "radius": 8,
+                                  "border_width": 0,
+                                  "pad_top": 0,
+                                  "pad_bottom": 0,
+                                  "pad_left": 0,
+                                  "pad_right": 0,
+                                  "shadow_width": 0
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0
+                        },
+                        {
+                          "objID": "f592420d-692b-41aa-90f6-4f9d8562949d",
+                          "type": "LVGLPanelWidget",
+                          "left": 0,
+                          "top": 378,
+                          "width": 510,
+                          "height": 38,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "cbb294af-a8ab-4a69-979e-a27ae52f08aa",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "hiddenInEditor": true,
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "rinse_kook_10",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "px",
+                          "heightUnit": "px",
+                          "children": [
+                            {
+                              "objID": "55be7e19-d458-443c-8e9c-1f8261f43733",
+                              "type": "LVGLLabelWidget",
+                              "left": 14,
+                              "top": 10,
+                              "width": 47,
+                              "height": 18,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "7bf29e33-b4a7-475d-a7ee-d097596535a4",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_10_name",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "content",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "1ad5100c-1993-45ad-ba7c-096bf12ebdd1",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_color": "#e8eaed",
+                                      "text_font": "MONTSERRAT_16"
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "text": "Hop 10",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false,
+                              "useStaticText": false
+                            },
+                            {
+                              "objID": "9c574f36-3f57-467c-9ae7-cbcee4beab19",
+                              "type": "LVGLLabelWidget",
+                              "left": 330,
+                              "top": 10,
+                              "width": 166,
+                              "height": 18,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "848dda53-1449-48b4-b0d8-d09960d96ddb",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_10_time",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "content",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "183554cf-2c30-4198-8a65-bdfb76db9c66",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "text_color": "#e8eaed",
+                                      "text_font": "MONTSERRAT_16",
+                                      "text_align": "RIGHT"
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "text": "-",
+                              "textType": "literal",
+                              "longMode": "WRAP",
+                              "recolor": false,
+                              "useStaticText": false
+                            },
+                            {
+                              "objID": "6da34aa2-f36c-4e4c-b11b-c1b454c5e702",
+                              "type": "LVGLBarWidget",
+                              "left": 14,
+                              "top": 32,
+                              "width": 482,
+                              "height": 3,
+                              "customInputs": [],
+                              "customOutputs": [],
+                              "style": {
+                                "objID": "c9d1999e-fe04-4030-a701-3ca896254fa9",
+                                "useStyle": "default",
+                                "conditionalStyles": [],
+                                "childStyles": []
+                              },
+                              "hiddenInEditor": false,
+                              "timeline": [],
+                              "eventHandlers": [],
+                              "identifier": "rinse_kook_10_bar",
+                              "leftUnit": "px",
+                              "topUnit": "px",
+                              "widthUnit": "px",
+                              "heightUnit": "px",
+                              "children": [],
+                              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                              "hiddenFlag": true,
+                              "hiddenFlagType": "literal",
+                              "clickableFlag": false,
+                              "clickableFlagType": "literal",
+                              "checkedStateType": "literal",
+                              "disabledStateType": "literal",
+                              "states": "",
+                              "localStyles": {
+                                "objID": "0a185d34-d32a-43ba-8009-f575bb71c6b8",
+                                "definition": {
+                                  "MAIN": {
+                                    "DEFAULT": {
+                                      "bg_color": "#2c333b",
+                                      "bg_opa": 51,
+                                      "radius": 2
+                                    }
+                                  },
+                                  "INDICATOR": {
+                                    "DEFAULT": {
+                                      "bg_color": "#f0a030",
+                                      "bg_opa": 255,
+                                      "radius": 2
+                                    }
+                                  }
+                                }
+                              },
+                              "groupIndex": 0,
+                              "min": 0,
+                              "minType": "literal",
+                              "max": 100,
+                              "maxType": "literal",
+                              "mode": "NORMAL",
+                              "value": 0,
+                              "valueType": "literal",
+                              "previewValue": "0",
+                              "valueStart": 0,
+                              "valueStartType": "literal",
+                              "previewValueStart": "0",
+                              "enableAnimation": false
+                            }
+                          ],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlag": true,
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "b83ebbe5-60b7-49fe-9533-b09aaedfa1ba",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "bg_color": "#1f242a",
+                                  "bg_opa": 255,
+                                  "radius": 8,
+                                  "border_width": 0,
+                                  "pad_top": 0,
+                                  "pad_bottom": 0,
+                                  "pad_left": 0,
+                                  "pad_right": 0,
+                                  "shadow_width": 0
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0
+                        }
+                      ],
+                      "widgetFlags": "CLICKABLE|CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_ELASTIC|SCROLL_MOMENTUM|SNAPPABLE",
+                      "hiddenFlagType": "literal",
+                      "clickableFlag": true,
+                      "clickableFlagType": "literal",
+                      "checkedStateType": "literal",
+                      "disabledStateType": "literal",
+                      "states": "",
+                      "localStyles": {
+                        "objID": "4388723d-a424-4d38-9743-0429a5fc098d",
+                        "definition": {
+                          "MAIN": {
+                            "DEFAULT": {
+                              "bg_opa": 0,
+                              "radius": 0,
+                              "border_width": 0,
+                              "pad_top": 0,
+                              "pad_bottom": 0,
+                              "pad_left": 0,
+                              "pad_right": 0,
+                              "shadow_width": 0
+                            }
+                          }
+                        }
+                      },
+                      "groupIndex": 0
+                    },
+                    {
+                      "objID": "da024e8f-3543-4f4c-9708-cb2919192cd3",
+                      "type": "LVGLButtonWidget",
+                      "left": 16,
+                      "top": 376,
+                      "width": 245,
+                      "height": 64,
+                      "customInputs": [],
+                      "customOutputs": [],
+                      "style": {
+                        "objID": "79b18152-a99d-4965-8092-378e2475d497",
+                        "useStyle": "default",
+                        "conditionalStyles": [],
+                        "childStyles": []
+                      },
+                      "timeline": [],
+                      "eventHandlers": [
+                        {
+                          "objID": "187b477f-687d-4f24-a268-b936c208ac6a",
+                          "eventName": "CLICKED",
+                          "handlerType": "action",
+                          "action": "kook_overzicht_terug",
+                          "userData": 0
+                        }
+                      ],
+                      "identifier": "rinse_kook_terug",
+                      "leftUnit": "px",
+                      "topUnit": "px",
+                      "widthUnit": "px",
+                      "heightUnit": "px",
+                      "children": [
+                        {
+                          "objID": "9cdf2abf-5c7f-4d2b-a07a-da859d1f520b",
+                          "type": "LVGLLabelWidget",
+                          "left": 0,
+                          "top": 0,
+                          "width": 175,
+                          "height": 21,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "32e264b0-3012-4d63-82ae-d3072a4ac111",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "identifier": "rinse_kook_terug_label",
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "content",
+                          "heightUnit": "content",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "a8c4640d-a4ed-43e8-9cfa-58ba4446f2d2",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "text_color": "#ffffff",
+                                  "text_font": "MONTSERRAT_18",
+                                  "align": "CENTER"
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "text": "Terug",
+                          "textType": "literal",
+                          "longMode": "WRAP",
+                          "recolor": false,
+                          "useStaticText": false
+                        }
+                      ],
+                      "widgetFlags": "CLICKABLE|CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLL_ON_FOCUS|SNAPPABLE",
+                      "hiddenFlagType": "literal",
+                      "clickableFlag": true,
+                      "clickableFlagType": "literal",
+                      "checkedStateType": "literal",
+                      "disabledStateType": "literal",
+                      "states": "",
+                      "localStyles": {
+                        "objID": "ee7ced3b-49a5-4c76-aeb2-519859d34fc8",
+                        "definition": {
+                          "MAIN": {
+                            "DEFAULT": {
+                              "bg_color": "#3a434d",
+                              "bg_opa": 255,
+                              "radius": 10,
+                              "shadow_width": 0,
+                              "pad_top": 0,
+                              "pad_bottom": 0,
+                              "pad_left": 0,
+                              "pad_right": 0
+                            }
+                          }
+                        }
+                      },
+                      "groupIndex": 0
+                    },
+                    {
+                      "objID": "cfc4410f-f501-464f-a426-7b906312c618",
+                      "type": "LVGLButtonWidget",
+                      "left": 273,
+                      "top": 376,
+                      "width": 245,
+                      "height": 64,
+                      "customInputs": [],
+                      "customOutputs": [],
+                      "style": {
+                        "objID": "2079f82f-c490-47f1-aa41-f58c63a2ccef",
+                        "useStyle": "default",
+                        "conditionalStyles": [],
+                        "childStyles": []
+                      },
+                      "timeline": [],
+                      "eventHandlers": [
+                        {
+                          "objID": "ea20ad51-397b-4992-8897-d92cad715872",
+                          "eventName": "CLICKED",
+                          "handlerType": "action",
+                          "action": "kook_overzicht_start",
+                          "userData": 0
+                        }
+                      ],
+                      "leftUnit": "px",
+                      "topUnit": "px",
+                      "widthUnit": "px",
+                      "heightUnit": "px",
+                      "children": [
+                        {
+                          "objID": "d65c0b08-cb85-4beb-9745-068f960b2f7a",
+                          "type": "LVGLLabelWidget",
+                          "left": 0,
+                          "top": 0,
+                          "width": 117,
+                          "height": 22,
+                          "customInputs": [],
+                          "customOutputs": [],
+                          "style": {
+                            "objID": "16c5dd81-e9b2-4526-926d-7cd3add882ca",
+                            "useStyle": "default",
+                            "conditionalStyles": [],
+                            "childStyles": []
+                          },
+                          "timeline": [],
+                          "eventHandlers": [],
+                          "leftUnit": "px",
+                          "topUnit": "px",
+                          "widthUnit": "content",
+                          "heightUnit": "content",
+                          "children": [],
+                          "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+                          "hiddenFlagType": "literal",
+                          "clickableFlag": false,
+                          "clickableFlagType": "literal",
+                          "checkedStateType": "literal",
+                          "disabledStateType": "literal",
+                          "states": "",
+                          "localStyles": {
+                            "objID": "b70a4405-49e7-4641-8cbd-eeb69b5f3b78",
+                            "definition": {
+                              "MAIN": {
+                                "DEFAULT": {
+                                  "text_color": "#ffffff",
+                                  "text_font": "MONTSERRAT_20",
+                                  "align": "CENTER"
+                                }
+                              }
+                            }
+                          },
+                          "groupIndex": 0,
+                          "text": "Start koken",
+                          "textType": "literal",
+                          "longMode": "WRAP",
+                          "recolor": false,
+                          "useStaticText": true
+                        }
+                      ],
+                      "widgetFlags": "CLICKABLE|CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SCROLL_ON_FOCUS|SNAPPABLE",
+                      "hiddenFlagType": "literal",
+                      "clickableFlag": true,
+                      "clickableFlagType": "literal",
+                      "checkedStateType": "literal",
+                      "disabledStateType": "literal",
+                      "states": "",
+                      "localStyles": {
+                        "objID": "37720b93-496c-40df-99bf-694e7a772533",
+                        "definition": {
+                          "MAIN": {
+                            "DEFAULT": {
+                              "bg_color": "#1f8a57",
+                              "bg_opa": 255,
+                              "radius": 10,
+                              "shadow_width": 0,
+                              "pad_top": 0,
+                              "pad_bottom": 0,
+                              "pad_left": 0,
+                              "pad_right": 0
+                            }
+                          }
+                        }
+                      },
+                      "groupIndex": 0,
+                      "identifier": "rinse_kook_start"
+                    }
+                  ],
+                  "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE|CLICKABLE",
+                  "hiddenFlagType": "literal",
+                  "clickableFlag": true,
+                  "clickableFlagType": "literal",
+                  "checkedStateType": "literal",
+                  "disabledStateType": "literal",
+                  "states": "",
+                  "localStyles": {
+                    "objID": "ba99f4a4-6a99-4e2b-8ff3-59e631ece39c",
+                    "definition": {
+                      "MAIN": {
+                        "DEFAULT": {
+                          "bg_color": "#1f242a",
+                          "bg_opa": 255,
+                          "radius": 12,
+                          "border_width": 0,
+                          "pad_top": 0,
+                          "pad_bottom": 0,
+                          "pad_left": 0,
+                          "pad_right": 0,
+                          "shadow_width": 0
+                        }
+                      }
+                    }
+                  },
+                  "groupIndex": 0,
+                  "identifier": "rinse_kook",
+                  "hiddenInEditor": true,
+                  "hiddenFlag": true
                 }
               ],
               "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",

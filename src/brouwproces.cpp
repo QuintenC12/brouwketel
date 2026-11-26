@@ -81,6 +81,7 @@ void brouwer_start_fase(Fase f) {
         ui_toon_koken();
         break;
     case FASE_SPOELEN:
+        ui_toon_kookoverzicht(false);
         ui_selecteer_sg_rij(-1);   // SG-knop wijst nu naar de laatste stap
         hw_verwarming_uit();
         brouw.pomp_aan = false;      // na maishen pomp uit

@@ -465,6 +465,64 @@ void ui_toon_koken() {
 }
 
 /* ======================================================================
+ * Overzicht van het koken (automatisch), boven het spoelscherm:
+ * kooktijd en alle hop en extra's in volgorde, met "Terug" en "Start koken"
+ * ====================================================================== */
+
+static HopRij kook_rij(int i) {
+    switch (i) {
+    case 0:  return { objects.rinse_kook_1,  objects.rinse_kook_1_name,  objects.rinse_kook_1_time };
+    case 1:  return { objects.rinse_kook_2,  objects.rinse_kook_2_name,  objects.rinse_kook_2_time };
+    case 2:  return { objects.rinse_kook_3,  objects.rinse_kook_3_name,  objects.rinse_kook_3_time };
+    case 3:  return { objects.rinse_kook_4,  objects.rinse_kook_4_name,  objects.rinse_kook_4_time };
+    case 4:  return { objects.rinse_kook_5,  objects.rinse_kook_5_name,  objects.rinse_kook_5_time };
+    case 5:  return { objects.rinse_kook_6,  objects.rinse_kook_6_name,  objects.rinse_kook_6_time };
+    case 6:  return { objects.rinse_kook_7,  objects.rinse_kook_7_name,  objects.rinse_kook_7_time };
+    case 7:  return { objects.rinse_kook_8,  objects.rinse_kook_8_name,  objects.rinse_kook_8_time };
+    case 8:  return { objects.rinse_kook_9,  objects.rinse_kook_9_name,  objects.rinse_kook_9_time };
+    default: return { objects.rinse_kook_10, objects.rinse_kook_10_name, objects.rinse_kook_10_time };
+    }
+}
+
+void ui_toon_kookoverzicht(bool zichtbaar) {
+    toon(objects.rinse_kook, zichtbaar);
+    if (!zichtbaar) return;
+    lv_obj_move_foreground(objects.rinse_kook);
+
+    int hop = 0, extra = 0;
+    for (int i = 0; i < brouw.aantal_hops; i++) (brouw.hops[i].extra ? extra : hop)++;
+    lv_label_set_text_fmt(objects.rinse_kook_title, "Koken - %d min", brouw.kooktijd_min);
+    if (hop + extra == 0)
+        lv_label_set_text(objects.rinse_kook_info, "Geen hop of extra's in dit recept");
+    else
+        lv_label_set_text_fmt(objects.rinse_kook_info, "%d %s en %d extra%s - controleer en start",
+                              hop, hop == 1 ? "hopgift" : "hopgiften", extra, extra == 1 ? "" : "'s");
+
+    for (int i = 0; i < MAX_HOPS; i++) {
+        HopRij r = kook_rij(i);
+        bool z = i < brouw.aantal_hops;
+        toon(r.rij, z);
+        if (!z) continue;
+        HopGift &h = brouw.hops[i];
+        char soort[16];
+        gift_soort(soort, sizeof soort, i);
+        if (h.extra) lv_label_set_text_fmt(r.naam, "Extra: %s", h.naam[0] ? h.naam : "-");
+        else if (h.naam[0]) lv_label_set_text_fmt(r.naam, "%s - %s", soort, h.naam);
+        else lv_label_set_text(r.naam, soort);
+        if (h.minuten >= brouw.kooktijd_min) lv_label_set_text(r.tijd, "bij de start");
+        else                                 lv_label_set_text_fmt(r.tijd, "bij nog %d min", h.minuten);
+        bg(r.rij, KLEUR_RIJ_BG);
+        for (uint32_t k = 0; k < lv_obj_get_child_count(r.rij); k++) {   // geen voortgangsbalkje in het overzicht
+            lv_obj_t *kind = lv_obj_get_child(r.rij, k);
+            if (lv_obj_check_type(kind, &lv_bar_class)) toon(kind, false);
+        }
+        txt(r.naam, h.extra ? KLEUR_EXTRA_TXT : KLEUR_TXT);
+        txt(r.tijd, h.extra ? KLEUR_EXTRA_TXT : KLEUR_TXT);
+    }
+    lv_obj_scroll_to_y(objects.rinse_kook_list, 0, LV_ANIM_OFF);
+}
+
+/* ======================================================================
  * Kookschema (manueel): kooktijd en hopgiften instellen voor het koken
  * ====================================================================== */
 
@@ -609,4 +667,12 @@ void ui_init_extra() {
     lv_obj_set_style_pad_right(objects.boil_hop_list, 0, LV_PART_SCROLLBAR);
     lv_obj_set_style_bg_color(objects.boil_hop_list, lv_color_hex(KLEUR_TXT_GRIJS), LV_PART_SCROLLBAR);
     lv_obj_set_style_bg_opa(objects.boil_hop_list, LV_OPA_COVER, LV_PART_SCROLLBAR);
+    // Zelfde lijst in het kookoverzicht op het spoelscherm
+    lv_obj_t *kl = objects.rinse_kook_list;
+    lv_obj_set_scroll_dir(kl, LV_DIR_VER);
+    lv_obj_set_scrollbar_mode(kl, LV_SCROLLBAR_MODE_AUTO);
+    lv_obj_set_style_width(kl, 4, LV_PART_SCROLLBAR);
+    lv_obj_set_style_pad_right(kl, 0, LV_PART_SCROLLBAR);
+    lv_obj_set_style_bg_color(kl, lv_color_hex(KLEUR_TXT_GRIJS), LV_PART_SCROLLBAR);
+    lv_obj_set_style_bg_opa(kl, LV_OPA_COVER, LV_PART_SCROLLBAR);
 }

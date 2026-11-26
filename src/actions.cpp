@@ -424,6 +424,16 @@ void action_start_koken(lv_event_t *e) {
         ui_ga_naar(SCREEN_ID_KOOKSCHEMA);
         return;
     }
+    ui_toon_kookoverzicht(true);       // automatisch: eerst het overzicht van het koken
+}
+
+/* Overzicht van het koken (automatisch): "Terug" naar het spoelen, of "Start koken" */
+void action_kook_overzicht_terug(lv_event_t *e) {
+    ui_toon_kookoverzicht(false);
+}
+
+void action_kook_overzicht_start(lv_event_t *e) {
+    ui_toon_kookoverzicht(false);
     brouwer_start_fase(FASE_KOKEN);
     verslag_koken_begin();
     net_meld("start_koken");

@@ -24,6 +24,8 @@ extern void action_edit_opslaan(lv_event_t * e);
 extern void action_stop_annuleren(lv_event_t * e);
 extern void action_stop_bevestigen(lv_event_t * e);
 extern void action_start_koken(lv_event_t * e);
+extern void action_kook_overzicht_terug(lv_event_t * e);
+extern void action_kook_overzicht_start(lv_event_t * e);
 extern void action_hop_toegevoegd(lv_event_t * e);
 extern void action_mout_bevestigen(lv_event_t * e);
 extern void action_alarm_stil(lv_event_t * e);

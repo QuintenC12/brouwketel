@@ -127,6 +127,7 @@ int  ui_sg_doelstap();                                  // geselecteerde stap, a
 void ui_toon_maischen();                                // fase, timer, actieve stap, SG
 void ui_toon_koken();                                   // timer, volgende hop, hoplijst, balken
 void ui_toon_kookschema();                              // manueel: kooktijd + hopgiften instellen
+void ui_toon_kookoverzicht(bool zichtbaar);             // automatisch: overzicht van het koken op het spoelscherm
 void ui_toon_sensorfout(float laatste_meting);
 void ui_toon_hop_alarm(bool zichtbaar);
 void ui_toon_mout();                                    // pop-up "Mout toevoegen" / "Ketel sluiten" op het maischscherm
