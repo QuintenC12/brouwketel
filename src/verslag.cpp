@@ -240,8 +240,10 @@ void ui_toon_overzicht() {
         char naam[12];
         snprintf(naam, sizeof naam, "Stap %d", i + 1);
         snprintf(t1, sizeof t1, "%d °C", s.temp);
-        snprintf(t2, sizeof t2, "%d min", s.minuten);
-        duur_tekst(t3, sizeof t3, v.stap_s[i]);
+        // Gepland = het recept van de server; echt = zoals ingesteld op het scherm
+        if (i < v.plan_aantal) snprintf(t2, sizeof t2, "%d min", v.plan[i].minuten);
+        else                   snprintf(t2, sizeof t2, "-");
+        snprintf(t3, sizeof t3, "%d min", s.minuten);
         meting_tekst(sg, sizeof sg, "", s.sg, 3);
         meting_tekst(ph, sizeof ph, "pH ", s.ph, 2);
         vul(r, naam, t1, t2, t3, sg, ph);
@@ -249,8 +251,8 @@ void ui_toon_overzicht() {
 
     OvRij k = { objects.ov_kook, objects.ov_kook_name, objects.ov_kook_temp, objects.ov_kook_time,
                 objects.ov_kook_duur, objects.ov_kook_sg, objects.ov_kook_ph };
-    snprintf(t2, sizeof t2, "%d min", brouw.kooktijd_min);
-    duur_tekst(t3, sizeof t3, v.koken_s);
+    snprintf(t2, sizeof t2, "%d min", v.plan_kooktijd > 0 ? v.plan_kooktijd : brouw.kooktijd_min);
+    snprintf(t3, sizeof t3, "%d min", brouw.kooktijd_min);
     meting_tekst(sg, sizeof sg, "", v.kook_sg, 3);
     meting_tekst(ph, sizeof ph, "pH ", v.kook_ph, 2);
     vul(k, "Koken", "-", t2, t3, sg, ph);
