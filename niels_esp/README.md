@@ -1,4 +1,4 @@
-# ProcesRegelaar (Niels ESP) v0.4.0
+# ProcesRegelaar (Niels ESP) v0.5.0
 
 Code van Niels (ProcesRegalaar-main), afgewerkt volgens het regelboekje
 (`regelboekje-uart.md`, `main/niels_uart.h`) en het scherm op de branch
@@ -21,7 +21,7 @@ Bij de eerste build downloadt ESP-IDF de component `espressif/mdns` (voor het fo
 | `main/recept.c` | Recept van de webapp (`cmd/recept`) omzetten naar het `recept`-bericht van het scherm |
 | `main/pid.c` | PID-regelaar (anti-windup, D-term op de temperatuur) |
 | `main/niels_uart.h` | Kopie van `include/niels_uart.h` (zelfde bestand aan beide kanten) |
-| `components/scherm_uart` | De kabel naar het scherm (van Niels, ongewijzigd) |
+| `components/scherm_uart` | De kabel naar het scherm (van Niels; sinds v0.5.0 regels tot 2048 tekens en alle onderwerpen uit het regelboekje) |
 | `components/max31865` | De PT100-sensor (van Niels, ongewijzigd) |
 | `components/brouw_netwerk` | Wifi met hotspot + formulier (van Niels, ongewijzigd) |
 
@@ -44,10 +44,14 @@ volgt nu "MQTT-afspraken met elektronica" van het back-end-team. Alle topics beg
 | `brouw/meld` recept_ok / recept_fout | `ack` op het recept, of `fout` met code `recept` |
 | `brouw/status` fase | `fase` = `geen`/`maischen`/`spoelen`/`koken` (retained, bij een verandering; extra, nog niet in de afspraken) |
 | `brouw/meld` (elke nieuwe) | `event` = `{"naam":"hop_alarm","tekst":"Hop toevoegen: Citra - 20 g","hop":"Citra - 20 g"}` (zonder `nr`; extra, nog niet in de afspraken) |
+| `brouw/meld` start / start_fout | `ack` op `cmd/start` (als die wacht) |
+| `brouw/verslag` | `verslag` = het brouwverslag zonder `nr` (QoS 1; zonder broker bewaard tot die er weer is; extra, nog niet in de afspraken) |
 
 | Van MQTT | Naar het scherm |
 |---|---|
 | `cmd/recept` `{"message_id":..,"data":{recept}}` | `recept {"naam":..,"kooktijd":..,"stappen":[..],"hops":[..]}` |
+| `cmd/start` `{"message_id":..}` | `brouw/start {}`; het scherm meldt `start` of `start_fout` en dat wordt de `ack` (na 8 s zonder antwoord: `ok:false`) |
+| `brouwer/server/status` (retained) | `"online"` in `net/toestand` |
 | `cmd/setpoint`, `cmd/actuator` | niets: `ack` met `ok:false`, het scherm regelt de ketel |
 
 Werking:
@@ -65,10 +69,22 @@ Werking:
     afgerond
   - `hops` wordt `hops`, als `"Citra - 20 g"` met `boil_time_min`, langste eerst
   - `kooktijd` is de langste hoptijd, met een minimum van 60 min
-  - meer dan 4 stappen of meer dan 5 hopgiften: `ack` met `ok:false`
+  - meer dan 4 stappen of meer dan 10 hopgiften en extra's samen: `ack` met `ok:false`
 - net/status naar het scherm: `verbonden` zolang MQTT verbonden is. Na net/start zonder
   verbinding is het `bezig`, en na 25 s `fout` met de reden "wifi", "wifi niet ingesteld" of
   "server onbereikbaar".
+
+## v0.5.0: de kabel volgens het regelboekje
+
+1. **Lange regels:** `scherm_uart` nam maar regels tot 512 tekens aan. Een recept met mout en
+   een brouwverslag zijn langer, dus die vielen weg. Nu 2048 tekens (`NIELS_MAX_REGEL`, aan
+   beide kanten). Versturen gebeurt in stukken met een slot, zonder kopie van 2 kB op de stack.
+2. **Onderwerpen:** `brouw/verslag`, `net/vraag` en `net/modus` van het scherm, en
+   `net/toestand` en `brouw/start` naar het scherm kwamen niet door de filter van `scherm_uart`.
+3. **net/toestand** heeft nu alle velden uit het regelboekje (`online`, `ssid`, `server`,
+   `poort`) en komt alleen bij een verandering en als antwoord op `net/vraag`.
+4. **brouw/verslag** krijgt een `ack` en gaat één keer naar MQTT `verslag`.
+5. **cmd/start** van de webapp gaat als `brouw/start` naar het scherm.
 
 ## v0.3.0: wat er veranderd is tegenover de code van Niels
 

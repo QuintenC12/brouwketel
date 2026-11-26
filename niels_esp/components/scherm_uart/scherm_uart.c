@@ -7,12 +7,14 @@
 
 #include "cJSON.h"
 #include "driver/uart.h"
+#include "freertos/semphr.h"
 #include "freertos/task.h"
 #include "sdkconfig.h"
 
 #define UART_POORT UART_NUM_1
 
 static bool gestart = false;
+static SemaphoreHandle_t zend_slot;     // een regel in één stuk, ook met meerdere zendende taken
 static char ontvang_regel[SCHERM_UART_REGEL_MAX];
 static size_t aantal_tekens = 0;
 static bool regel_weggooien = false;
@@ -23,8 +25,11 @@ static bool onderwerp_ontvangen_bekend(const char *onderwerp)
     return strcmp(onderwerp, "brouw/stuur") == 0 ||
            strcmp(onderwerp, "brouw/status") == 0 ||
            strcmp(onderwerp, "brouw/meld") == 0 ||
+           strcmp(onderwerp, "brouw/verslag") == 0 ||
            strcmp(onderwerp, "net/start") == 0 ||
-           strcmp(onderwerp, "net/stop") == 0;
+           strcmp(onderwerp, "net/stop") == 0 ||
+           strcmp(onderwerp, "net/vraag") == 0 ||
+           strcmp(onderwerp, "net/modus") == 0;
 }
 
 //Alleen deze onderwerpen sturen wij NAAR het scherm.
@@ -32,7 +37,9 @@ static bool onderwerp_versturen_bekend(const char *onderwerp)
 {
     return strcmp(onderwerp, "ketel/temp") == 0 ||
            strcmp(onderwerp, "net/status") == 0 ||
+           strcmp(onderwerp, "net/toestand") == 0 ||
            strcmp(onderwerp, "recept") == 0 ||
+           strcmp(onderwerp, "brouw/start") == 0 ||
            strcmp(onderwerp, "ack") == 0;
 }
 
@@ -62,7 +69,13 @@ esp_err_t scherm_uart_init(void)
         .source_clk = UART_SCLK_DEFAULT,
     };
 
-    esp_err_t err = uart_driver_install(UART_POORT, 2048, 1024, 0, NULL, 0);
+    zend_slot = xSemaphoreCreateMutex();
+    if (zend_slot == NULL)
+    {
+        return ESP_ERR_NO_MEM;
+    }
+
+    esp_err_t err = uart_driver_install(UART_POORT, 4096, 1024, 0, NULL, 0);
     if (err != ESP_OK)
     {
         return err;
@@ -107,9 +120,11 @@ esp_err_t scherm_uart_verstuur(const char *onderwerp, const char *json)
         return ESP_ERR_INVALID_ARG;
     }
 
-    char regel[SCHERM_UART_REGEL_MAX + 1];
-    int lengte = snprintf(regel, sizeof(regel), "%s %s\n", onderwerp, json);
-    if (lengte < 0 || lengte > SCHERM_UART_REGEL_MAX)
+    // onderwerp + spatie + json + '\n'
+    size_t lengte_onderwerp = strlen(onderwerp);
+    size_t lengte_json = strlen(json);
+    size_t lengte = lengte_onderwerp + 1 + lengte_json + 1;
+    if (lengte > SCHERM_UART_REGEL_MAX)
     {
         return ESP_ERR_INVALID_SIZE;
     }
@@ -118,9 +133,16 @@ esp_err_t scherm_uart_verstuur(const char *onderwerp, const char *json)
         return ESP_ERR_INVALID_ARG;
     }
 
-    // De complete regel in EEN aanroep versturen, ook met meerdere zendende taken.
-    int verstuurd = uart_write_bytes(UART_POORT, regel, lengte);
-    return verstuurd == lengte ? ESP_OK : ESP_FAIL;
+    // Geen kopie van de hele regel op de stack (die is tot 2 kB lang): de
+    // stukken na elkaar in de zendbuffer, met een slot zodat een andere taak
+    // er niet tussen schrijft.
+    xSemaphoreTake(zend_slot, portMAX_DELAY);
+    int verstuurd = uart_write_bytes(UART_POORT, onderwerp, lengte_onderwerp);
+    verstuurd += uart_write_bytes(UART_POORT, " ", 1);
+    verstuurd += uart_write_bytes(UART_POORT, json, lengte_json);
+    verstuurd += uart_write_bytes(UART_POORT, "\n", 1);
+    xSemaphoreGive(zend_slot);
+    return verstuurd == (int)lengte ? ESP_OK : ESP_FAIL;
 }
 
 esp_err_t scherm_uart_ontvang(scherm_uart_bericht_t *bericht,

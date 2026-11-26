@@ -136,7 +136,7 @@ void verslag_einde(bool afgebroken) {
     if (!v.actief) return;
     v.actief = false;
 
-    static char json[1500];   // + "brouw/verslag {\"nr\":..," moet binnen NIELS_MAX_REGEL blijven
+    static char json[1900];   // + "brouw/verslag {\"nr\":..," moet binnen NIELS_MAX_REGEL blijven
     pos = json;
     vrij = sizeof json;
 

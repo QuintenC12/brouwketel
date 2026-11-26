@@ -16,13 +16,19 @@
  *               actuator/pomp/state        "on"/"off"  (retained)
  *               actuator/zoemer/state      "on"/"off"  (retained)
  *   Opdrachten  cmd/recept  -> recept omzetten en naar het scherm, antwoord op ack
+ *               cmd/start   -> brouw/start naar het scherm, ack als het scherm
+ *                              "start" of "start_fout" meldt
  *               cmd/<iets anders> -> ack met ok:false (het scherm regelt de ketel)
+ *   Server      brouwer/server/status (retained) "online"/"offline": of de
+ *               back-end er is; gaat als "online" mee in net/toestand
  *   Fouten      fout {"code":"sensor"|"recept","message":".."}
  *
  * Extra, nog niet in de afspraken (voorstel aan het back-end-team):
  *   fase   "geen" | "maischen" | "spoelen" | "koken"   (retained, bij een verandering)
  *   event  {"naam":"hop_alarm","tekst":"Hop toevoegen: Citra - 20 g","hop":"Citra - 20 g"}
  *          een melding van het scherm, met een tekst die de webapp zo kan tonen
+ *   verslag  het brouwverslag van het scherm (brouw/verslag zonder nr), QoS 1;
+ *            zonder broker bewaard tot die er weer is
  *
  * Wat het scherm ziet, blijft zoals in het regelboekje:
  *   net/start -> net/status "bezig", dan "verbonden" (of "fout"), dan recept {...}
@@ -42,6 +48,7 @@
 #include "esp_log.h"
 #include "esp_mac.h"
 #include "esp_timer.h"
+#include "esp_wifi.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
@@ -53,11 +60,11 @@
 
 static const char *TAG = "net";
 
-#define FIRMWARE        "0.4.0"
+#define FIRMWARE        "0.5.0"
 #define NET_STATUS_MS   5000    // zo vaak net/status herhalen naar het scherm
 #define VERBIND_MAX_MS  25000   // na net/start: zo lang mag verbinden duren (scherm: 30 s)
-#define ACK_MAX_MS      8000    // zo lang wachten op recept_ok/recept_fout (back-end: 10 s)
-#define TOESTAND_MS     1000    // zo vaak net/toestand (wifi, MQTT, modus) naar het scherm
+#define ACK_MAX_MS      8000    // zo lang wachten op recept_ok/recept_fout of start/start_fout (back-end: 10 s)
+#define SERVER_TOPIC    "brouwer/server/status"   // retained "online"/"offline" van de back-end
 
 typedef enum { NET_UIT, NET_BEZIG, NET_VERBONDEN, NET_FOUT } net_toestand_t;
 
@@ -81,8 +88,13 @@ static net_toestand_t gemeld = NET_UIT;     // laatst naar het scherm gestuurd
 static const char    *fout_reden = NULL;
 static char    *recept_regel = NULL;        // laatste recept, al omgezet voor het scherm
 static bool     recept_gestuurd = false;    // al naar het scherm in deze Automatisch-ronde
-static char     ack_id[64] = "";            // message_id die nog een ack wacht
+static char     ack_id[64] = "";            // message_id van cmd/recept die nog een ack wacht
 static uint32_t ack_sinds = 0;
+static char     start_ack_id[64] = "";      // message_id van cmd/start die nog een ack wacht
+static uint32_t start_ack_sinds = 0;
+static bool     server_online = false;      // brouwer/server/status = "online"
+static volatile bool toestand_gevraagd = true;  // net/vraag: net/toestand meteen sturen
+static char    *verslag_wacht = NULL;       // brouwverslag dat nog naar MQTT moet
 static int      gevraagde_modus = -1;       // laatst toegepast uit net/modus: 1 = configuratie, -1 = nog niets
 
 // Laatst gepubliceerde toestand (-1 = nog niet), alleen vanuit temp_task
@@ -187,14 +199,52 @@ static void stuur_net_status(net_toestand_t toestand, const char *reden)
     scherm_uart_verstuur(OND_NET_STATUS, json);
 }
 
-/* net/toestand: wifi en MQTT apart, en of de configuratiemodus (hotspot) open staat */
-static void stuur_toestand(bool wifi, bool mqtt_ok, bool configuratie)
+/* net/toestand (regelboekje): wifi en MQTT apart, of de server van de webapp
+ * er is, of de configuratiemodus (hotspot) open staat, en de instellingen uit
+ * het formulier (alleen om te tonen). */
+typedef struct {
+    bool wifi, mqtt, online, configuratie;
+    char ssid[33];
+    char server[64];
+    int  poort;
+} toestand_t;
+
+static void lees_toestand(toestand_t *t, brouw_netwerk_status_t netwerk)
 {
-    char json[80];
-    snprintf(json, sizeof json, "{\"wifi\":%s,\"mqtt\":%s,\"modus\":\"%s\"}",
-             wifi ? "true" : "false", mqtt_ok ? "true" : "false",
-             configuratie ? "configuratie" : "werking");
-    scherm_uart_verstuur(OND_NET_TOESTAND, json);
+    memset(t, 0, sizeof *t);
+    t->configuratie = netwerk == BROUW_NETWERK_SETUP;
+    t->wifi = netwerk == BROUW_NETWERK_IP_GEREED;
+    VERGRENDEL();
+    t->mqtt = verbonden;
+    t->online = verbonden && server_online;
+    ONTGRENDEL();
+
+    wifi_config_t wcfg;
+    if (esp_wifi_get_config(WIFI_IF_STA, &wcfg) == ESP_OK)
+        strlcpy(t->ssid, (const char *)wcfg.sta.ssid, sizeof t->ssid);
+    brouw_netwerk_mqtt_t formulier;
+    if (brouw_netwerk_lees_mqtt(&formulier) == ESP_OK) {
+        strlcpy(t->server, formulier.host, sizeof t->server);
+        t->poort = formulier.poort;
+    }
+}
+
+static void stuur_toestand(const toestand_t *t)
+{
+    cJSON *o = cJSON_CreateObject();
+    cJSON_AddBoolToObject(o, "wifi", t->wifi);
+    cJSON_AddBoolToObject(o, "mqtt", t->mqtt);
+    cJSON_AddBoolToObject(o, "online", t->online);
+    cJSON_AddStringToObject(o, "modus", t->configuratie ? "configuratie" : "werking");
+    cJSON_AddStringToObject(o, "ssid", t->ssid);
+    cJSON_AddStringToObject(o, "server", t->server);
+    cJSON_AddNumberToObject(o, "poort", t->poort);
+    char *json = cJSON_PrintUnformatted(o);
+    cJSON_Delete(o);
+    if (json) {
+        scherm_uart_verstuur(OND_NET_TOESTAND, json);
+        free(json);
+    }
 }
 
 /* Met het slot vast: wacht het scherm en is er een recept? Dan sturen. */
@@ -237,6 +287,33 @@ static void cmd_recept(const char *message_id, const cJSON *data)
     if (!scherm_wacht) stuur_ack(message_id, true, NULL);
 }
 
+/* cmd/start: de website vraagt om te starten. Het scherm beslist en meldt
+ * "start" of "start_fout"; dat wordt de ack. */
+static void cmd_start(const char *message_id)
+{
+    VERGRENDEL();
+    strlcpy(start_ack_id, message_id, sizeof start_ack_id);
+    start_ack_sinds = nu_ms();
+    ONTGRENDEL();
+    esp_err_t err = scherm_uart_verstuur(OND_BROUW_START, "{}");
+    if (err != ESP_OK) {
+        VERGRENDEL();
+        start_ack_id[0] = 0;
+        ONTGRENDEL();
+        stuur_ack(message_id, false, "scherm niet bereikbaar");
+    }
+}
+
+/* Bewaard brouwverslag versturen (met het slot vast, alleen als er MQTT is) */
+static void verslag_versturen_als_klaar(void)
+{
+    if (!verbonden || !verslag_wacht) return;
+    publiceer("verslag", verslag_wacht, 1, false);
+    ESP_LOGI(TAG, "brouwverslag naar MQTT (%d tekens)", (int)strlen(verslag_wacht));
+    free(verslag_wacht);
+    verslag_wacht = NULL;
+}
+
 static void opdracht_verwerken(const char *opdracht, const char *data, int lengte)
 {
     cJSON *doc = cJSON_ParseWithLength(data, lengte);
@@ -249,6 +326,8 @@ static void opdracht_verwerken(const char *opdracht, const char *data, int lengt
         ESP_LOGW(TAG, "cmd/%s zonder geldige JSON of message_id", opdracht);
     } else if (strcmp(opdracht, "recept") == 0) {
         cmd_recept(message_id, cJSON_GetObjectItemCaseSensitive(doc, "data"));
+    } else if (strcmp(opdracht, "start") == 0) {
+        cmd_start(message_id);
     } else {
         stuur_ack(message_id, false, "niet ondersteund: het scherm regelt de ketel");
     }
@@ -264,6 +343,7 @@ static void mqtt_event(void *arg, esp_event_base_t base, int32_t evid, void *dat
         char topic[64];
         snprintf(topic, sizeof topic, "%scmd/#", basis);
         esp_mqtt_client_subscribe(ev->client, topic, 2);   // recept komt met QoS 2
+        esp_mqtt_client_subscribe(ev->client, SERVER_TOPIC, 1);
         stuur_info();
         publiceer("status", "online", 1, true);
         vorig_vermogen = vorige_pomp = vorige_zoemer = -1;  // toestand opnieuw publiceren
@@ -272,6 +352,7 @@ static void mqtt_event(void *arg, esp_event_base_t base, int32_t evid, void *dat
         VERGRENDEL();
         verbonden = true;
         recept_naar_scherm_als_klaar();
+        verslag_versturen_als_klaar();
         ONTGRENDEL();
         break;
     }
@@ -280,10 +361,21 @@ static void mqtt_event(void *arg, esp_event_base_t base, int32_t evid, void *dat
         // De client verbindt zelf opnieuw; de broker stuurt de last will.
         VERGRENDEL();
         verbonden = false;
+        server_online = false;              // komt retained terug na het verbinden
         ONTGRENDEL();
         break;
 
     case MQTT_EVENT_DATA: {
+        // brouwer/server/status: is de back-end er?
+        int st = (int)strlen(SERVER_TOPIC);
+        if (ev->topic_len == st && strncmp(ev->topic, SERVER_TOPIC, st) == 0) {
+            bool online = ev->data_len == 6 && strncmp(ev->data, "online", 6) == 0;
+            VERGRENDEL();
+            server_online = online;
+            ONTGRENDEL();
+            ESP_LOGI(TAG, "server %s", online ? "online" : "offline");
+            break;
+        }
         // brouwer/<id>/cmd/<opdracht>, in één stuk (buffer 4 kB)
         size_t b = strlen(basis);
         if (ev->topic_len <= (int)(b + 4) || strncmp(ev->topic, basis, b) != 0 ||
@@ -365,8 +457,9 @@ static void mqtt_maken(bool opnieuw)
 
 static void net_taak(void *parameters)
 {
-    uint32_t vorige_status = 0, vorige_toestand = 0;
-    int vorige_wifi = -1, vorige_mqtt = -1, vorige_config = -1;
+    uint32_t vorige_status = 0;
+    toestand_t vorige_toestand;
+    memset(&vorige_toestand, 0, sizeof vorige_toestand);
     bool was_setup = false;
     while (1) {
         brouw_netwerk_status_t netwerk = brouw_netwerk_status();
@@ -387,7 +480,7 @@ static void net_taak(void *parameters)
             }
         }
 
-        char verlopen_ack[64] = "";
+        char verlopen_ack[64] = "", verlopen_start[64] = "";
         VERGRENDEL();
         // Wat moet het scherm zien?
         net_toestand_t nu;
@@ -417,6 +510,10 @@ static void net_taak(void *parameters)
             strlcpy(verlopen_ack, ack_id, sizeof verlopen_ack);
             ack_id[0] = 0;
         }
+        if (start_ack_id[0] && nu_ms() - start_ack_sinds > ACK_MAX_MS) {
+            strlcpy(verlopen_start, start_ack_id, sizeof verlopen_start);
+            start_ack_id[0] = 0;
+        }
         ONTGRENDEL();
 
         if (melden) {
@@ -424,22 +521,18 @@ static void net_taak(void *parameters)
             stuur_net_status(nu, reden);
         }
 
-        // Wifi en MQTT apart voor het wifi-logo op het scherm
-        VERGRENDEL();
-        int mqtt_nu = verbonden;
-        ONTGRENDEL();
-        int wifi_nu = netwerk == BROUW_NETWERK_IP_GEREED;
-        int config_nu = is_setup;
-        if (wifi_nu != vorige_wifi || mqtt_nu != vorige_mqtt || config_nu != vorige_config ||
-            nu_ms() - vorige_toestand >= TOESTAND_MS) {
-            vorige_toestand = nu_ms();
-            vorige_wifi = wifi_nu;
-            vorige_mqtt = mqtt_nu;
-            vorige_config = config_nu;
-            stuur_toestand(wifi_nu, mqtt_nu, config_nu);
+        // net/toestand: alleen bij een verandering, of als het scherm erom vraagt (net/vraag)
+        toestand_t t;
+        lees_toestand(&t, netwerk);
+        if (toestand_gevraagd || memcmp(&t, &vorige_toestand, sizeof t) != 0) {
+            toestand_gevraagd = false;
+            vorige_toestand = t;
+            stuur_toestand(&t);
         }
         if (verlopen_ack[0] && mqtt)
             stuur_ack(verlopen_ack, false, "het scherm heeft het recept niet bevestigd");
+        if (verlopen_start[0] && mqtt)
+            stuur_ack(verlopen_start, false, "het scherm heeft niet geantwoord op start");
 
         vTaskDelay(pdMS_TO_TICKS(200));
     }
@@ -478,6 +571,22 @@ void net_modus(bool configuratie)
     gevraagde_modus = nieuw;
     ESP_LOGI(TAG, "scherm vraagt %s", configuratie ? "configuratiemodus" : "werkingsmodus");
     brouw_netwerk_setup(configuratie);
+}
+
+void net_vraag(void)
+{
+    toestand_gevraagd = true;               // net_taak stuurt hem binnen 200 ms
+}
+
+void net_verslag(const cJSON *verslag)
+{
+    char *json = cJSON_PrintUnformatted(verslag);
+    if (!json) return;
+    VERGRENDEL();
+    free(verslag_wacht);                    // een ouder, nog niet verstuurd verslag vervalt
+    verslag_wacht = json;
+    verslag_versturen_als_klaar();
+    ONTGRENDEL();
 }
 
 /* Melding van het scherm -> brouwer/<id>/event, met een tekst die de webapp
@@ -586,6 +695,16 @@ void net_van_scherm(const char *onderwerp, const char *json)
             snprintf(tekst, sizeof tekst, "recept geweigerd door het scherm: %s", reden ? reden : "?");
             stuur_fout("recept", tekst);
         }
+    } else if (naam && (strcmp(naam, "start") == 0 || strcmp(naam, "start_fout") == 0)) {
+        // Antwoord op cmd/start (de knop Start op het scherm meldt ook "start":
+        // dan wacht er geen message_id en gaat alleen het event mee)
+        char wachtend[64];
+        VERGRENDEL();
+        strlcpy(wachtend, start_ack_id, sizeof wachtend);
+        start_ack_id[0] = 0;
+        ONTGRENDEL();
+        if (mqtt_ok && wachtend[0])
+            stuur_ack(wachtend, strcmp(naam, "start") == 0, reden ? reden : "start geweigerd door het scherm");
     } else if (naam && strcmp(naam, "sg") == 0 && mqtt_ok) {
         // {"nr":..,"naam":"sg","stap":2,"sg":1.050} -> sensor/sg "1.050"
         const cJSON *sg = cJSON_GetObjectItemCaseSensitive(doc, "sg");

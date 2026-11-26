@@ -18,7 +18,7 @@
 #pragma once
 
 #define NIELS_BAUD        115200
-#define NIELS_MAX_REGEL   1536       // langste regel (het brouwverslag) in tekens
+#define NIELS_MAX_REGEL   2048       // langste regel (recept of brouwverslag) in tekens, met de '\n'
 #define MQTT_VOORVOEGSEL  "brouwketel/"
 
 /* Twee soorten berichten:

@@ -3,8 +3,10 @@
 #include "esp_err.h"
 #include "freertos/FreeRTOS.h"
 
-// Maximaal 512 bytes per regel, inclusief de afsluitende '\n'.
-#define SCHERM_UART_REGEL_MAX 512
+// Maximaal zoveel tekens per regel, inclusief de afsluitende '\n'.
+// Gelijk aan NIELS_MAX_REGEL uit niels_uart.h (main.c controleert dat):
+// het recept en het brouwverslag zijn lange regels.
+#define SCHERM_UART_REGEL_MAX 2048
 
 typedef struct
 {
@@ -12,7 +14,7 @@ typedef struct
     char json[SCHERM_UART_REGEL_MAX];
 } scherm_uart_bericht_t;
 
-// UART1: 115200 baud, 8N1, geen flow control, RX-buffer van 2048 bytes.
+// UART1: 115200 baud, 8N1, geen flow control, RX-buffer van 4096 bytes.
 // TX en RX zijn instelbaar via menuconfig -> Niels ESP (standaard 17 en 18).
 // Roep dit eenmaal aan voordat je de taken start.
 esp_err_t scherm_uart_init(void);
