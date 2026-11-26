@@ -6,7 +6,7 @@ USB-kabel. Dit script doet zich voor als Niels ESP:
   - elke seconde ketel/temp (anders denkt het scherm dat het contact weg is),
     met een eenvoudig vermogen: 100 % onder het doel uit brouw/stuur, anders 0 %
     (de echte Niels ESP doet hier de PID)
-  - meldingen (brouw/meld) krijgen vanzelf een ack
+  - meldingen (brouw/meld) en het brouwverslag (brouw/verslag) krijgen vanzelf een ack
   - verandert de zoemer (uit / melding / alarm), dan zie je dat hier
   - net/toestand (wifi, MQTT, modus, wifinaam projectnetwork5G en de broker
     192.168.0.10:1883) alleen bij een verandering en als het scherm net/vraag
@@ -116,7 +116,7 @@ def lees_lus(poort):
         if onderwerp in ("brouw/stuur", "brouw/status") and not toestand["stuur_tonen"]:
             continue
         print("  scherm> " + regel)
-        if onderwerp == "brouw/meld":
+        if onderwerp in ("brouw/meld", "brouw/verslag"):
             try:
                 stuur(poort, "ack " + json.dumps({"nr": json.loads(rest)["nr"]}))
             except (ValueError, KeyError):

@@ -18,7 +18,7 @@
 #pragma once
 
 #define NIELS_BAUD        115200
-#define NIELS_MAX_REGEL   512        // langste regel (het recept) in tekens
+#define NIELS_MAX_REGEL   1536       // langste regel (het brouwverslag) in tekens
 #define MQTT_VOORVOEGSEL  "brouwketel/"
 
 /* Twee soorten berichten:
@@ -32,7 +32,12 @@
                                                // zoemer = "uit", "melding" of "alarm"; Niels ESP maakt het piepritme
 #define OND_STATUS          "brouw/status"     // {"fase":"maischen","stap":2,"doel":63,"rest":754,"pauze":false}   elke seconde
 #define OND_MELD            "brouw/meld"       // {"nr":7,"naam":"pauze"}  -> antwoord ack {"nr":7}
+                                               // metingen: {"nr":8,"naam":"sg","stap":1,"sg":1.052}, {"nr":9,"naam":"ph","stap":1,"ph":5.40}
+                                               // na het koken: {"naam":"sg","fase":"koken","sg":1.060} en {"naam":"ph","fase":"koken","ph":5.20}
                                                // ook het antwoord op een recept: "recept_ok" of "recept_fout" + "reden"
+#define OND_VERSLAG         "brouw/verslag"    // {"nr":12,"recept":..,"afgebroken":false,"duur_s":..,"stappen":[..],"koken":{..}}
+                                               // brouwverslag op het einde (koken klaar of STOP) -> antwoord ack {"nr":12}
+                                               // Niels ESP zet het (zonder nr) op MQTT brouw/verslag
 #define OND_NET_START       "net/start"        // {}   recept vragen (antwoord komt via net/status); de broker komt uit de hotspot van Niels ESP
 #define OND_NET_STOP        "net/stop"         // {}
 #define OND_NET_VRAAG       "net/vraag"        // {}   stuur meteen net/toestand terug (scherm net opgestart of contact terug)

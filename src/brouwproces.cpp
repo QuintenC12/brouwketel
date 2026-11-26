@@ -91,9 +91,11 @@ void brouwer_start_fase(Fase f) {
 
 static void koken_klaar() {
     net_meld("koken_klaar");
-    hw_zoemer(ZOEMER_MELDING);   // stopt bij de eerste knop op het startscherm
+    hw_zoemer(ZOEMER_MELDING);   // stopt zodra je het SG na het koken invult of overslaat
     brouwer_start_fase(FASE_GEEN);
-    ui_ga_naar(SCREEN_ID_MAIN);
+    ui_toon_overzicht();
+    ui_ga_naar(SCREEN_ID_OVERZICHT);   // overzicht "Brouwsessie klaar"
+    meting_na_koken();           // eerst SG en pH na het koken (numpad), daarna het verslag en het overzicht
 }
 
 /* Recept controleren en overnemen (bijv. van de server via Niels ESP) */
@@ -114,14 +116,18 @@ const char *brouwer_recept_overnemen(const Recept &r) {
     memcpy(brouw.hops, r.hops, sizeof(HopGift) * r.aantal_hops);
     brouw.aantal_hops = r.aantal_hops;
     brouw.kooktijd_min = r.kooktijd_min;
+    verslag_onthoud_recept(r);   // dit is het plan voor het brouwverslag
     return nullptr;
 }
 
 void brouwer_seconde(float temp, int vermogen) {
+    verslag_seconde();           // tijden voor het brouwverslag (ook tijdens pauze en opwarmen)
+
     // Sensorfout: verwarming uit en foutscherm (één keer)
     if (temp <= -100) {
         if (brouw.bezig && !brouw.sensor_fout) {
             brouw.sensor_fout = true;
+            verslag_sensorfout();
             hw_verwarming_uit();
             hw_zoemer(ZOEMER_ALARM);
             net_meld("sensorfout");

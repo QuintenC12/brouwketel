@@ -6,6 +6,7 @@
  *   ui_update.cpp    het scherm bijwerken (teksten, kleuren, balken)
  *   brouwproces.cpp  het brouwproces: timers, stappen, hopgiften, alarmen
  *   numpad.cpp       numpad-scherm om waarden in te typen
+ *   verslag.cpp      brouwverslag: wat er echt gebeurd is, op het einde naar de server
  *   uart.cpp         koppeling met Niels ESP (sensor, verwarming, pomp, zoemer, netwerk)
  *   instellingen.cpp IP, poort en PID-waarden in flash
  *   sim/             vervangt uart.cpp en instellingen.cpp in de simulator
@@ -25,6 +26,7 @@ struct MaischStap {
     int temp;      // doeltemperatuur in °C
     int minuten;   // rusttijd
     float sg;      // gemeten soortelijk gewicht na deze stap (0 = nog niet ingevuld)
+    float ph;      // gemeten pH na deze stap (0 = nog niet ingevuld)
 };
 
 struct HopGift {
@@ -123,6 +125,24 @@ void ui_verbind_stap(int stap, VerbindToestand toestand);
  * en komt de foutmelding in de info-regel. Daarna terug naar het vorige scherm. */
 typedef bool (*NumpadKlaar)(const char *tekst, char *fout, int fout_n);
 void numpad_open(const char *titel, const char *waarde, const char *info, NumpadKlaar klaar);
+/* Optioneel, meteen na numpad_open: wat er moet gebeuren bij Annuleren.
+ * klaar() en annuleren() mogen zelf een nieuw numpad openen (vragen na elkaar). */
+void numpad_bij_annuleren(void (*annuleren)());
+
+/* ---- Brouwverslag (verslag.cpp) ---- */
+void verslag_onthoud_recept(const Recept &r);   // recept van de server = het plan
+void verslag_begin();                           // bij de start van de sessie
+void verslag_koken_begin();
+void verslag_seconde();                         // elke seconde (vanuit brouwer_seconde)
+void verslag_pauze();
+void verslag_sensorfout();
+void verslag_hop(int hop);                      // hop is net toegevoegd
+void verslag_kook_sg(float sg);
+void verslag_kook_ph(float ph);
+bool verslag_actief();
+void verslag_einde(bool afgebroken);            // verslag versturen naar Niels ESP
+void meting_na_koken();                         // actions.cpp: SG en pH na het koken vragen, daarna het verslag
+void ui_toon_overzicht();                       // overzichtscherm "Brouwsessie klaar" vullen
 
 /* seconden als "m:ss" */
 void tijd_tekst(char *buf, int n, uint32_t s);

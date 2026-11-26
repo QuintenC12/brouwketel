@@ -24,7 +24,8 @@ void  net_verbind_server();                      // verbinding maken, wachten op
 void  net_verbreek();
 void  net_meld(const char *gebeurtenis);         // bijv. "start", "pauze", "stop", "hop", ...
 void  net_meld_fout(const char *gebeurtenis, const char *reden);   // melding met een reden, bijv. "start_fout"
-void  net_meld_sg(int stap, float sg);           // gemeten SG na maischstap (0 = stap 1) naar de server
+void  net_meld_meting(const char *soort, int stap, float waarde);   // soort "sg" of "ph"; stap 0 = stap 1, -1 = na het koken
+void  net_stuur_verslag(const char *json);       // brouwverslag (JSON-object) naar Niels ESP, herhaald tot de ack komt
 void  net_modus(bool configuratie);              // schakelaar op Instellingen: configuratie (hotspot) of werking
 
 void  instellingen_opslaan();                    // PID-waarden in flash (Preferences)

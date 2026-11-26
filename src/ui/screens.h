@@ -25,7 +25,8 @@ enum ScreensEnum {
     SCREEN_ID_WEB_APP = 12,
     SCREEN_ID_NUMPAD = 13,
     SCREEN_ID_KOOKSCHEMA = 14,
-    _SCREEN_ID_LAST = 14
+    SCREEN_ID_OVERZICHT = 15,
+    _SCREEN_ID_LAST = 15
 };
 
 typedef struct _objects_t {
@@ -43,6 +44,7 @@ typedef struct _objects_t {
     lv_obj_t *web_app;
     lv_obj_t *numpad;
     lv_obj_t *kookschema;
+    lv_obj_t *overzicht;
     lv_obj_t *obj0;
     lv_obj_t *obj1;
     lv_obj_t *obj2;
@@ -155,23 +157,29 @@ typedef struct _objects_t {
     lv_obj_t *mash_row_1_temp;
     lv_obj_t *mash_row_1_time;
     lv_obj_t *mash_row_1_sg;
+    lv_obj_t *mash_row_1_ph;
     lv_obj_t *mash_row_2;
     lv_obj_t *mash_row_2_name;
     lv_obj_t *mash_row_2_temp;
     lv_obj_t *mash_row_2_time;
     lv_obj_t *mash_row_2_sg;
+    lv_obj_t *mash_row_2_ph;
     lv_obj_t *mash_row_3;
     lv_obj_t *mash_row_3_name;
     lv_obj_t *mash_row_3_temp;
     lv_obj_t *mash_row_3_time;
     lv_obj_t *mash_row_3_sg;
+    lv_obj_t *mash_row_3_ph;
     lv_obj_t *mash_row_4;
     lv_obj_t *mash_row_4_name;
     lv_obj_t *mash_row_4_temp;
     lv_obj_t *mash_row_4_time;
     lv_obj_t *mash_row_4_sg;
+    lv_obj_t *mash_row_4_ph;
     lv_obj_t *mash_sg_btn;
     lv_obj_t *mash_sg_label;
+    lv_obj_t *mash_ph_btn;
+    lv_obj_t *mash_ph_label;
     lv_obj_t *obj32;
     lv_obj_t *mash_next;
     lv_obj_t *mpause_sidebar;
@@ -295,23 +303,29 @@ typedef struct _objects_t {
     lv_obj_t *rinse_row_1_temp;
     lv_obj_t *rinse_row_1_time;
     lv_obj_t *rinse_row_1_sg;
+    lv_obj_t *rinse_row_1_ph;
     lv_obj_t *rinse_row_2;
     lv_obj_t *rinse_row_2_name;
     lv_obj_t *rinse_row_2_temp;
     lv_obj_t *rinse_row_2_time;
     lv_obj_t *rinse_row_2_sg;
+    lv_obj_t *rinse_row_2_ph;
     lv_obj_t *rinse_row_3;
     lv_obj_t *rinse_row_3_name;
     lv_obj_t *rinse_row_3_temp;
     lv_obj_t *rinse_row_3_time;
     lv_obj_t *rinse_row_3_sg;
+    lv_obj_t *rinse_row_3_ph;
     lv_obj_t *rinse_row_4;
     lv_obj_t *rinse_row_4_name;
     lv_obj_t *rinse_row_4_temp;
     lv_obj_t *rinse_row_4_time;
     lv_obj_t *rinse_row_4_sg;
+    lv_obj_t *rinse_row_4_ph;
     lv_obj_t *rinse_sg_btn;
     lv_obj_t *rinse_sg_label;
+    lv_obj_t *rinse_ph_btn;
+    lv_obj_t *rinse_ph_label;
     lv_obj_t *obj75;
     lv_obj_t *obj76;
     lv_obj_t *boil_sidebar;
@@ -544,6 +558,52 @@ typedef struct _objects_t {
     lv_obj_t *set_modus_label;
     lv_obj_t *obj120b;
     lv_obj_t *obj120c;
+    lv_obj_t *ov_title;
+    lv_obj_t *ov_info;
+    lv_obj_t *ov_kop;
+    lv_obj_t *ov_kop_name;
+    lv_obj_t *ov_kop_temp;
+    lv_obj_t *ov_kop_time;
+    lv_obj_t *ov_kop_duur;
+    lv_obj_t *ov_kop_sg;
+    lv_obj_t *ov_kop_ph;
+    lv_obj_t *ov_row_1;
+    lv_obj_t *ov_row_1_name;
+    lv_obj_t *ov_row_1_temp;
+    lv_obj_t *ov_row_1_time;
+    lv_obj_t *ov_row_1_duur;
+    lv_obj_t *ov_row_1_sg;
+    lv_obj_t *ov_row_1_ph;
+    lv_obj_t *ov_row_2;
+    lv_obj_t *ov_row_2_name;
+    lv_obj_t *ov_row_2_temp;
+    lv_obj_t *ov_row_2_time;
+    lv_obj_t *ov_row_2_duur;
+    lv_obj_t *ov_row_2_sg;
+    lv_obj_t *ov_row_2_ph;
+    lv_obj_t *ov_row_3;
+    lv_obj_t *ov_row_3_name;
+    lv_obj_t *ov_row_3_temp;
+    lv_obj_t *ov_row_3_time;
+    lv_obj_t *ov_row_3_duur;
+    lv_obj_t *ov_row_3_sg;
+    lv_obj_t *ov_row_3_ph;
+    lv_obj_t *ov_row_4;
+    lv_obj_t *ov_row_4_name;
+    lv_obj_t *ov_row_4_temp;
+    lv_obj_t *ov_row_4_time;
+    lv_obj_t *ov_row_4_duur;
+    lv_obj_t *ov_row_4_sg;
+    lv_obj_t *ov_row_4_ph;
+    lv_obj_t *ov_kook;
+    lv_obj_t *ov_kook_name;
+    lv_obj_t *ov_kook_temp;
+    lv_obj_t *ov_kook_time;
+    lv_obj_t *ov_kook_duur;
+    lv_obj_t *ov_kook_sg;
+    lv_obj_t *ov_kook_ph;
+    lv_obj_t *ov_klaar;
+    lv_obj_t *ov_klaar_label;
 } objects_t;
 
 extern objects_t objects;
@@ -589,6 +649,9 @@ void tick_screen_numpad();
 
 void create_screen_kookschema();
 void tick_screen_kookschema();
+
+void create_screen_overzicht();
+void tick_screen_overzicht();
 
 void tick_screen_by_id(enum ScreensEnum screenId);
 void tick_screen(int screen_index);
