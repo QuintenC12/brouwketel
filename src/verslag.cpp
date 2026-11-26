@@ -30,9 +30,11 @@ struct Verslag {
     int      plan_kooktijd;
     // wat er echt gebeurde
     uint32_t totaal_s;
-    uint32_t stap_s[MAX_STAPPEN];
+    uint32_t stap_s[MAX_STAPPEN];        // vanaf "op temperatuur" (de timer loopt)
+    uint32_t stap_opwarm_s[MAX_STAPPEN]; // opwarmen en wachten op de mout
     uint32_t spoelen_s;
-    uint32_t koken_s;
+    uint32_t koken_s;                    // vanaf het kookpunt
+    uint32_t kook_opwarm_s;              // opwarmen tot het kookpunt
     uint32_t hop_s[MAX_HOPS];            // seconden na het begin van het koken (0 = niet toegevoegd)
     bool     koken_gestart;
     int      pauzes;
@@ -78,10 +80,16 @@ void verslag_seconde() {
     v.totaal_s++;
     switch (brouw.fase) {
     case FASE_MAISCHEN:
-        if (brouw.actieve_stap < MAX_STAPPEN) v.stap_s[brouw.actieve_stap]++;
+        if (brouw.actieve_stap < MAX_STAPPEN) {
+            if (brouw.op_temp) v.stap_s[brouw.actieve_stap]++;
+            else               v.stap_opwarm_s[brouw.actieve_stap]++;
+        }
         break;
     case FASE_SPOELEN: v.spoelen_s++; break;
-    case FASE_KOKEN:   v.koken_s++;   break;
+    case FASE_KOKEN:
+        if (brouw.op_temp) v.koken_s++;
+        else               v.kook_opwarm_s++;
+        break;
     default: break;
     }
 }
@@ -147,7 +155,8 @@ void verslag_einde(bool afgebroken) {
         if (i < v.plan_aantal) zet(",\"plan_temp\":%d,\"plan_min\":%d", v.plan[i].temp, v.plan[i].minuten);
         if (i < brouw.aantal_stappen) {
             const MaischStap &s = brouw.stappen[i];
-            zet(",\"temp\":%d,\"min\":%d,\"duur_s\":%lu", s.temp, s.minuten, (unsigned long)v.stap_s[i]);
+            zet(",\"temp\":%d,\"min\":%d,\"duur_s\":%lu,\"opwarmen_s\":%lu", s.temp, s.minuten,
+                (unsigned long)v.stap_s[i], (unsigned long)v.stap_opwarm_s[i]);
             zet_meting("sg", s.sg, 3);
             zet_meting("ph", s.ph, 2);
         }
@@ -157,8 +166,8 @@ void verslag_einde(bool afgebroken) {
 
     // Koken (alleen als het begonnen is)
     if (v.koken_gestart) {
-        zet(",\"koken\":{\"plan_min\":%d,\"min\":%d,\"duur_s\":%lu",
-            v.plan_kooktijd, brouw.kooktijd_min, (unsigned long)v.koken_s);
+        zet(",\"koken\":{\"plan_min\":%d,\"min\":%d,\"duur_s\":%lu,\"opwarmen_s\":%lu",
+            v.plan_kooktijd, brouw.kooktijd_min, (unsigned long)v.koken_s, (unsigned long)v.kook_opwarm_s);
         zet_meting("sg", v.kook_sg, 3);
         zet_meting("ph", v.kook_ph, 2);
         zet(",\"hops\":[");
