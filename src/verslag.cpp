@@ -128,7 +128,7 @@ void verslag_einde(bool afgebroken) {
     if (!v.actief) return;
     v.actief = false;
 
-    static char json[1400];
+    static char json[1500];   // + "brouw/verslag {\"nr\":..," moet binnen NIELS_MAX_REGEL blijven
     pos = json;
     vrij = sizeof json;
 
@@ -167,6 +167,7 @@ void verslag_einde(bool afgebroken) {
             zet("{\"naam\":");
             zet_tekst(brouw.hops[i].naam);
             zet(",\"min\":%d", brouw.hops[i].minuten);
+            if (brouw.hops[i].extra) zet(",\"extra\":true");
             if (v.hop_s[i]) zet(",\"toegevoegd_s\":%lu", (unsigned long)v.hop_s[i]);
             zet("}");
         }

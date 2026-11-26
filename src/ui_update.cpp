@@ -14,6 +14,9 @@
 #define KLEUR_ORANJE      0xf0a030
 #define KLEUR_ORANJE_TXT  0xf6c46e
 #define KLEUR_ORANJE_BG   0x3a2e17
+#define KLEUR_EXTRA       0x2bb5a0   // extra's tijdens het koken (hop = oranje/wit)
+#define KLEUR_EXTRA_TXT   0x6fd8c6
+#define KLEUR_EXTRA_BG    0x173a35
 #define KLEUR_GROEN       0x1f8a57
 #define KLEUR_ROOD        0xc62f2f
 #define KLEUR_RIJ_BG      0x1f242a
@@ -265,14 +268,17 @@ void ui_toon_maischen() {
     MaischStap &s = brouw.stappen[a];
 
     // Fase en timer
+    bool wacht_mout = brouw.mout == MOUT_TOEVOEGEN || brouw.mout == MOUT_SLUITEN;
     if (brouw.gepauzeerd)    lv_label_set_text(objects.mash_phase, "Gepauzeerd");
+    else if (wacht_mout)     lv_label_set_text(objects.mash_phase, "Wacht op de mout");
     else if (brouw.op_temp)  lv_label_set_text_fmt(objects.mash_phase, "Stabiel op %d °C", s.temp);
     else                     lv_label_set_text_fmt(objects.mash_phase, "Opwarmen naar %d °C", s.temp);
 
     char t[16];
     tijd_tekst(t, sizeof t, brouw.resterend_s);
     lv_label_set_text(objects.mash_timer, t);
-    if (brouw.op_temp) lv_label_set_text(objects.mash_timer_info_1, "resterend");
+    if (brouw.op_temp)  lv_label_set_text(objects.mash_timer_info_1, "resterend");
+    else if (wacht_mout) lv_label_set_text(objects.mash_timer_info_1, "wacht op mout");
     else               lv_label_set_text_fmt(objects.mash_timer_info_1, "start bij %d °C", s.temp);
 
     // Rijen: klaar = grijs + doorstreept, bezig = oranje balk, nog te doen = wit
@@ -337,16 +343,29 @@ struct HopRij { lv_obj_t *rij, *naam, *tijd; };
 
 static HopRij hop_rij(int i) {
     switch (i) {
-    case 0:  return { objects.boil_hop_1, objects.boil_hop_1_name, objects.boil_hop_1_time };
-    case 1:  return { objects.boil_hop_2, objects.boil_hop_2_name, objects.boil_hop_2_time };
-    case 2:  return { objects.boil_hop_3, objects.boil_hop_3_name, objects.boil_hop_3_time };
-    case 3:  return { objects.boil_hop_4, objects.boil_hop_4_name, objects.boil_hop_4_time };
-    default: return { objects.boil_hop_5, objects.boil_hop_5_name, objects.boil_hop_5_time };
+    case 0:  return { objects.boil_hop_1,  objects.boil_hop_1_name,  objects.boil_hop_1_time };
+    case 1:  return { objects.boil_hop_2,  objects.boil_hop_2_name,  objects.boil_hop_2_time };
+    case 2:  return { objects.boil_hop_3,  objects.boil_hop_3_name,  objects.boil_hop_3_time };
+    case 3:  return { objects.boil_hop_4,  objects.boil_hop_4_name,  objects.boil_hop_4_time };
+    case 4:  return { objects.boil_hop_5,  objects.boil_hop_5_name,  objects.boil_hop_5_time };
+    case 5:  return { objects.boil_hop_6,  objects.boil_hop_6_name,  objects.boil_hop_6_time };
+    case 6:  return { objects.boil_hop_7,  objects.boil_hop_7_name,  objects.boil_hop_7_time };
+    case 7:  return { objects.boil_hop_8,  objects.boil_hop_8_name,  objects.boil_hop_8_time };
+    case 8:  return { objects.boil_hop_9,  objects.boil_hop_9_name,  objects.boil_hop_9_time };
+    default: return { objects.boil_hop_10, objects.boil_hop_10_name, objects.boil_hop_10_time };
     }
 }
 
 static lv_obj_t *hop_balk[MAX_HOPS];      // voortgangsbalkje onderaan elke hoprij (boil_hop_N_bar)
 static lv_obj_t *hop_streepje[MAX_HOPS];  // markering op de totale kookbalk (boil_hop_mark_N)
+
+/* "Hop 2" of "Extra": hopgiften tellen apart, extra's hebben geen nummer */
+static void gift_soort(char *buf, int n, int i) {
+    if (brouw.hops[i].extra) { snprintf(buf, n, "Extra"); return; }
+    int nr = 1;
+    for (int k = 0; k < i; k++) if (!brouw.hops[k].extra) nr++;
+    snprintf(buf, n, "Hop %d", nr);
+}
 
 /* Moment (seconden sinds start koken) waarop hop i toegevoegd moet worden */
 static int32_t hop_moment(int i) {
@@ -376,24 +395,39 @@ void ui_toon_koken() {
         toon(hop_streepje[i], zichtbaar);
         if (!zichtbaar) continue;
         lv_obj_set_x(hop_streepje[i], bx + hop_moment(i) * bw / totaal - 1);
-        bg(hop_streepje[i], i < brouw.hop_volgende ? KLEUR_TXT_GRIJS : KLEUR_TXT);
+        bg(hop_streepje[i], i < brouw.hop_volgende ? KLEUR_TXT_GRIJS : brouw.hops[i].extra ? KLEUR_EXTRA : KLEUR_TXT);
     }
 
-    // Kaart "volgende hopgift"
+    // Kaart "volgende toevoeging": oranje voor hop, groenblauw voor een extra
     int v = brouw.hop_volgende;
+    bool v_extra = v < brouw.aantal_hops && brouw.hops[v].extra;
+    lv_obj_t *kaart = lv_obj_get_parent(objects.boil_next_hop);
+    bg(kaart, v_extra ? KLEUR_EXTRA_BG : KLEUR_ORANJE_BG);
+    for (uint32_t k = 0; k < lv_obj_get_child_count(kaart); k++)   // alle teksten op de kaart
+        txt(lv_obj_get_child(kaart, k), v_extra ? KLEUR_EXTRA_TXT : KLEUR_ORANJE_TXT);
     if (v < brouw.aantal_hops) {
-        if (brouw.hops[v].naam[0]) lv_label_set_text_fmt(objects.boil_next_hop, "Hop %d - %s", v + 1, brouw.hops[v].naam);
-        else                       lv_label_set_text_fmt(objects.boil_next_hop, "Hop %d", v + 1);
+        char soort[16];
+        gift_soort(soort, sizeof soort, v);
+        if (brouw.hops[v].naam[0]) lv_label_set_text_fmt(objects.boil_next_hop, "%s - %s", soort, brouw.hops[v].naam);
+        else                       lv_label_set_text(objects.boil_next_hop, soort);
         int32_t tot = (int32_t)brouw.resterend_s - brouw.hops[v].minuten * 60;
         if (tot < 0) tot = 0;
         tijd_tekst(t, sizeof t, tot);
         lv_label_set_text(objects.boil_next_time, brouw.hop_alarm_actief ? "NU" : t);
         lv_label_set_text(objects.boil_next_info, brouw.hop_alarm_actief ? "toevoegen" : "tot toevoegen");
     } else {
-        lv_label_set_text(objects.boil_next_hop, brouw.aantal_hops ? "Alle hop toegevoegd" : "Geen hopschema");
+        bool extras = false;
+        for (int i = 0; i < brouw.aantal_hops; i++) extras |= brouw.hops[i].extra;
+        lv_label_set_text(objects.boil_next_hop, !brouw.aantal_hops ? "Geen hopschema" : extras ? "Alles toegevoegd" : "Alle hop toegevoegd");
         lv_label_set_text(objects.boil_next_time, "");
         lv_label_set_text(objects.boil_next_info, "");
     }
+
+    // De volgende gift in beeld scrollen (alleen als die verandert, zodat je zelf kunt scrollen)
+    static int vorige_v = -1;
+    if (v != vorige_v && v < brouw.aantal_hops) lv_obj_scroll_to_view(hop_rij(v).rij, LV_ANIM_ON);
+    if (v != vorige_v && v == 0) lv_obj_scroll_to_y(objects.boil_hop_list, 0, LV_ANIM_OFF);
+    vorige_v = v;
 
     // Hoplijst: toegevoegd = grijs, volgende = oranje met voortgangsbalkje, later = wit
     for (int i = 0; i < MAX_HOPS; i++) {
@@ -403,16 +437,24 @@ void ui_toon_koken() {
         toon(hop_balk[i], zichtbaar && i == v);
         if (!zichtbaar) continue;
 
-        lv_label_set_text_fmt(r.naam, "Hop %d - %d min kooktijd", i + 1, brouw.hops[i].minuten);
+        char soort[16];
+        gift_soort(soort, sizeof soort, i);
+        if (brouw.hops[i].extra && brouw.hops[i].naam[0])   // extra: de naam zelf, bv. "Koriander - 10 g"
+            lv_label_set_text_fmt(r.naam, "Extra: %s", brouw.hops[i].naam);
+        else
+            lv_label_set_text_fmt(r.naam, "%s - %d min kooktijd", soort, brouw.hops[i].minuten);
         if (i < v) lv_label_set_text(r.tijd, "toegevoegd");
         else       lv_label_set_text_fmt(r.tijd, "bij nog %d:00", brouw.hops[i].minuten);
 
-        uint32_t achter = KLEUR_RIJ_BG, voor = KLEUR_TXT;
+        // hop: wit, volgende oranje; extra: groenblauw, volgende donker groenblauw
+        bool ex = brouw.hops[i].extra;
+        uint32_t achter = KLEUR_RIJ_BG, voor = ex ? KLEUR_EXTRA_TXT : KLEUR_TXT;
         if (i < v)       voor = KLEUR_TXT_GRIJS;
-        else if (i == v) { achter = KLEUR_ORANJE_BG; voor = KLEUR_ORANJE_TXT; }
+        else if (i == v) { achter = ex ? KLEUR_EXTRA_BG : KLEUR_ORANJE_BG; voor = ex ? KLEUR_EXTRA_TXT : KLEUR_ORANJE_TXT; }
         bg(r.rij, achter);
         txt(r.naam, voor); txt(r.tijd, voor);
 
+        lv_obj_set_style_bg_color(hop_balk[i], lv_color_hex(ex ? KLEUR_EXTRA : KLEUR_ORANJE), LV_PART_INDICATOR);
         if (i == v) {   // balkje: van vorige hop (of start) tot deze hop
             int32_t van = i > 0 ? hop_moment(i - 1) : 0, tot = hop_moment(i);
             int pct = tot > van ? (verlopen - van) * 100 / (tot - van) : 100;
@@ -423,19 +465,77 @@ void ui_toon_koken() {
 }
 
 /* ======================================================================
+ * Overzicht van het koken (automatisch), boven het spoelscherm:
+ * kooktijd en alle hop en extra's in volgorde, met "Terug" en "Start koken"
+ * ====================================================================== */
+
+static HopRij kook_rij(int i) {
+    switch (i) {
+    case 0:  return { objects.rinse_kook_1,  objects.rinse_kook_1_name,  objects.rinse_kook_1_time };
+    case 1:  return { objects.rinse_kook_2,  objects.rinse_kook_2_name,  objects.rinse_kook_2_time };
+    case 2:  return { objects.rinse_kook_3,  objects.rinse_kook_3_name,  objects.rinse_kook_3_time };
+    case 3:  return { objects.rinse_kook_4,  objects.rinse_kook_4_name,  objects.rinse_kook_4_time };
+    case 4:  return { objects.rinse_kook_5,  objects.rinse_kook_5_name,  objects.rinse_kook_5_time };
+    case 5:  return { objects.rinse_kook_6,  objects.rinse_kook_6_name,  objects.rinse_kook_6_time };
+    case 6:  return { objects.rinse_kook_7,  objects.rinse_kook_7_name,  objects.rinse_kook_7_time };
+    case 7:  return { objects.rinse_kook_8,  objects.rinse_kook_8_name,  objects.rinse_kook_8_time };
+    case 8:  return { objects.rinse_kook_9,  objects.rinse_kook_9_name,  objects.rinse_kook_9_time };
+    default: return { objects.rinse_kook_10, objects.rinse_kook_10_name, objects.rinse_kook_10_time };
+    }
+}
+
+void ui_toon_kookoverzicht(bool zichtbaar) {
+    toon(objects.rinse_kook, zichtbaar);
+    if (!zichtbaar) return;
+    lv_obj_move_foreground(objects.rinse_kook);
+
+    int hop = 0, extra = 0;
+    for (int i = 0; i < brouw.aantal_hops; i++) (brouw.hops[i].extra ? extra : hop)++;
+    lv_label_set_text_fmt(objects.rinse_kook_title, "Koken - %d min", brouw.kooktijd_min);
+    if (hop + extra == 0)
+        lv_label_set_text(objects.rinse_kook_info, "Geen hop of extra's in dit recept");
+    else
+        lv_label_set_text_fmt(objects.rinse_kook_info, "%d %s en %d extra%s - controleer en start",
+                              hop, hop == 1 ? "hopgift" : "hopgiften", extra, extra == 1 ? "" : "'s");
+
+    for (int i = 0; i < MAX_HOPS; i++) {
+        HopRij r = kook_rij(i);
+        bool z = i < brouw.aantal_hops;
+        toon(r.rij, z);
+        if (!z) continue;
+        HopGift &h = brouw.hops[i];
+        char soort[16];
+        gift_soort(soort, sizeof soort, i);
+        if (h.extra) lv_label_set_text_fmt(r.naam, "Extra: %s", h.naam[0] ? h.naam : "-");
+        else if (h.naam[0]) lv_label_set_text_fmt(r.naam, "%s - %s", soort, h.naam);
+        else lv_label_set_text(r.naam, soort);
+        if (h.minuten >= brouw.kooktijd_min) lv_label_set_text(r.tijd, "bij de start");
+        else                                 lv_label_set_text_fmt(r.tijd, "bij nog %d min", h.minuten);
+        bg(r.rij, KLEUR_RIJ_BG);
+        for (uint32_t k = 0; k < lv_obj_get_child_count(r.rij); k++) {   // geen voortgangsbalkje in het overzicht
+            lv_obj_t *kind = lv_obj_get_child(r.rij, k);
+            if (lv_obj_check_type(kind, &lv_bar_class)) toon(kind, false);
+        }
+        txt(r.naam, h.extra ? KLEUR_EXTRA_TXT : KLEUR_TXT);
+        txt(r.tijd, h.extra ? KLEUR_EXTRA_TXT : KLEUR_TXT);
+    }
+    lv_obj_scroll_to_y(objects.rinse_kook_list, 0, LV_ANIM_OFF);
+}
+
+/* ======================================================================
  * Kookschema (manueel): kooktijd en hopgiften instellen voor het koken
  * ====================================================================== */
 
 void ui_toon_kookschema() {
     lv_label_set_text_fmt(objects.kook_tijd, "%d min", brouw.kooktijd_min);
-    lv_obj_t *rij[MAX_HOPS]  = { objects.kook_hop_1, objects.kook_hop_2, objects.kook_hop_3, objects.kook_hop_4, objects.kook_hop_5 };
-    lv_obj_t *tijd[MAX_HOPS] = { objects.kook_hop_1_time, objects.kook_hop_2_time, objects.kook_hop_3_time, objects.kook_hop_4_time, objects.kook_hop_5_time };
-    for (int i = 0; i < MAX_HOPS; i++) {
+    lv_obj_t *rij[MAN_MAX_HOPS]  = { objects.kook_hop_1, objects.kook_hop_2, objects.kook_hop_3, objects.kook_hop_4, objects.kook_hop_5 };
+    lv_obj_t *tijd[MAN_MAX_HOPS] = { objects.kook_hop_1_time, objects.kook_hop_2_time, objects.kook_hop_3_time, objects.kook_hop_4_time, objects.kook_hop_5_time };
+    for (int i = 0; i < MAN_MAX_HOPS; i++) {
         toon(rij[i], i < brouw.aantal_hops);
         if (i < brouw.aantal_hops) lv_label_set_text_fmt(tijd[i], "bij nog %d min", brouw.hops[i].minuten);
     }
     toon(objects.kook_leeg, brouw.aantal_hops == 0);
-    toon(objects.kook_add, brouw.aantal_hops < MAX_HOPS);
+    toon(objects.kook_add, brouw.aantal_hops < MAN_MAX_HOPS);
     toon(objects.kook_remove, brouw.aantal_hops > 0);
 }
 
@@ -451,15 +551,53 @@ void ui_toon_sensorfout(float laatste) {
 void ui_toon_hop_alarm(bool zichtbaar) {
     if (zichtbaar && brouw.hop_volgende < brouw.aantal_hops) {
         HopGift &h = brouw.hops[brouw.hop_volgende];
-        char tekst[48], info[64];
-        if (h.naam[0]) snprintf(tekst, sizeof tekst, "Hop %d - %s", brouw.hop_volgende + 1, h.naam);
-        else           snprintf(tekst, sizeof tekst, "Hop %d", brouw.hop_volgende + 1);
+        char tekst[48], info[64], soort[16];
+        gift_soort(soort, sizeof soort, brouw.hop_volgende);
+        if (h.naam[0]) snprintf(tekst, sizeof tekst, "%s - %s", soort, h.naam);
+        else           snprintf(tekst, sizeof tekst, "%s", soort);
+        lv_label_set_text(objects.boil_alarm_title, h.extra ? "Extra toevoegen!" : "Hop toevoegen!");
+        bg(objects.boil_alarm_card, h.extra ? KLEUR_EXTRA : KLEUR_ORANJE);
         snprintf(info, sizeof info, "Nog %d:00 kooktijd - timer loopt door", h.minuten);
         lv_label_set_text(objects.boil_alarm_text, tekst);
         lv_label_set_text(objects.boil_alarm_sub, info);
         lv_obj_move_foreground(objects.boil_hop_alarm);   // boven de scheidingslijn
     }
     toon(objects.boil_hop_alarm, zichtbaar);
+}
+
+/* Pop-up op het maischscherm bij het begin van stap 1 (zie MoutStap in brouwer.h) */
+void ui_toon_mout() {
+    bool zichtbaar = brouw.fase == FASE_MAISCHEN &&
+                     (brouw.mout == MOUT_TOEVOEGEN || brouw.mout == MOUT_SLUITEN);
+    if (zichtbaar && brouw.aantal_stappen > 0) {
+        int temp = brouw.stappen[0].temp;
+        if (brouw.mout == MOUT_TOEVOEGEN) {
+            lv_label_set_text(objects.mash_mout_title, "Mout toevoegen");
+            if (brouw.aantal_mouten > 0) {   // de mout uit het recept, één per regel
+                lv_label_set_text_fmt(objects.mash_mout_text, "Ketel op %d °C - voeg toe en roer goed:", temp);
+                char lijst[MAX_MOUT * (MOUT_NAAM + 4)] = "";
+                for (int i = 0; i < brouw.aantal_mouten; i++) {
+                    if (i) strcat(lijst, "\n");
+                    strcat(lijst, "- ");
+                    strcat(lijst, brouw.mouten[i]);
+                }
+                lv_label_set_text(objects.mash_mout_sub, lijst);
+            } else {
+                lv_label_set_text_fmt(objects.mash_mout_text, "Ketel staat op %d °C (stap 1)", temp);
+                lv_label_set_text(objects.mash_mout_sub, "Voeg de mout toe volgens het recept en roer goed. "
+                                                         "De timer van stap 1 loopt nog niet.");
+            }
+            lv_label_set_text(objects.mash_mout_btn_label, "Mout toegevoegd");
+        } else {
+            lv_label_set_text(objects.mash_mout_title, "Ketel sluiten");
+            lv_label_set_text(objects.mash_mout_text, "Sluit de ketel en sluit de pomp aan");
+            lv_label_set_text_fmt(objects.mash_mout_sub, "Breng de retour van de pomp aan. Met Start maischen "
+                                  "gaat de pomp aan en loopt de timer van stap 1 (%d min).", brouw.stappen[0].minuten);
+            lv_label_set_text(objects.mash_mout_btn_label, "Start maischen");
+        }
+        lv_obj_move_foreground(objects.mash_mout_popup);
+    }
+    toon(objects.mash_mout_popup, zichtbaar);
 }
 
 /* ======================================================================
@@ -513,10 +651,28 @@ void ui_init_extra() {
     vstap[1] = { objects.conn_step2_icon, objects.conn_step2_mark, objects.conn_step2_spinner, objects.conn_step2_text };
     vstap[2] = { objects.conn_step3_icon, objects.conn_step3_mark, objects.conn_step3_spinner, objects.conn_step3_text };
 
-    lv_obj_t *balk[MAX_HOPS]  = { objects.boil_hop_1_bar, objects.boil_hop_2_bar, objects.boil_hop_3_bar, objects.boil_hop_4_bar, objects.boil_hop_5_bar };
-    lv_obj_t *mark[MAX_HOPS]  = { objects.boil_hop_mark_1, objects.boil_hop_mark_2, objects.boil_hop_mark_3, objects.boil_hop_mark_4, objects.boil_hop_mark_5 };
+    lv_obj_t *balk[MAX_HOPS]  = { objects.boil_hop_1_bar, objects.boil_hop_2_bar, objects.boil_hop_3_bar, objects.boil_hop_4_bar, objects.boil_hop_5_bar,
+                                  objects.boil_hop_6_bar, objects.boil_hop_7_bar, objects.boil_hop_8_bar, objects.boil_hop_9_bar, objects.boil_hop_10_bar };
+    lv_obj_t *mark[MAX_HOPS]  = { objects.boil_hop_mark_1, objects.boil_hop_mark_2, objects.boil_hop_mark_3, objects.boil_hop_mark_4, objects.boil_hop_mark_5,
+                                  objects.boil_hop_mark_6, objects.boil_hop_mark_7, objects.boil_hop_mark_8, objects.boil_hop_mark_9, objects.boil_hop_mark_10 };
     for (int i = 0; i < MAX_HOPS; i++) {
         hop_balk[i] = balk[i];
         hop_streepje[i] = mark[i];
     }
+    // Lijst met hop en extra's: verticaal scrollen. De scrollbalk staat er altijd
+    // als er meer giften zijn dan er passen (5), zodat je ziet dat er meer is.
+    lv_obj_set_scroll_dir(objects.boil_hop_list, LV_DIR_VER);
+    lv_obj_set_scrollbar_mode(objects.boil_hop_list, LV_SCROLLBAR_MODE_AUTO);
+    lv_obj_set_style_width(objects.boil_hop_list, 4, LV_PART_SCROLLBAR);
+    lv_obj_set_style_pad_right(objects.boil_hop_list, 0, LV_PART_SCROLLBAR);
+    lv_obj_set_style_bg_color(objects.boil_hop_list, lv_color_hex(KLEUR_TXT_GRIJS), LV_PART_SCROLLBAR);
+    lv_obj_set_style_bg_opa(objects.boil_hop_list, LV_OPA_COVER, LV_PART_SCROLLBAR);
+    // Zelfde lijst in het kookoverzicht op het spoelscherm
+    lv_obj_t *kl = objects.rinse_kook_list;
+    lv_obj_set_scroll_dir(kl, LV_DIR_VER);
+    lv_obj_set_scrollbar_mode(kl, LV_SCROLLBAR_MODE_AUTO);
+    lv_obj_set_style_width(kl, 4, LV_PART_SCROLLBAR);
+    lv_obj_set_style_pad_right(kl, 0, LV_PART_SCROLLBAR);
+    lv_obj_set_style_bg_color(kl, lv_color_hex(KLEUR_TXT_GRIJS), LV_PART_SCROLLBAR);
+    lv_obj_set_style_bg_opa(kl, LV_OPA_COVER, LV_PART_SCROLLBAR);
 }

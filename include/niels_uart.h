@@ -48,7 +48,7 @@
 /* ---- Niels ESP -> scherm ---- */
 #define OND_TEMP            "ketel/temp"       // {"temp":65.3,"ok":true,"vermogen":40}   elke seconde (vermogen in % van de PID)
 #define OND_NET_STATUS      "net/status"       // {"status":"uit|bezig|verbonden|fout","reden":"..."}
-#define OND_RECEPT          "recept"           // {"naam":..,"kooktijd":40,"stappen":[{"temp":52,"min":5}],"hops":[{"naam":..,"min":30}]}
+#define OND_RECEPT          "recept"           // {"naam":..,"kooktijd":40,"stappen":[{"temp":52,"min":5}],"hops":[{"naam":..,"min":30,"extra":true}],"mout":["4,2 kg Pale Ale"]}
 #define OND_ACK             "ack"              // {"nr":7}   antwoord op brouw/meld
 #define OND_BROUW_START     "brouw/start"      // {}   de website vraagt om te starten (cmd/start)
                                                // het scherm antwoordt met brouw/meld "start" of "start_fout" + "reden"

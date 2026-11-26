@@ -491,6 +491,7 @@ static void stuur_event(const cJSON *doc, const char *naam)
     const char *reden = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(doc, "reden"));
     const cJSON *stap = cJSON_GetObjectItemCaseSensitive(doc, "stap");
     const cJSON *sg = cJSON_GetObjectItemCaseSensitive(doc, "sg");
+    bool extra = cJSON_IsTrue(cJSON_GetObjectItemCaseSensitive(doc, "extra"));   // hop_alarm voor een extra
     int st = cJSON_IsNumber(stap) ? stap->valueint : 0;
 
     char tekst[96];
@@ -498,11 +499,14 @@ static void stuur_event(const cJSON *doc, const char *naam)
     else if (!strcmp(naam, "pauze"))            snprintf(tekst, sizeof tekst, "Gepauzeerd");
     else if (!strcmp(naam, "hervat"))           snprintf(tekst, sizeof tekst, "Hervat");
     else if (!strcmp(naam, "stop"))             snprintf(tekst, sizeof tekst, "Brouwen gestopt");
+    else if (!strcmp(naam, "mout_toevoegen"))   snprintf(tekst, sizeof tekst, "Op temperatuur: mout toevoegen");
+    else if (!strcmp(naam, "mout_toegevoegd"))  snprintf(tekst, sizeof tekst, "Mout toegevoegd");
+    else if (!strcmp(naam, "start_maischen"))   snprintf(tekst, sizeof tekst, "Maischen gestart, timer stap 1 loopt");
     else if (!strcmp(naam, "volgende_stap"))    snprintf(tekst, sizeof tekst, "Maischstap %d gestart", st);
     else if (!strcmp(naam, "maischen_klaar"))   snprintf(tekst, sizeof tekst, "Maischen klaar, spoelen");
     else if (!strcmp(naam, "start_koken"))      snprintf(tekst, sizeof tekst, "Koken gestart");
-    else if (!strcmp(naam, "hop_alarm"))        snprintf(tekst, sizeof tekst, "Hop toevoegen: %s", hop ? hop : "?");
-    else if (!strcmp(naam, "hop_toegevoegd"))   snprintf(tekst, sizeof tekst, "Hop toegevoegd: %s", hop ? hop : "?");
+    else if (!strcmp(naam, "hop_alarm"))        snprintf(tekst, sizeof tekst, "%s toevoegen: %s", extra ? "Extra" : "Hop", hop ? hop : "?");
+    else if (!strcmp(naam, "hop_toegevoegd"))   snprintf(tekst, sizeof tekst, "%s toegevoegd: %s", extra ? "Extra" : "Hop", hop ? hop : "?");
     else if (!strcmp(naam, "koken_klaar"))      snprintf(tekst, sizeof tekst, "Koken klaar");
     else if (!strcmp(naam, "schema_gewijzigd")) snprintf(tekst, sizeof tekst, "Brouwschema aangepast op het scherm");
     else if (!strcmp(naam, "sensorfout"))       snprintf(tekst, sizeof tekst, "Sensorfout: verwarming uit");
@@ -517,6 +521,7 @@ static void stuur_event(const cJSON *doc, const char *naam)
     cJSON_AddStringToObject(o, "tekst", tekst);
     if (cJSON_IsNumber(stap)) cJSON_AddNumberToObject(o, "stap", st);
     if (hop) cJSON_AddStringToObject(o, "hop", hop);
+    if (extra) cJSON_AddTrueToObject(o, "extra");
     if (cJSON_IsNumber(sg)) cJSON_AddNumberToObject(o, "sg", sg->valuedouble);
     if (reden) cJSON_AddStringToObject(o, "reden", reden);
     char *json = cJSON_PrintUnformatted(o);

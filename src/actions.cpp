@@ -79,6 +79,7 @@ void action_start_manueel(lv_event_t *e) {
         strcpy(brouw.recept, "Manueel");
         brouw.aantal_stappen = 1;
         brouw.stappen[0] = { MAN_STAP_TEMP, MAN_STAP_MIN, 0 };
+        brouw.aantal_mouten = 0;           // manueel: geen moutlijst
     }
     brouw.automatisch = false;
     brouw.kooktijd_min = MAN_KOOKTIJD_MIN;
@@ -423,6 +424,16 @@ void action_start_koken(lv_event_t *e) {
         ui_ga_naar(SCREEN_ID_KOOKSCHEMA);
         return;
     }
+    ui_toon_kookoverzicht(true);       // automatisch: eerst het overzicht van het koken
+}
+
+/* Overzicht van het koken (automatisch): "Terug" naar het spoelen, of "Start koken" */
+void action_kook_overzicht_terug(lv_event_t *e) {
+    ui_toon_kookoverzicht(false);
+}
+
+void action_kook_overzicht_start(lv_event_t *e) {
+    ui_toon_kookoverzicht(false);
     brouwer_start_fase(FASE_KOKEN);
     verslag_koken_begin();
     net_meld("start_koken");
@@ -459,7 +470,7 @@ void action_kook_hop_plus(lv_event_t *e) {
     ui_toon_kookschema();
 }
 void action_kook_hop_toevoegen(lv_event_t *e) {
-    if (brouw.aantal_hops >= MAX_HOPS) return;
+    if (brouw.aantal_hops >= MAN_MAX_HOPS) return;   // het kookschema heeft 5 rijen
     int n = brouw.aantal_hops;
     int vorige = n > 0 ? brouw.hops[n - 1].minuten : brouw.kooktijd_min + 15;   // eerste hop: 15 min na de start
     brouw.hops[n] = HopGift{};
@@ -484,6 +495,11 @@ void action_kook_start(lv_event_t *e) {
     verslag_koken_begin();
     net_meld("start_koken");
     ui_ga_naar(SCREEN_ID_KOKEN);
+}
+
+/* Pop-up op het maischscherm: "Mout toegevoegd", daarna "Start maischen" */
+void action_mout_bevestigen(lv_event_t *e) {
+    brouwer_mout_bevestigen();
 }
 
 void action_hop_toegevoegd(lv_event_t *e) {
