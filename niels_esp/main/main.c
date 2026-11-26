@@ -53,6 +53,9 @@
 #include "pid.h"
 #include "scherm_uart.h"
 
+// De kabel moet de langste regel uit het regelboekje aankunnen
+_Static_assert(SCHERM_UART_REGEL_MAX >= NIELS_MAX_REGEL, "scherm_uart: regel te kort voor NIELS_MAX_REGEL");
+
 #define SPI_HOST     SPI2_HOST
 #define PIN_NUM_MISO 13
 #define PIN_NUM_MOSI 1
@@ -326,6 +329,36 @@ static void bericht_verwerken(const scherm_uart_bericht_t *bericht)
                 net_van_scherm(OND_MELD, bericht->json);
             }
         }
+    }
+    else if (strcmp(bericht->onderwerp, OND_VERSLAG) == 0)
+    {
+        // Brouwverslag op het einde: altijd een ack (het scherm herhaalt tot
+        // die komt), maar maar één keer naar MQTT.
+        cJSON* nummer = cJSON_GetObjectItemCaseSensitive(data, "nr");
+        if (cJSON_IsNumber(nummer) && nummer->valuedouble >= 1 &&
+            nummer->valuedouble <= INT_MAX &&
+            nummer->valuedouble == (int)nummer->valuedouble)
+        {
+            int nr = (int)nummer->valuedouble;
+            char ack[32];
+            snprintf(ack, sizeof(ack), "{\"nr\":%d}", nr);
+            esp_err_t err = scherm_uart_verstuur(OND_ACK, ack);
+            if (err != ESP_OK)
+            {
+                printf("Ack versturen mislukt: %s\n", esp_err_to_name(err));
+            }
+            if (message_is_new(nr))
+            {
+                printf("Brouwverslag ontvangen (%d tekens)\n", (int)strlen(bericht->json));
+                cJSON_DeleteItemFromObjectCaseSensitive(data, "nr");   // nr is alleen voor de kabel
+                net_verslag(data);
+            }
+        }
+    }
+    else if (strcmp(bericht->onderwerp, OND_NET_VRAAG) == 0)
+    {
+        // Scherm net opgestart of contact terug: meteen net/toestand sturen.
+        net_vraag();
     }
     else if (strcmp(bericht->onderwerp, OND_STATUS) == 0)
     {

@@ -13,6 +13,8 @@
  */
 #include <stdbool.h>
 
+#include "cJSON.h"
+
 // Eenmaal aanroepen na scherm_uart_init() en brouw_netwerk_start().
 void net_init(void);
 
@@ -32,6 +34,13 @@ void net_modus(bool configuratie);
 
 // Een nieuwe brouw/meld (al zonder herhalingen) of een brouw/status.
 void net_van_scherm(const char *onderwerp, const char *json);
+
+// net/vraag: stuur meteen net/toestand naar het scherm.
+void net_vraag(void);
+
+// Een nieuw brouwverslag (al zonder nr en zonder herhalingen) -> MQTT verslag.
+// Zonder MQTT wordt het bewaard en verstuurd zodra de broker er weer is.
+void net_verslag(const cJSON *verslag);
 
 /* ---- van de ketel (temp_task, elke seconde) ---- */
 

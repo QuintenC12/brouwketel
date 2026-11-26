@@ -184,6 +184,9 @@ typedef struct _objects_t {
     lv_obj_t *mash_next;
     lv_obj_t *mash_mout_popup;
     lv_obj_t *mash_mout_card;
+    lv_obj_t *mash_mout_icon;
+    lv_obj_t *mash_mout_icon_label;
+    lv_obj_t *mash_mout_kicker;
     lv_obj_t *mash_mout_title;
     lv_obj_t *mash_mout_text;
     lv_obj_t *mash_mout_sub;
@@ -466,6 +469,9 @@ typedef struct _objects_t {
     lv_obj_t *obj84;
     lv_obj_t *boil_hop_alarm;
     lv_obj_t *boil_alarm_card;
+    lv_obj_t *boil_alarm_icon;
+    lv_obj_t *boil_alarm_icon_label;
+    lv_obj_t *boil_alarm_kicker;
     lv_obj_t *boil_alarm_title;
     lv_obj_t *boil_alarm_text;
     lv_obj_t *boil_alarm_sub;
