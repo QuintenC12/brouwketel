@@ -14,13 +14,17 @@
  * De naam van de lijst in de webapp is nog niet vastgelegd: we zoeken
  * "fermentables", "malts", "grains" en "ingredients", elk met "name" en
  * "amount_kg" of "amount_g" (of "amount" + "unit"). Hoogstens 5.
+ * Suikers horen niet in de maisch maar in de kook: die laten we weg
+ * (op het veld "type" als dat er is, anders op de naam, zie is_suiker()).
  *
  * kooktijd: die staat niet in het recept van de webapp. We nemen de langste
  * hoptijd, met een minimum van STANDAARD_KOOKTIJD minuten.
  */
 #include "recept.h"
 
+#include <ctype.h>
 #include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -73,6 +77,31 @@ static void hoeveelheid(char *uit, size_t n, const cJSON *m)
     for (char *p = uit; *p; p++) if (*p == '.') *p = ',';   // 4,2 kg
     size_t l = strlen(uit);
     if (l && uit[l - 1] == ' ') uit[l - 1] = 0;
+}
+
+/* Tekst bevat een van de woorden (hoofdletters maken niet uit) */
+static bool bevat(const char *tekst, const char *const woorden[])
+{
+    if (!tekst) return false;
+    char klein[96];
+    size_t i = 0;
+    for (; tekst[i] && i < sizeof klein - 1; i++) klein[i] = (char)tolower((unsigned char)tekst[i]);
+    klein[i] = 0;
+    for (int w = 0; woorden[w]; w++)
+        if (strstr(klein, woorden[w])) return true;
+    return false;
+}
+
+/* Suiker gaat in de kook, niet in de maisch. De webapp heeft (nog) geen vast
+ * veld daarvoor, dus kijken we naar "type"/"category" en anders naar de naam. */
+static bool is_suiker(const cJSON *m)
+{
+    static const char *const suiker[] = { "suiker", "sugar", "kandij", "candi", "honing", "honey",
+                                          "dextrose", "glucose", "sucrose", "lactose", "stroop", "syrup", NULL };
+    const char *type = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(m, "type"));
+    if (!type) type = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(m, "category"));
+    if (type) return bevat(type, suiker);
+    return bevat(cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(m, "name")), suiker);
 }
 
 /* De lijst met mout in het recept van de webapp (naam nog niet vast) */
@@ -145,6 +174,7 @@ const char *recept_omzetten(const cJSON *data, char **uit)
     const cJSON *m;
     cJSON_ArrayForEach(m, mout_lijst(data)) {
         if (n_mout >= MAX_MOUT) break;   // de rest past niet op het scherm
+        if (is_suiker(m)) continue;      // gaat pas in de kook
         const char *mnaam = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(m, "name"));
         char hv[24], tekst[96];
         hoeveelheid(hv, sizeof hv, m);
